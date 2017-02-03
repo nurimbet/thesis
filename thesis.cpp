@@ -1,4 +1,3 @@
-// Default Projection est, pdst, KPIECE
 #include <dart/dart.h>
 #include <ompl/config.h>
 #include <ompl/base/spaces/RealVectorStateSpace.h>
@@ -63,14 +62,14 @@ class Simple3DEnvironment {
             ss_->setPlanner(ob::PlannerPtr(new og::PRM(ss_->getSpaceInformation())));
         }
 
-        bool plan(const Eigen::Vector3d &init, const Eigen::Vector3d & final) {
+        bool plan(const Eigen::VectorXd &init, const Eigen::VectorXd & final) {
             if (!ss_) return false;
 
             ob::ScopedState<> start(ss_->getStateSpace());
-            for (std::size_t i = 0; i < 3; ++i) start[i] = init[i];
+            for (std::size_t i = 0; i < DIM; ++i) start[i] = init[i] * M_PI / 180.0;
 
             ob::ScopedState<> goal(ss_->getStateSpace());
-            for (std::size_t i = 0; i < 3; ++i) goal[i] = final[i];
+            for (std::size_t i = 0; i < DIM; ++i) goal[i] = final[i] * M_PI / 180.0;
 
             ss_->setStartAndGoalStates(start, goal);
 
@@ -177,8 +176,13 @@ int main(int argc, char* argv[])
 //    staubli->getDof(4)->setPosition(290 * M_PI / 180.0); 
 ////    staubli->getDof(6)->setPosition(290 * M_PI / 180.0); 
     
-    Eigen::Vector3d start(0, 0, 0);
-    Eigen::Vector3d finish(90 * M_PI / 180.0, 90 * M_PI / 180.0, 90 * M_PI / 180.0);
+
+/*
+    Eigen::VectorXd start(6);
+    start << 0,0,0,0,0,0;
+    
+    Eigen::VectorXd finish(6);
+    finish << 90, 90, 90, 90, 90, 90;
 
     Simple3DEnvironment env;
     env.setWorld(world);
@@ -197,20 +201,23 @@ int main(int argc, char* argv[])
 
             while (!fin.eof()) 
             {
-                float x, y, z;
+                float j1, j2, j3, j4, j5, j6;
                 //float rx, ry, rz, rw;
-                fin >> x >> y >> z ;
+                fin >> j1 >> j2 >> j3 >> j4 >> j5 >> j6;
 
-                staubli->getDof(2)->setPosition(x); 
-                staubli->getDof(3)->setPosition(y); 
-                staubli->getDof(4)->setPosition(z); 
+                staubli->getDof(2)->setPosition(j1); 
+                staubli->getDof(3)->setPosition(j2); 
+                staubli->getDof(4)->setPosition(j3); 
+                staubli->getDof(5)->setPosition(j4); 
+                staubli->getDof(6)->setPosition(j5); 
+                staubli->getDof(7)->setPosition(j6); 
                  
                 std::this_thread::sleep_for(std::chrono::milliseconds(5));
             }
             std::this_thread::sleep_for(std::chrono::seconds(2));
         }
     });
-
+*/
     MyWindow window(world);
 
     glutInit(&argc, argv);
@@ -218,7 +225,7 @@ int main(int argc, char* argv[])
 
     glutMainLoop();
 
-    t.join();
+//    t.join();
 
     return 0;
 }

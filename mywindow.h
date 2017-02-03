@@ -16,6 +16,7 @@ class MyWindow : public dart::gui::SimWindow {
   MyWindow(const ds::WorldPtr& world);
 
   /// fixes rendering
+  void keyboard(unsigned char key, int x, int y) override;
   void drawSkels() override;
   void setViewTrack(const Eigen::Vector3d& v, const Eigen::Quaterniond &rot);
  private:
