@@ -177,12 +177,12 @@ int main(int argc, char* argv[])
 ////    staubli->getDof(6)->setPosition(290 * M_PI / 180.0); 
     
 
-/*
+
     Eigen::VectorXd start(6);
     start << 0,0,0,0,0,0;
     
     Eigen::VectorXd finish(6);
-    finish << 90, 90, 90, 90, 90, 90;
+    finish << 10, -110, -60, 0, 0, 0;
 
     Simple3DEnvironment env;
     env.setWorld(world);
@@ -195,8 +195,8 @@ int main(int argc, char* argv[])
     std::thread t([&]()
     {
         // std::this_thread::sleep_for(std::chrono::seconds(1));
-        while (true) 
-        {
+        //while (true) 
+        //{
             std::ifstream fin("result.txt");
 
             while (!fin.eof()) 
@@ -214,10 +214,9 @@ int main(int argc, char* argv[])
                  
                 std::this_thread::sleep_for(std::chrono::milliseconds(5));
             }
-            std::this_thread::sleep_for(std::chrono::seconds(2));
-        }
+        //}
     });
-*/
+
     MyWindow window(world);
 
     glutInit(&argc, argv);
@@ -225,7 +224,7 @@ int main(int argc, char* argv[])
 
     glutMainLoop();
 
-//    t.join();
+    t.join();
 
     return 0;
 }

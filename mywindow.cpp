@@ -4,8 +4,12 @@ namespace dd = dart::dynamics;
 MyWindow::MyWindow(const ds::WorldPtr& world) 
 { 
     setWorld(world); 
-    mZoom = 0.040;
+    mZoom = 0.20;
     mTranslate = true;
+    mTrans = -Eigen::Vector3d(0.15,0.15,1.5)*1000;
+    Eigen::Quaterniond quat( 0.854,  -0.354, 0.146,  0.354);
+
+    mTrackBall.setQuaternion(quat);
 }
 void MyWindow::keyboard(unsigned char key, int x, int y)
 {
@@ -64,6 +68,22 @@ void MyWindow::keyboard(unsigned char key, int x, int y)
         default:
             SimWindow::keyboard(key, x, y);
     }
+    double j1, j2, j3, j4, j5, j6;
+    j1 = staubli->getDof(2)->getPosition(); 
+    j2 = staubli->getDof(3)->getPosition(); 
+    j3 = staubli->getDof(4)->getPosition(); 
+    j4 = staubli->getDof(5)->getPosition(); 
+    j5 = staubli->getDof(6)->getPosition(); 
+    j6 = staubli->getDof(7)->getPosition(); 
+    std::cout << "\r" <<
+    std::setw(8) << std::setfill(' ') << j1 << " " 
+    << std::setw(8) << j2 << " " 
+    << std::setw(8) << j3 << " " 
+    << std::setw(8) << j4 << " " 
+    << std::setw(8) << j5 << " " 
+    << std::setw(8) << j6 << " " << std::flush;
+
+
 }
 
 void MyWindow::drawSkels() {

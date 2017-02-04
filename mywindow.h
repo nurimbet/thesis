@@ -3,6 +3,7 @@
 
 #include <dart/dart.h>
 #include <Eigen/Eigen>
+#include <iomanip>
 
 namespace ds = dart::simulation;
 namespace dg = dart::gui;
