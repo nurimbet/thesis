@@ -3,6 +3,7 @@
 #include <ompl/base/spaces/RealVectorStateSpace.h>
 #include <ompl/geometric/SimpleSetup.h>
 #include <ompl/geometric/planners/prm/PRM.h>
+#include <ompl/geometric/planners/rrt/RRTstar.h>
 #include <Eigen/Eigen>
 
 #include "config.h"
@@ -59,7 +60,7 @@ class Simple3DEnvironment {
             space->setup();
             ss_->getSpaceInformation()->setStateValidityCheckingResolution(
                     1.0 / space->getMaximumExtent());
-            ss_->setPlanner(ob::PlannerPtr(new og::PRM(ss_->getSpaceInformation())));
+            ss_->setPlanner(ob::PlannerPtr(new og::RRTstar(ss_->getSpaceInformation())));
         }
 
         bool plan(const Eigen::VectorXd &init, const Eigen::VectorXd & final) {
@@ -74,7 +75,7 @@ class Simple3DEnvironment {
             ss_->setStartAndGoalStates(start, goal);
 
             // this will run the algorithm for one second
-            ss_->solve();
+            ss_->solve(100);
 
             // ss_->solve(1000); // it will run for 1000 seconds
 
@@ -161,7 +162,7 @@ int main(int argc, char* argv[])
 {
     ds::WorldPtr world = std::make_shared<ds::World>();
     world->getConstraintSolver()->setCollisionDetector(
-            new dc::BulletCollisionDetector());
+            new dc::FCLCollisionDetector());
     //    world->setGravity(Eigen::Vector3d(0.0, 0.0, -9.8));
 
     std::string prefix = getWorkingDirectory();
@@ -169,20 +170,28 @@ int main(int argc, char* argv[])
     dd::SkeletonPtr staubli = du::SdfParser::readSkeleton(prefix + std::string("/model.sdf"));
     staubli->setName("staubli");
     setAllColors(staubli, Eigen::Vector3d(0.57, 0.6, 0.67));
+    staubli->enableSelfCollision();
+    dd::SkeletonPtr ball = dd::Skeleton::create("ball");
+    Eigen::Isometry3d tf(Eigen::Isometry3d::Identity());
+
+    tf.translation() = Eigen::Vector3d(-0.25, 0,1.75);
+    createBall(ball, Eigen::Vector3d(0.15,0.15,0.15), tf);
 
     world->addSkeleton(staubli);
+    world->addSkeleton(ball);
     
 //    staubli->getDof(3)->setPosition(290 * M_PI / 180.0); 
 //    staubli->getDof(4)->setPosition(290 * M_PI / 180.0); 
 ////    staubli->getDof(6)->setPosition(290 * M_PI / 180.0); 
     
 
+    if (argc < 2) {
 
     Eigen::VectorXd start(6);
     start << 0,0,0,0,0,0;
     
     Eigen::VectorXd finish(6);
-    finish << 10, -110, -60, 0, 0, 0;
+    finish << 0, -67, -144, 0, 0, 0;
 
     Simple3DEnvironment env;
     env.setWorld(world);
@@ -191,7 +200,7 @@ int main(int argc, char* argv[])
     {
         env.recordSolution();
     }
-
+    }
     std::thread t([&]()
     {
         // std::this_thread::sleep_for(std::chrono::seconds(1));
