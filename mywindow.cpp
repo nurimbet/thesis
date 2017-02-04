@@ -15,66 +15,67 @@ void MyWindow::keyboard(unsigned char key, int x, int y)
 {
         dd::SkeletonPtr staubli = mWorld->getSkeleton("staubli");
         double j  = 0; 
+        double k = M_PI / 180.0;
     switch(key)
     {
         case '1':
             j = staubli->getDof(2)->getPosition(); 
-            staubli->getDof(2)->setPosition(j+M_PI/18.0); 
+            staubli->getDof(2)->setPosition(j+k); 
             break;
         case '2':
             j = staubli->getDof(3)->getPosition(); 
-            staubli->getDof(3)->setPosition(j+M_PI/18.0); 
+            staubli->getDof(3)->setPosition(j+k); 
             break;
         case '3':
             j = staubli->getDof(4)->getPosition(); 
-            staubli->getDof(4)->setPosition(j+M_PI/18.0); 
+            staubli->getDof(4)->setPosition(j+k); 
             break;
         case '4':
             j = staubli->getDof(5)->getPosition(); 
-            staubli->getDof(5)->setPosition(j+M_PI/18.0); 
+            staubli->getDof(5)->setPosition(j+k); 
             break;
         case '5':
             j = staubli->getDof(6)->getPosition(); 
-            staubli->getDof(6)->setPosition(j+M_PI/18.0); 
+            staubli->getDof(6)->setPosition(j+k); 
             break;
         case '6':
             j = staubli->getDof(7)->getPosition(); 
-            staubli->getDof(7)->setPosition(j+M_PI/18.0); 
+            staubli->getDof(7)->setPosition(j+k); 
             break;
         case '!':
             j = staubli->getDof(2)->getPosition(); 
-            staubli->getDof(2)->setPosition(j-M_PI/18.0); 
+            staubli->getDof(2)->setPosition(j-k); 
             break;
         case '@':
             j = staubli->getDof(3)->getPosition(); 
-            staubli->getDof(3)->setPosition(j-M_PI/18.0); 
+            staubli->getDof(3)->setPosition(j-k); 
             break;
         case '#':
             j = staubli->getDof(4)->getPosition(); 
-            staubli->getDof(4)->setPosition(j-M_PI/18.0); 
+            staubli->getDof(4)->setPosition(j-k); 
             break;
         case '$':
             j = staubli->getDof(5)->getPosition(); 
-            staubli->getDof(5)->setPosition(j-M_PI/18.0); 
+            staubli->getDof(5)->setPosition(j-k); 
             break;
         case '%':
             j = staubli->getDof(6)->getPosition(); 
-            staubli->getDof(6)->setPosition(j-M_PI/18.0); 
+            staubli->getDof(6)->setPosition(j-k); 
             break;
         case '^':
             j = staubli->getDof(7)->getPosition(); 
-            staubli->getDof(7)->setPosition(j-M_PI/18.0); 
+            staubli->getDof(7)->setPosition(j-k); 
             break;
         default:
             SimWindow::keyboard(key, x, y);
     }
     double j1, j2, j3, j4, j5, j6;
-    j1 = staubli->getDof(2)->getPosition(); 
-    j2 = staubli->getDof(3)->getPosition(); 
-    j3 = staubli->getDof(4)->getPosition(); 
-    j4 = staubli->getDof(5)->getPosition(); 
-    j5 = staubli->getDof(6)->getPosition(); 
-    j6 = staubli->getDof(7)->getPosition(); 
+    j1 = staubli->getDof(2)->getPosition() * 180 / M_PI; 
+    j2 = staubli->getDof(3)->getPosition()* 180 / M_PI; 
+    j3 = staubli->getDof(4)->getPosition()* 180 / M_PI; 
+    j4 = staubli->getDof(5)->getPosition()* 180 / M_PI; 
+    j5 = staubli->getDof(6)->getPosition()* 180 / M_PI; 
+    j6 = staubli->getDof(7)->getPosition()* 180 / M_PI; 
     std::cout << "\r" <<
     std::setw(8) << std::setfill(' ') << j1 << " " 
     << std::setw(8) << j2 << " " 
