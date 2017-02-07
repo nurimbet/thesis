@@ -19,7 +19,7 @@ class MyWindow : public dart::gui::SimWindow {
   /// fixes rendering
   void keyboard(unsigned char key, int x, int y) override;
   void drawSkels() override;
-  void setViewTrack(const Eigen::Vector3d& v, const Eigen::Quaterniond &rot);
+  void setViewTrack(double j1,double j2,double j3,double j4,double j5,double j6);
  private:
  std::mutex readMutex;
 };

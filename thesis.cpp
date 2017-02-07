@@ -98,10 +98,13 @@ class Simple3DEnvironment {
             resultfile.open("result.txt", std::ios::trunc);
             for (std::size_t i = 0 ; i < p.getStateCount() ; ++i)
             {
-                const double x = (double)p.getState(i)->as<ob::RealVectorStateSpace::StateType>()->values[0];
-                const double y = (double)p.getState(i)->as<ob::RealVectorStateSpace::StateType>()->values[1];
-                const double z = (double)p.getState(i)->as<ob::RealVectorStateSpace::StateType>()->values[2];
-                resultfile << x << " " << y << " " << z << std::endl; 
+                const double j1 = (double)p.getState(i)->as<ob::RealVectorStateSpace::StateType>()->values[0];
+                const double j2 = (double)p.getState(i)->as<ob::RealVectorStateSpace::StateType>()->values[1];
+                const double j3 = (double)p.getState(i)->as<ob::RealVectorStateSpace::StateType>()->values[2];
+                const double j4 = (double)p.getState(i)->as<ob::RealVectorStateSpace::StateType>()->values[3];
+                const double j5 = (double)p.getState(i)->as<ob::RealVectorStateSpace::StateType>()->values[4];
+                const double j6 = (double)p.getState(i)->as<ob::RealVectorStateSpace::StateType>()->values[5];
+                resultfile << j1 << " " << j2 << " " << j3 << " " << j4 << " " << j5 << " " << j6<< std::endl; 
             }
             resultfile.close();
 
@@ -169,7 +172,7 @@ int main(int argc, char* argv[])
 
     dd::SkeletonPtr staubli = du::SdfParser::readSkeleton(prefix + std::string("/model.sdf"));
     staubli->setName("staubli");
-    setAllColors(staubli, Eigen::Vector3d(0.57, 0.6, 0.67));
+    setAllColors(staubli, Eigen::Vector3d(0.9, 0.9, 0.9));
     staubli->enableSelfCollision();
     dd::SkeletonPtr ball = dd::Skeleton::create("ball");
     Eigen::Isometry3d tf(Eigen::Isometry3d::Identity());
@@ -201,6 +204,10 @@ int main(int argc, char* argv[])
         env.recordSolution();
     }
     }
+
+    MyWindow window(world);
+    double j1, j2, j3, j4, j5, j6 = 0;
+
     std::thread t([&]()
     {
         // std::this_thread::sleep_for(std::chrono::seconds(1));
@@ -210,7 +217,6 @@ int main(int argc, char* argv[])
 
             while (!fin.eof()) 
             {
-                float j1, j2, j3, j4, j5, j6;
                 //float rx, ry, rz, rw;
                 fin >> j1 >> j2 >> j3 >> j4 >> j5 >> j6;
 
@@ -221,12 +227,12 @@ int main(int argc, char* argv[])
                 staubli->getDof(6)->setPosition(j5); 
                 staubli->getDof(7)->setPosition(j6); 
                  
+//                window.setViewTrack(j1,j2,j3,j4, j5, j6);
                 std::this_thread::sleep_for(std::chrono::milliseconds(5));
             }
         //}
     });
 
-    MyWindow window(world);
 
     glutInit(&argc, argv);
     window.initWindow(640 * 2, 480 * 2, "SDF");
