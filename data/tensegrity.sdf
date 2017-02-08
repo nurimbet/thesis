@@ -1,0 +1,199 @@
+<sdf version='1.6'>
+  <model name=''>
+    <link name='base_link'>
+      <pose frame=''>0 0 0 0 -0 0</pose>
+      <inertial>
+        <pose frame=''>1.34134 -1.41153 1.55667 0 -0 0</pose>
+        <mass>114.95</mass>
+        <inertia>
+          <ixx>226.232</ixx>
+          <ixy>-1.2564</ixy>
+          <ixz>1.98609</ixz>
+          <iyy>39.5371</iyy>
+          <iyz>-57.7655</iyz>
+          <izz>203.271</izz>
+        </inertia>
+      </inertial>
+      <collision name='base_link_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://meshes/base_link.STL</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <collision name='base_link_fixed_joint_lump__Table_collision_1'>
+        <pose frame=''>1.30014 -2.31857 1.17965 1.5708 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://meshes/Table.STL</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <collision name='base_link_fixed_joint_lump__robot_base_collision_2'>
+        <pose frame=''>1.30014 -2.31857 1.17965 -3.14159 0 -1.5708</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://meshes/robot_base.STL</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <collision name='base_link_fixed_joint_lump__First_link_collision_3'>
+        <pose frame=''>1.29654 -2.28557 1.66489 -0 -0 1.07797</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://meshes/First_link.STL</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <collision name='base_link_fixed_joint_lump__second_Link_collision_4'>
+        <pose frame=''>1.32108 -2.242 1.66489 1.5708 1.30834 -2.06363</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://meshes/second_Link.STL</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <collision name='base_link_fixed_joint_lump__Third_link_collision_5'>
+        <pose frame=''>1.57315 -1.66483 1.49625 1.5708 0.859078 -2.06363</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://meshes/Third_link.STL</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <collision name='base_link_fixed_joint_lump__Fourth_link_collision_6'>
+        <pose frame=''>1.57315 -1.66483 1.49625 2.28904 -0.122427 2.54244</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://meshes/Fourth_link.STL</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <collision name='base_link_fixed_joint_lump__Fifth_link_collision_7'>
+        <pose frame=''>1.80508 -1.2325 1.07139 0.706965 0.179195 2.20824</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://meshes/Fifth_link.STL</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <collision name='base_link_fixed_joint_lump__gripper_collision_8'>
+        <pose frame=''>1.73762 -1.11833 1.04212 2.93592 -0.509996 0.738941</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://meshes/gripper.STL</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <collision name='base_link_fixed_joint_lump__tensegrity_collision_9'>
+        <pose frame=''>-0.553725 -3.39423 2.25256 2.35619 0 1.5708</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://meshes/tensegrity.STL</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='base_link_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://meshes/base_link.STL</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <visual name='base_link_fixed_joint_lump__Table_visual_1'>
+        <pose frame=''>1.30014 -2.31857 1.17965 1.5708 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://meshes/Table.STL</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <visual name='base_link_fixed_joint_lump__robot_base_visual_2'>
+        <pose frame=''>1.30014 -2.31857 1.17965 -3.14159 0 -1.5708</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://meshes/robot_base.STL</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <visual name='base_link_fixed_joint_lump__First_link_visual_3'>
+        <pose frame=''>1.29654 -2.28557 1.66489 -0 -0 1.07797</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://meshes/First_link.STL</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <visual name='base_link_fixed_joint_lump__second_Link_visual_4'>
+        <pose frame=''>1.32108 -2.242 1.66489 1.5708 1.30834 -2.06363</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://meshes/second_Link.STL</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <visual name='base_link_fixed_joint_lump__Third_link_visual_5'>
+        <pose frame=''>1.57315 -1.66483 1.49625 1.5708 0.859078 -2.06363</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://meshes/Third_link.STL</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <visual name='base_link_fixed_joint_lump__Fourth_link_visual_6'>
+        <pose frame=''>1.57315 -1.66483 1.49625 2.28904 -0.122427 2.54244</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://meshes/Fourth_link.STL</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <visual name='base_link_fixed_joint_lump__Fifth_link_visual_7'>
+        <pose frame=''>1.80508 -1.2325 1.07139 0.706965 0.179195 2.20824</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://meshes/Fifth_link.STL</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <visual name='base_link_fixed_joint_lump__gripper_visual_8'>
+        <pose frame=''>1.73762 -1.11833 1.04212 2.93592 -0.509996 0.738941</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://meshes/gripper.STL</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <visual name='base_link_fixed_joint_lump__tensegrity_visual_9'>
+        <pose frame=''>-0.553725 -3.39423 2.25256 2.35619 0 1.5708</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://meshes/tensegrity.STL</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+  </model>
+</sdf>
