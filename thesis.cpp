@@ -172,6 +172,10 @@ int main(int argc, char* argv[])
 
     dd::SkeletonPtr staubli = du::SdfParser::readSkeleton(prefix + std::string("/model.sdf"));
     staubli->setName("staubli");
+
+    dd::SkeletonPtr tensegrity = du::SdfParser::readSkeleton(prefix + std::string("/tensegrity.sdf"));
+    tensegrity->setName("tensegrity");
+
     setAllColors(staubli, Eigen::Vector3d(0.9, 0.9, 0.9));
     staubli->enableSelfCollision();
     dd::SkeletonPtr ball = dd::Skeleton::create("ball");
@@ -181,6 +185,7 @@ int main(int argc, char* argv[])
     createBall(ball, Eigen::Vector3d(0.15,0.15,0.15), tf);
 
     world->addSkeleton(staubli);
+    world->addSkeleton(tensegrity);
     world->addSkeleton(ball);
     
 //    staubli->getDof(3)->setPosition(290 * M_PI / 180.0); 
@@ -227,7 +232,7 @@ int main(int argc, char* argv[])
                 staubli->getDof(6)->setPosition(j5); 
                 staubli->getDof(7)->setPosition(j6); 
                  
-//                window.setViewTrack(j1,j2,j3,j4, j5, j6);
+                window.setViewTrack(j1,j2,j3,j4, j5, j6);
                 std::this_thread::sleep_for(std::chrono::milliseconds(5));
             }
         //}

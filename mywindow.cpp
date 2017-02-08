@@ -225,13 +225,13 @@ void MyWindow::drawSkels() {
 
 }
 
-  void setViewTrack(double j1,double j2,double j3,double j4,double j5,double j6){
+  void MyWindow::setViewTrack(double j1,double j2,double j3,double j4,double j5,double j6){
     
-    jj1 = j1; 
-    jj2 = j2; 
-    jj3 = j3; 
-    jj4 = j4; 
-    jj5 = j5; 
-    jj6 = j6; 
+    jj1 = j1 * 180 / M_PI; 
+    jj2 = j2 * 180 / M_PI; 
+    jj3 = j3 * 180 / M_PI; 
+    jj4 = j4 * 180 / M_PI; 
+    jj5 = j5 * 180 / M_PI; 
+    jj6 = j6 * 180 / M_PI; 
 
 }
