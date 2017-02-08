@@ -75,7 +75,7 @@ class Simple3DEnvironment {
             ss_->setStartAndGoalStates(start, goal);
 
             // this will run the algorithm for one second
-            ss_->solve(100);
+            ss_->solve(60 * 10);
 
             // ss_->solve(1000); // it will run for 1000 seconds
 
@@ -178,15 +178,17 @@ int main(int argc, char* argv[])
 
     setAllColors(staubli, Eigen::Vector3d(0.9, 0.9, 0.9));
     staubli->enableSelfCollision();
+/*
     dd::SkeletonPtr ball = dd::Skeleton::create("ball");
     Eigen::Isometry3d tf(Eigen::Isometry3d::Identity());
 
     tf.translation() = Eigen::Vector3d(-0.25, 0,1.75);
     createBall(ball, Eigen::Vector3d(0.15,0.15,0.15), tf);
 
+    world->addSkeleton(ball);
+*/
     world->addSkeleton(staubli);
     world->addSkeleton(tensegrity);
-    world->addSkeleton(ball);
     
 //    staubli->getDof(3)->setPosition(290 * M_PI / 180.0); 
 //    staubli->getDof(4)->setPosition(290 * M_PI / 180.0); 

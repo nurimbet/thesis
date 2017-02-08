@@ -186,6 +186,7 @@ void MyWindow::keyboard(unsigned char key, int x, int y)
     jj4 = j4; 
     jj5 = j5; 
     jj6 = j6; 
+    /*
     std::cout << "\r" <<
         std::setw(8) << std::setfill(' ') << j1 << " " 
         << std::setw(8) << j2 << " " 
@@ -193,6 +194,7 @@ void MyWindow::keyboard(unsigned char key, int x, int y)
         << std::setw(8) << j4 << " " 
         << std::setw(8) << j5 << " " 
         << std::setw(8) << j6 << " " << std::flush;
+    */
 
 
 }
