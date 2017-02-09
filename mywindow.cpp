@@ -226,15 +226,15 @@ void MyWindow::drawSkels() {
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     
 
-    double x,y,z;
+    double x,y,z,ign;
     glLineWidth(1); 
     glBegin(GL_LINES);
     glColor3f(0, 0, 0);
     std::ifstream fin_to("endeffector.txt");
-    fin_to >> x >> y >> z ;
+    fin_to >> x >> y >> z >> ign >> ign >> ign >> ign;
     glVertex3f(x, y, z);
     while(!fin_to.eof()){
-        fin_to >> x >> y >> z;
+        fin_to >> x >> y >> z >> ign >> ign >> ign >> ign;
 
         glVertex3f(x, y, z);
         glVertex3f(x, y, z);

@@ -119,10 +119,13 @@ class Simple3DEnvironment {
                 staubli->getDof(7)->setPosition(j6); 
 
                 Eigen::Isometry3d transform = staubli->getBodyNode("toolflange_link")->getTransform();
+                Eigen::Quaterniond quat(transform.rotation());
                 Eigen::Vector3d tr = transform.translation();
 
                 resultfile << j1 << " " << j2 << " " << j3 << " " << j4 << " " << j5 << " " << j6<< std::endl; 
-                endeffectorfile << tr(0) << " " << tr(1) << " " << tr(2) << " " << std::endl;
+                endeffectorfile << tr(0) << " " << tr(1) << " " << tr(2)
+                << " " << quat.w() << " " << quat.x() << " " << quat.y() << " " << quat.z() 
+                << std::endl;
             }
             resultfile.close();
 
