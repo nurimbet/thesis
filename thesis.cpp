@@ -75,7 +75,7 @@ class Simple3DEnvironment {
             ss_->setStartAndGoalStates(start, goal);
 
             // this will run the algorithm for one second
-            ss_->solve(60 * 10);
+            ss_->solve(60 * 1);
 
             // ss_->solve(1000); // it will run for 1000 seconds
 
@@ -96,6 +96,10 @@ class Simple3DEnvironment {
             p.interpolate(1000);
             std::ofstream resultfile;
             resultfile.open("result.txt", std::ios::trunc);
+
+            std::ofstream endeffectorfile;
+            endeffectorfile.open("endeffector.txt", std::ios::trunc);
+
             for (std::size_t i = 0 ; i < p.getStateCount() ; ++i)
             {
                 const double j1 = (double)p.getState(i)->as<ob::RealVectorStateSpace::StateType>()->values[0];
@@ -104,7 +108,21 @@ class Simple3DEnvironment {
                 const double j4 = (double)p.getState(i)->as<ob::RealVectorStateSpace::StateType>()->values[3];
                 const double j5 = (double)p.getState(i)->as<ob::RealVectorStateSpace::StateType>()->values[4];
                 const double j6 = (double)p.getState(i)->as<ob::RealVectorStateSpace::StateType>()->values[5];
+                
+                dd::SkeletonPtr staubli = world_->getSkeleton("staubli");
+
+                staubli->getDof(2)->setPosition(j1); 
+                staubli->getDof(3)->setPosition(j2); 
+                staubli->getDof(4)->setPosition(j3); 
+                staubli->getDof(5)->setPosition(j4); 
+                staubli->getDof(6)->setPosition(j5); 
+                staubli->getDof(7)->setPosition(j6); 
+
+                Eigen::Isometry3d transform = staubli->getBodyNode("toolflange_link")->getTransform();
+                Eigen::Vector3d tr = transform.translation();
+
                 resultfile << j1 << " " << j2 << " " << j3 << " " << j4 << " " << j5 << " " << j6<< std::endl; 
+                endeffectorfile << tr(0) << " " << tr(1) << " " << tr(2) << " " << std::endl;
             }
             resultfile.close();
 
@@ -117,14 +135,20 @@ class Simple3DEnvironment {
 
     private:
         bool isStateValid(const ob::State *state) const {
-            double x = state->as<ompl::base::RealVectorStateSpace::StateType>()->values[0]; 
-            double y = state->as<ompl::base::RealVectorStateSpace::StateType>()->values[1]; 
-            double z = state->as<ompl::base::RealVectorStateSpace::StateType>()->values[2]; 
+            double j1 = state->as<ompl::base::RealVectorStateSpace::StateType>()->values[0]; 
+            double j2 = state->as<ompl::base::RealVectorStateSpace::StateType>()->values[1]; 
+            double j3 = state->as<ompl::base::RealVectorStateSpace::StateType>()->values[2]; 
+            double j4 = state->as<ompl::base::RealVectorStateSpace::StateType>()->values[3]; 
+            double j5 = state->as<ompl::base::RealVectorStateSpace::StateType>()->values[4]; 
+            double j6 = state->as<ompl::base::RealVectorStateSpace::StateType>()->values[5]; 
             dd::SkeletonPtr staubli = world_->getSkeleton("staubli");
 
-            staubli->getDof(2)->setPosition(x); 
-            staubli->getDof(3)->setPosition(y); 
-            staubli->getDof(4)->setPosition(z); 
+            staubli->getDof(2)->setPosition(j1); 
+            staubli->getDof(3)->setPosition(j2); 
+            staubli->getDof(4)->setPosition(j3); 
+            staubli->getDof(5)->setPosition(j4); 
+            staubli->getDof(6)->setPosition(j5); 
+            staubli->getDof(7)->setPosition(j6); 
 
             return !world_->checkCollision();
 

@@ -1,4 +1,6 @@
 #include "mywindow.h"
+#include <fstream>
+#include <iostream>
 namespace dd = dart::dynamics;
 
 constexpr double jointMax1 = 3.1416;
@@ -222,13 +224,30 @@ void MyWindow::drawSkels() {
     // Make sure lighting is turned on and that polygons get filled in
     glEnable(GL_LIGHTING);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    
+
+    double x,y,z;
+    glLineWidth(1); 
+    glBegin(GL_LINES);
+    glColor3f(0, 0, 0);
+    std::ifstream fin_to("endeffector.txt");
+    fin_to >> x >> y >> z ;
+    glVertex3f(x, y, z);
+    while(!fin_to.eof()){
+        fin_to >> x >> y >> z;
+
+        glVertex3f(x, y, z);
+        glVertex3f(x, y, z);
+
+    }
+    glEnd();
 
     SimWindow::drawSkels();
 
 }
 
-  void MyWindow::setViewTrack(double j1,double j2,double j3,double j4,double j5,double j6){
-    
+void MyWindow::setViewTrack(double j1,double j2,double j3,double j4,double j5,double j6){
+
     jj1 = j1 * 180 / M_PI; 
     jj2 = j2 * 180 / M_PI; 
     jj3 = j3 * 180 / M_PI; 
