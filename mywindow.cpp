@@ -18,6 +18,7 @@ constexpr double jointMin5 = -2.0071;
 constexpr double jointMin6 = -4.7124;
 
 double jj1, jj2, jj3, jj4, jj5, jj6 =0;
+bool lines = true;
 
 MyWindow::MyWindow(const ds::WorldPtr& world) 
 { 
@@ -171,6 +172,12 @@ void MyWindow::keyboard(unsigned char key, int x, int y)
                 }
             }
             break;
+        case 'q':
+            lines  = false;
+            break;
+        case 'w':
+            lines  = true;
+            break;
         default:
             SimWindow::keyboard(key, x, y);
     }
@@ -189,14 +196,14 @@ void MyWindow::keyboard(unsigned char key, int x, int y)
     jj5 = j5; 
     jj6 = j6; 
     /*
-    std::cout << "\r" <<
-        std::setw(8) << std::setfill(' ') << j1 << " " 
-        << std::setw(8) << j2 << " " 
-        << std::setw(8) << j3 << " " 
-        << std::setw(8) << j4 << " " 
-        << std::setw(8) << j5 << " " 
-        << std::setw(8) << j6 << " " << std::flush;
-    */
+       std::cout << "\r" <<
+       std::setw(8) << std::setfill(' ') << j1 << " " 
+       << std::setw(8) << j2 << " " 
+       << std::setw(8) << j3 << " " 
+       << std::setw(8) << j4 << " " 
+       << std::setw(8) << j5 << " " 
+       << std::setw(8) << j6 << " " << std::flush;
+     */
 
 
 }
@@ -224,24 +231,26 @@ void MyWindow::drawSkels() {
     // Make sure lighting is turned on and that polygons get filled in
     glEnable(GL_LIGHTING);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    
 
-    double x,y,z,ign;
-    glLineWidth(1); 
-    glBegin(GL_LINES);
-    glColor3f(0, 0, 0);
-    std::ifstream fin_to("endeffector.txt");
-    fin_to >> x >> y >> z >> ign >> ign >> ign >> ign;
-    glVertex3f(x, y, z);
-    while(!fin_to.eof()){
+
+    if (lines)  
+    {
+        double x,y,z,ign;
+        glLineWidth(3); 
+        glBegin(GL_LINES);
+        glColor3f(0, 0, 0);
+        std::ifstream fin_to("endeffector.txt");
         fin_to >> x >> y >> z >> ign >> ign >> ign >> ign;
-
         glVertex3f(x, y, z);
-        glVertex3f(x, y, z);
+        while(!fin_to.eof()){
+            fin_to >> x >> y >> z >> ign >> ign >> ign >> ign;
 
+            glVertex3f(x, y, z);
+            glVertex3f(x, y, z);
+
+        }
+        glEnd();
     }
-    glEnd();
-
     SimWindow::drawSkels();
 
 }
