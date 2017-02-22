@@ -14,7 +14,7 @@
    id="svg281840"
    version="1.1"
    inkscape:version="0.48.4 r9939"
-   sodipodi:docname="New document 20">
+   sodipodi:docname="tx90xlDimentions.svg">
   <defs
      id="defs281842">
     <clipPath
@@ -4314,16 +4314,16 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.8101934"
-     inkscape:cx="86.461539"
-     inkscape:cy="191.01371"
+     inkscape:cx="174.29082"
+     inkscape:cy="133.03327"
      inkscape:document-units="px"
-     inkscape:current-layer="g327607"
+     inkscape:current-layer="g358924"
      showgrid="false"
-     inkscape:window-width="927"
-     inkscape:window-height="1028"
+     inkscape:window-width="1855"
+     inkscape:window-height="1056"
      inkscape:window-x="65"
      inkscape:window-y="24"
-     inkscape:window-maximized="0" />
+     inkscape:window-maximized="1" />
   <metadata
      id="metadata281845">
     <rdf:RDF>
@@ -4332,7 +4332,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -4583,7 +4583,7 @@
           </g>
           <g
              id="g327247"
-             transform="translate(-231.41426,-193.57607)">
+             transform="translate(-229.42552,-194.23898)">
             <path
                inkscape:connector-curvature="0"
                d="m 0,0 -33.753,0 m 1.961,-13.724 0,18.628"
