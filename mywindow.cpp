@@ -17,8 +17,10 @@ constexpr double jointMin4 = -4.7124;
 constexpr double jointMin5 = -2.0071;
 constexpr double jointMin6 = -4.7124;
 
+
 double jj1, jj2, jj3, jj4, jj5, jj6 =0;
 bool lines = true;
+bool col = true;
 
 MyWindow::MyWindow(const ds::WorldPtr& world) 
 { 
@@ -50,6 +52,8 @@ void MyWindow::keyboard(unsigned char key, int x, int y)
                     staubli->getDof(2)->setPosition(j); 
                 }
             }
+            if (!col)
+            staubli->getDof(2)->setPosition(j+k); 
             break;
         case '2':
             j = staubli->getDof(3)->getPosition(); 
@@ -61,6 +65,8 @@ void MyWindow::keyboard(unsigned char key, int x, int y)
                     staubli->getDof(3)->setPosition(j); 
                 }
             }
+            if (!col)
+            staubli->getDof(3)->setPosition(j+k); 
             break;
         case '3':
             j = staubli->getDof(4)->getPosition(); 
@@ -72,6 +78,8 @@ void MyWindow::keyboard(unsigned char key, int x, int y)
                     staubli->getDof(4)->setPosition(j); 
                 }
             }
+            if (!col)
+            staubli->getDof(4)->setPosition(j+k); 
             break;
         case '4':
             j = staubli->getDof(5)->getPosition(); 
@@ -83,6 +91,8 @@ void MyWindow::keyboard(unsigned char key, int x, int y)
                     staubli->getDof(5)->setPosition(j); 
                 }
             }
+            if (!col)
+            staubli->getDof(5)->setPosition(j+k); 
             break;
         case '5':
             j = staubli->getDof(6)->getPosition(); 
@@ -94,6 +104,8 @@ void MyWindow::keyboard(unsigned char key, int x, int y)
                     staubli->getDof(6)->setPosition(j); 
                 }
             }
+            if (!col)
+            staubli->getDof(6)->setPosition(j+k); 
             break;
         case '6':
             j = staubli->getDof(7)->getPosition(); 
@@ -105,6 +117,8 @@ void MyWindow::keyboard(unsigned char key, int x, int y)
                     staubli->getDof(7)->setPosition(j); 
                 }
             }
+            if (!col)
+            staubli->getDof(7)->setPosition(j+k); 
             break;
         case '!':
             j = staubli->getDof(2)->getPosition(); 
@@ -116,6 +130,8 @@ void MyWindow::keyboard(unsigned char key, int x, int y)
                     staubli->getDof(2)->setPosition(j); 
                 }
             }
+            if (!col)
+            staubli->getDof(2)->setPosition(j-k); 
             break;
         case '@':
             j = staubli->getDof(3)->getPosition(); 
@@ -127,6 +143,8 @@ void MyWindow::keyboard(unsigned char key, int x, int y)
                     staubli->getDof(3)->setPosition(j); 
                 }
             }
+            if (!col)
+            staubli->getDof(3)->setPosition(j-k); 
             break;
         case '#':
             j = staubli->getDof(4)->getPosition(); 
@@ -138,6 +156,8 @@ void MyWindow::keyboard(unsigned char key, int x, int y)
                     staubli->getDof(4)->setPosition(j); 
                 }
             }
+            if (!col)
+            staubli->getDof(4)->setPosition(j-k); 
             break;
         case '$':
             j = staubli->getDof(5)->getPosition(); 
@@ -149,6 +169,8 @@ void MyWindow::keyboard(unsigned char key, int x, int y)
                     staubli->getDof(5)->setPosition(j); 
                 }
             }
+            if (!col)
+            staubli->getDof(5)->setPosition(j-k); 
             break;
         case '%':
             j = staubli->getDof(6)->getPosition(); 
@@ -160,6 +182,8 @@ void MyWindow::keyboard(unsigned char key, int x, int y)
                     staubli->getDof(6)->setPosition(j); 
                 }
             }
+            if (!col)
+            staubli->getDof(6)->setPosition(j-k); 
             break;
         case '^':
             j = staubli->getDof(7)->getPosition(); 
@@ -171,12 +195,17 @@ void MyWindow::keyboard(unsigned char key, int x, int y)
                     staubli->getDof(7)->setPosition(j); 
                 }
             }
+            if (!col)
+            staubli->getDof(7)->setPosition(j-k); 
             break;
         case 'q':
             lines  = false;
             break;
         case 'w':
             lines  = true;
+            break;
+        case 'c':
+            col = !col; 
             break;
         default:
             SimWindow::keyboard(key, x, y);
@@ -229,6 +258,16 @@ void MyWindow::drawSkels() {
     dg::drawStringOnScreen(0.9f, 0.55f, std::to_string(jj5));
     dg::drawStringOnScreen(0.9f, 0.525f,std::to_string(jj6));
     // Make sure lighting is turned on and that polygons get filled in
+
+
+    dd::SkeletonPtr staubli = mWorld->getSkeleton("staubli");
+    Eigen::Isometry3d transform = staubli->getBodyNode("toolflange_link")->getTransform();
+    Eigen::Vector3d tr = transform.translation();
+
+    dg::drawStringOnScreen(0.85f, 0.5f, std::to_string(tr(0)));
+    dg::drawStringOnScreen(0.85f, 0.475f, std::to_string(tr(1)));
+    dg::drawStringOnScreen(0.85f, 0.45f, std::to_string(tr(2)));
+
     glEnable(GL_LIGHTING);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
@@ -249,6 +288,30 @@ void MyWindow::drawSkels() {
             glVertex3f(x, y, z);
 
         }
+        glVertex3f(x, y, z);
+        glEnd();
+
+        glLineWidth(1); 
+        glColor3f(0.33, 0.66, 0.99);
+        glBegin(GL_LINES);
+
+        int xmax = 2;
+        int ymax = 2;
+
+        for (int ii = -xmax*10; ii <= xmax*10; ii+=1) 
+        {
+            glVertex3f(ii * 1.0 / 10.0, 0.05, -ymax);
+
+            glVertex3f(ii * 1.0 / 10.0, 0.05, ymax);
+        }
+        for (int ii = -ymax*0; ii <= ymax*10; ii+=1) 
+        {
+            glVertex3f(-xmax, 0.05,ii * 1.0 / 10.0);
+            glVertex3f(xmax,0.05, ii * 1.0 / 10.0);
+        }
+        //float rx, ry, rz, rw;
+
+
         glEnd();
     }
     SimWindow::drawSkels();

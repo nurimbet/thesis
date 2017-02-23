@@ -39,6 +39,9 @@ constexpr double jointMin4 = -4.7124;
 constexpr double jointMin5 = -2.0071;
 constexpr double jointMin6 = -4.7124;
 
+constexpr double jointMax[6] = {3.1416, 2.5744, 2.5307, 4.7124, 2.4435, 4.7124};
+constexpr double jointMin[6] = {-3.1416, -2.2689, -2.5307, -4.7124, -2.0071, -4.7124};
+
 #define DIM 6
 
 class Simple3DEnvironment {
@@ -93,7 +96,7 @@ class Simple3DEnvironment {
         void recordSolution() {
             if (!ss_ || !ss_->haveSolutionPath()) return;
             og::PathGeometric &p = ss_->getSolutionPath();
-            p.interpolate(1000);
+            //p.interpolate(1000);
             std::ofstream resultfile;
             resultfile.open("result.txt", std::ios::trunc);
 
@@ -189,9 +192,11 @@ std::string getWorkingDirectory() {
 }
 
 
-Eigen::VectorXd joints (const Eigen::VectorXd &init, const Eigen::Isometry3d &final_point) 
+Eigen::VectorXd joints (const Eigen::VectorXd &init, const Eigen::Isometry3d &final_point, const ds::WorldPtr &world) 
 {
-    Eigen::VectorXd final_joint(6);
+    using Eigen::VectorXd;
+
+    VectorXd final_joint(6);
     final_joint << 0, 0, 0, 0, 0, 0;
     double alpha[7] = {0, -M_PI/2, 0, M_PI/2, -M_PI/2, M_PI/2, 0};
     double a[7] = {0, 50, 650, 0, 0, 0, 0};
@@ -208,6 +213,9 @@ Eigen::VectorXd joints (const Eigen::VectorXd &init, const Eigen::Isometry3d &fi
     double p_ax = trans_final_point(0) - d[6] * a_x;
     double p_ay = trans_final_point(1) - d[6] * a_y;
     double p_az = trans_final_point(2) - d[6] * a_z;
+
+    double minCost = 10000;
+
     for (int i = 0 ; i < 8; i++) { 
         theta[1] = atan2(p_ay, p_ax) - atan2(d[3], pow(-1, (i & 2) >> 1)*sqrt(p_ax*p_ax + p_ay*p_ay - d[3]));
 
@@ -237,11 +245,52 @@ Eigen::VectorXd joints (const Eigen::VectorXd &init, const Eigen::Isometry3d &fi
 
         theta[4] = ((i == 1) ? 1:(-1)) * atan2(-o_wz / sin(theta[5]), n_wz / sin(theta[5]));    
 
-        final_joint << theta[1], theta[2] + M_PI / 2, theta[3] - M_PI/2 , theta[4] , theta[5] , theta[6]; 
-        final_joint = final_joint * 180.0 / M_PI;
-        //std::cout << final_joint << std::endl;
+        theta[2] = theta[2] + (M_PI / 2.0);
+        theta[3] = theta[3] - (M_PI / 2.0);
+
+        bool accept = true;
+        for (int j = 1; j < 7; j++)
+        {
+            if(std::abs(theta[j]) > M_PI)
+            {
+                theta[j] = -1 * theta[j] / std::abs(theta[j]) * ( 2*M_PI - std::abs(theta[j]));
+            }
+            if (theta[j] > jointMax[j-1] || theta[j] < jointMin[j-1])
+            {
+                accept = false;
+            }
+
+        }
+
+        theta[0] = sqrt(10*pow(theta[1] - init[0],2) +
+                10*pow(theta[2] - init[1],2) +
+                10*pow(theta[3] - init[2],2) +
+                1*pow(theta[4] - init[3],2) +
+                1*pow(theta[5] - init[4],2) +
+                1*pow(theta[6] - init[5],2) );
+        dd::SkeletonPtr staubli = world->getSkeleton("staubli");
+
+        staubli->getDof(2)->setPosition(theta[1]); 
+        staubli->getDof(3)->setPosition(theta[2]); 
+        staubli->getDof(4)->setPosition(theta[3]); 
+        staubli->getDof(5)->setPosition(theta[4]); 
+        staubli->getDof(6)->setPosition(theta[5]); 
+        staubli->getDof(7)->setPosition(theta[6]); 
+
+
+        if (theta[0] < minCost && accept && !world->checkCollision())
+        {
+            final_joint << theta[1], theta[2], theta[3], theta[4] , theta[5] , theta[6]; 
+            final_joint = final_joint * 180.0 / M_PI;
+            minCost = theta[0];
+        }   
+
+        Eigen::IOFormat CommaInitFmt(Eigen::StreamPrecision, Eigen::DontAlignCols, ", ", ", ", "", "", " << ", ";");
+
+        std::cout << theta[0] << std::endl;
+        std::cout << final_joint.format(CommaInitFmt) << std::endl;
         //std::cout << std::endl;
-        std::cout << theta[1]  << " " << theta[2] + M_PI / 2  << " " << theta[3] - M_PI/2 << " " << theta[4] << " " << theta[5] << " " << theta[6] << std::endl;
+        //std::cout << theta[1]  << " " << theta[2] + M_PI / 2  << " " << theta[3] - M_PI/2 << " " << theta[4] << " " << theta[5] << " " << theta[6] << std::endl;
     }
     //std::cout << theta[1]  << " " << theta[2] + M_PI / 2  << " " << theta[3] - M_PI/2 << " " << theta[4] << " " << theta[5] << " " << theta[6] << std::endl;
 
@@ -260,10 +309,10 @@ int main(int argc, char* argv[])
 
     dd::SkeletonPtr staubli = du::SdfParser::readSkeleton(prefix + std::string("/model.sdf"));
     staubli->setName("staubli");
-    /*
+    
        dd::SkeletonPtr tensegrity = du::SdfParser::readSkeleton(prefix + std::string("/tensegrity.sdf"));
        tensegrity->setName("tensegrity");
-     */
+     
     setAllColors(staubli, Eigen::Vector3d(0.9, 0.9, 0.9));
     staubli->enableSelfCollision();
     /*
@@ -276,7 +325,7 @@ int main(int argc, char* argv[])
        world->addSkeleton(ball);
      */
     world->addSkeleton(staubli);
-    //   world->addSkeleton(tensegrity);
+       world->addSkeleton(tensegrity);
 
     //    staubli->getDof(3)->setPosition(290 * M_PI / 180.0); 
     //    staubli->getDof(4)->setPosition(290 * M_PI / 180.0); 
@@ -286,15 +335,24 @@ int main(int argc, char* argv[])
     start << 0,0,0,0,0,0;
 
     Eigen::VectorXd finish(6);
-    finish << 0, -67, -144, 0, 0, 0;
+    //finish << 0, -67, -144, 0, 0, 0;
 
     Eigen::Isometry3d tf(Eigen::Isometry3d::Identity());
-    tf.translation() = Eigen::Vector3d(334.59, 589.47, 419.04);
     //tf.translation() = Eigen::Vector3d(685.32, 392.71, 592.72);
-    tf.rotate(Eigen::AngleAxisd(-167.76 * M_PI / 180.0, Eigen::Vector3d::UnitX()) * Eigen::AngleAxisd(9.18 * M_PI / 180.0, Eigen::Vector3d::UnitY()) * Eigen::AngleAxisd(12.24 * M_PI / 180.0, Eigen::Vector3d::UnitZ()));
+
+    double qw = 0.267238;
+    double qx = 0;
+    double qy = 0.96363;
+    double qz = 0;
+    double len = sqrt(qw*qw + qx*qx + qy*qy + qz*qz);
+
+    tf.rotate(Eigen::Quaterniond(qw/len, qx/len, qy/len, qz/len));
+    tf.translation() = Eigen::Vector3d(-172.05 - 120, 70, 899.1-1278);
+
+    //tf.rotate(Eigen::AngleAxisd(-167.76 * M_PI / 180.0, Eigen::Vector3d::UnitX()) * Eigen::AngleAxisd(9.18 * M_PI / 180.0, Eigen::Vector3d::UnitY()) * Eigen::AngleAxisd(12.24 * M_PI / 180.0, Eigen::Vector3d::UnitZ()));
     //tf.rotate(Eigen::AngleAxisd(-180 * M_PI / 180.0, Eigen::Vector3d::UnitX()) * Eigen::AngleAxisd(0.001 * M_PI / 180.0, Eigen::Vector3d::UnitY()) * Eigen::AngleAxisd(-0.005 * M_PI / 180.0, Eigen::Vector3d::UnitZ()));
 
-    joints (start, tf) ;
+    finish = joints (start, tf, world) ;
 
     if (argc < 2) {
 
