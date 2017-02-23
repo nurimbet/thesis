@@ -62,7 +62,8 @@ class Simple3DEnvironment {
                         this, std::placeholders::_1));
             space->setup();
             ss_->getSpaceInformation()->setStateValidityCheckingResolution(
-                    1.0 / space->getMaximumExtent());
+                    0.1 / space->getMaximumExtent());
+            std::cout << "Get MAximum EXtent***: " << space->getMaximumExtent() << std::endl;
             ss_->setPlanner(ob::PlannerPtr(new og::RRTstar(ss_->getSpaceInformation())));
         }
 
@@ -88,7 +89,8 @@ class Simple3DEnvironment {
                 ss_->simplifySolution();
                 og::PathGeometric &p = ss_->getSolutionPath();
                 ss_->getPathSimplifier()->simplifyMax(p);
-                ss_->getPathSimplifier()->smoothBSpline(p); return true;
+                ss_->getPathSimplifier()->smoothBSpline(p); 
+                return true;
             } else
                 return false;
         }
@@ -96,7 +98,7 @@ class Simple3DEnvironment {
         void recordSolution() {
             if (!ss_ || !ss_->haveSolutionPath()) return;
             og::PathGeometric &p = ss_->getSolutionPath();
-            //p.interpolate(1000);
+            p.interpolate(1000);
             std::ofstream resultfile;
             resultfile.open("result.txt", std::ios::trunc);
 
