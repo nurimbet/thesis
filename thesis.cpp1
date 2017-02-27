@@ -79,7 +79,7 @@ class Simple3DEnvironment {
             ss_->setStartAndGoalStates(start, goal, 0.05);
 
             // this will run the algorithm for one second
-            ss_->solve(60 * 10);
+            ss_->solve(60 * 60 * 1);
 
             // ss_->solve(1000); // it will run for 1000 seconds
 
@@ -113,22 +113,21 @@ class Simple3DEnvironment {
                 //const double j4 = (double)p.getState(i)->as<ob::RealVectorStateSpace::StateType>()->values[3];
                 //const double j5 = (double)p.getState(i)->as<ob::RealVectorStateSpace::StateType>()->values[4];
                 //const double j6 = (double)p.getState(i)->as<ob::RealVectorStateSpace::StateType>()->values[5];
-                double j4 = 0; double j5 = 0; double j6 = 0;
 
                 dd::SkeletonPtr staubli = world_->getSkeleton("staubli");
 
                 staubli->getDof(2)->setPosition(j1); 
                 staubli->getDof(3)->setPosition(j2); 
                 staubli->getDof(4)->setPosition(j3); 
-                staubli->getDof(5)->setPosition(j4); 
-                staubli->getDof(6)->setPosition(j5); 
-                staubli->getDof(7)->setPosition(j6); 
+                //staubli->getDof(5)->setPosition(j4); 
+                //staubli->getDof(6)->setPosition(j5); 
+                //staubli->getDof(7)->setPosition(j6); 
 
                 Eigen::Isometry3d transform = staubli->getBodyNode("toolflange_link")->getTransform();
                 Eigen::Quaterniond quat(transform.rotation());
                 Eigen::Vector3d tr = transform.translation();
 
-                resultfile << j1 << " " << j2 << " " << j3 << " " << j4 << " " << j5 << " " << j6<< std::endl; 
+                resultfile << j1 << " " << j2 << " " << j3 << std::endl;// << " " << j4 << " " << j5 << " " << j6<< std::endl; 
                 endeffectorfile << tr(0) << " " << tr(1) << " " << tr(2)
                     << " " << quat.w() << " " << quat.x() << " " << quat.y() << " " << quat.z() 
                     << std::endl;
@@ -150,15 +149,14 @@ class Simple3DEnvironment {
             //double j4 = state->as<ompl::base::RealVectorStateSpace::StateType>()->values[3]; 
             //double j5 = state->as<ompl::base::RealVectorStateSpace::StateType>()->values[4]; 
             //double j6 = state->as<ompl::base::RealVectorStateSpace::StateType>()->values[5]; 
-            double j4 = 0; double j5 = 0; double j6 = 0;
             dd::SkeletonPtr staubli = world_->getSkeleton("staubli");
 
             staubli->getDof(2)->setPosition(j1); 
             staubli->getDof(3)->setPosition(j2); 
             staubli->getDof(4)->setPosition(j3); 
-            staubli->getDof(5)->setPosition(j4); 
-            staubli->getDof(6)->setPosition(j5); 
-            staubli->getDof(7)->setPosition(j6); 
+            //staubli->getDof(5)->setPosition(j4); 
+            //staubli->getDof(6)->setPosition(j5); 
+            //staubli->getDof(7)->setPosition(j6); 
 
             return !world_->checkCollision();
 
@@ -343,21 +341,15 @@ int main(int argc, char* argv[])
 
     Eigen::Isometry3d tf(Eigen::Isometry3d::Identity());
     //tf.translation() = Eigen::Vector3d(685.32, 392.71, 592.72);
-    
-    double qw, qx, qy, qz = 0;
-    double x, y, z = 0;
 
-    std::ifstream initfile("init.txt");
-    initfile >> x >> y >> z >> qw >> qx >> qy >> qz;
-    /*qw = -0.171711;
-    qx = 0.834576;
-    qy = -0.402042;
-    qz = 0.335203;
-    */
+    double qw = -0.171711;
+    double qx = 0.834576;
+    double qy = -0.402042;
+    double qz = 0.335203;
     double len = sqrt(qw*qw + qx*qx + qy*qy + qz*qz);
-    std::cout << x <<" " << y << " " << z << " " << qw << " " << qx << " " << qy << " " << qz << std::endl;
+
     tf.rotate(Eigen::Quaterniond(qw/len, qx/len, qy/len, qz/len));
-    tf.translation() = Eigen::Vector3d(x*1000, y*1000, z*1000-1278);
+    tf.translation() = Eigen::Vector3d(-1.059156*1000, 0.238132*1000, 0.823008*1000-1278);
 
     //tf.rotate(Eigen::AngleAxisd(-167.76 * M_PI / 180.0, Eigen::Vector3d::UnitX()) * Eigen::AngleAxisd(9.18 * M_PI / 180.0, Eigen::Vector3d::UnitY()) * Eigen::AngleAxisd(12.24 * M_PI / 180.0, Eigen::Vector3d::UnitZ()));
     //tf.rotate(Eigen::AngleAxisd(-180 * M_PI / 180.0, Eigen::Vector3d::UnitX()) * Eigen::AngleAxisd(0.001 * M_PI / 180.0, Eigen::Vector3d::UnitY()) * Eigen::AngleAxisd(-0.005 * M_PI / 180.0, Eigen::Vector3d::UnitZ()));
@@ -389,14 +381,14 @@ int main(int argc, char* argv[])
             while (!fin.eof()) 
             {
             //float rx, ry, rz, rw;
-            fin >> j1 >> j2 >> j3 >> j4 >> j5 >> j6;
+            fin >> j1 >> j2 >> j3;// >> j4 >> j5 >> j6;
 
             staubli->getDof(2)->setPosition(j1); 
             staubli->getDof(3)->setPosition(j2); 
             staubli->getDof(4)->setPosition(j3); 
-            staubli->getDof(5)->setPosition(j4); 
-            staubli->getDof(6)->setPosition(j5); 
-            staubli->getDof(7)->setPosition(j6); 
+            //staubli->getDof(5)->setPosition(j4); 
+            //staubli->getDof(6)->setPosition(j5); 
+            //staubli->getDof(7)->setPosition(j6); 
 
             window.setViewTrack(j1,j2,j3,j4, j5, j6);
             std::this_thread::sleep_for(std::chrono::milliseconds(5));

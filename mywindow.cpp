@@ -263,10 +263,15 @@ void MyWindow::drawSkels() {
     dd::SkeletonPtr staubli = mWorld->getSkeleton("staubli");
     Eigen::Isometry3d transform = staubli->getBodyNode("toolflange_link")->getTransform();
     Eigen::Vector3d tr = transform.translation();
+    Eigen::Quaterniond quat1(transform.rotation());
 
     dg::drawStringOnScreen(0.85f, 0.5f, std::to_string(tr(0)));
     dg::drawStringOnScreen(0.85f, 0.475f, std::to_string(tr(1)));
     dg::drawStringOnScreen(0.85f, 0.45f, std::to_string(tr(2)));
+    dg::drawStringOnScreen(0.85f, 0.425f, std::to_string(quat1.w()));
+    dg::drawStringOnScreen(0.85f, 0.4f,    std::to_string(quat1.x()));
+    dg::drawStringOnScreen(0.85f, 0.375f,  std::to_string(quat1.y()));
+    dg::drawStringOnScreen(0.85f, 0.35f,   std::to_string(quat1.z()));
 
     glEnable(GL_LIGHTING);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -290,7 +295,7 @@ void MyWindow::drawSkels() {
         }
         glVertex3f(x, y, z);
         glEnd();
-
+/*
         glLineWidth(1); 
         glColor3f(0.33, 0.66, 0.99);
         glBegin(GL_LINES);
@@ -313,6 +318,7 @@ void MyWindow::drawSkels() {
 
 
         glEnd();
+*/
     }
     SimWindow::drawSkels();
 
