@@ -16,6 +16,10 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -g -Wall ")
 include_directories(${EIGEN3_INCLUDE_DIR})
 include_directories(${BULLET_INCLUDE_DIR})
 
+set(RRTQ_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+include_directories(${RRTQ_INCLUDE_DIR})
+
+add_subdirectory(ompl)
 
 aux_source_directory(. SRC_LIST)
 list(REMOVE_ITEM SRC_LIST "./main.cpp")
