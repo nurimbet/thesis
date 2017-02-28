@@ -31,6 +31,7 @@ add_executable(${PROJECT_NAME} ${SRC_LIST})
 
 target_link_libraries(${PROJECT_NAME}
     dart
+    ompl_custom
     ${OMPL_LIBRARIES}
     ${BULLET_LIBRARIES}
     ${Boost_LIBRARIES}
