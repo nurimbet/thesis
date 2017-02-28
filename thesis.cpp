@@ -39,21 +39,23 @@ constexpr double jointMin4 = -4.7124;
 constexpr double jointMin5 = -2.0071;
 constexpr double jointMin6 = -4.7124;
 
-constexpr double jointMax[6] = {3.1416, 2.5744, 2.5307, 4.7124, 2.4435, 4.7124};
-constexpr double jointMin[6] = {-3.1416, -2.2689, -2.5307, -4.7124, -2.0071, -4.7124};
+constexpr double jointMax[6] = {3.1416/2, 0, 2.5307, 4.7124, 2.4435, 4.7124};
+constexpr double jointMin[6] = {-3.1416/2, -2.2689, -2.5307, -4.7124, -2.0071, -4.7124};
+//constexpr double jointMax[6] = {3.1416, 2.5744, 2.5307, 4.7124, 2.4435, 4.7124};
+//constexpr double jointMin[6] = {-3.1416, -2.2689, -2.5307, -4.7124, -2.0071, -4.7124};
 
 #define DIM 3
 
 class Simple3DEnvironment {
     public:
         Simple3DEnvironment() {
-            ob::RealVectorStateSpace *space = new ob::RealVectorStateSpace();
-            space->addDimension(jointMin1, jointMax1);
-            space->addDimension(jointMin2, jointMax2);
-            space->addDimension(jointMin3, jointMax3);
-            //space->addDimension(jointMin4, jointMax4);
-            //space->addDimension(jointMin5, jointMax5);
-            //space->addDimension(jointMin6, jointMax6);
+            space = new ob::RealVectorStateSpace();
+            space->addDimension(jointMin[0], jointMax[0]);
+            space->addDimension(jointMin[1], jointMax[1]);
+            space->addDimension(jointMin[2], jointMax[2]);
+            //space->addDimension(jointMin[3], jointMax[3]);
+            //space->addDimension(jointMin[4], jointMax[4]);
+            //space->addDimension(jointMin[5], jointMax[5]);
 
             ss_.reset(new og::SimpleSetup(ob::StateSpacePtr(space)));
 
@@ -79,7 +81,7 @@ class Simple3DEnvironment {
             ss_->setStartAndGoalStates(start, goal, 0.05);
 
             // this will run the algorithm for one second
-            ss_->solve(60 * 10);
+            ss_->solve(60 * 1 * 3);
 
             // ss_->solve(1000); // it will run for 1000 seconds
 
@@ -135,6 +137,56 @@ class Simple3DEnvironment {
             }
             resultfile.close();
 
+        ob::PlannerData pdat(ss_->getSpaceInformation());
+        ss_->getPlannerData(pdat);
+        std::ofstream ofs_e("edges.txt");
+        std::vector<unsigned int> edge_list;
+        std::vector<double> reals;
+        std::vector<double> realsOld;
+        bool isMajorTree = false;
+        ob::State* s3 = space->allocState();
+        for (unsigned int i(0); i < pdat.numVertices(); ++i) {
+            unsigned int n_edge = pdat.getEdges(i, edge_list);
+            const ob::State* s1 = pdat.getVertex(i).getState();
+            isMajorTree = pdat.getVertex(i).getTag();
+            for (unsigned int i2(0); i2 < n_edge; ++i2) {
+                const ob::State* s2 = pdat.getVertex(edge_list[i2]).getState();
+                double step = 0.05;
+                if (space->distance(s1, s2) < 0.03) {
+                    step = 0.2;
+                }
+                space->copyToReals(realsOld, s1);
+                for (double t = step; t <= 1.01; t += step) {
+                    space->interpolate(s1, s2, t, s3);
+                    space->copyToReals(reals, s3);
+                    
+                    dd::SkeletonPtr staubli = world_->getSkeleton("staubli");
+
+                    /*
+                    for (const auto& r : realsOld)
+                        
+                        ofs_e << r << " ";
+                    */
+                    
+                    staubli->getDof(2)->setPosition(reals[0]); 
+                    staubli->getDof(3)->setPosition(reals[1]); 
+                    staubli->getDof(4)->setPosition(reals[2]); 
+
+                    Eigen::Isometry3d transform = staubli->getBodyNode("toolflange_link")->getTransform();
+                    Eigen::Vector3d tr = transform.translation();
+
+                    ofs_e << tr(0) << " " << tr(1) << " " << tr(2) << std::endl;
+                    /*
+                    for (const auto& r : reals)
+                        ofs_e << r << " ";
+                    */
+                    //
+                    //ofs_e << "0x" << std::hex << (isMajorTree ? 0x4488AA : 0xDD6060)
+                    //      << std::endl;
+                    //ofs_e << std::endl;
+                }
+            }
+        }
             //
             // ADD CODE HERE
             //
@@ -162,10 +214,10 @@ class Simple3DEnvironment {
 
             return !world_->checkCollision();
 
-        }
-
+        } 
         og::SimpleSetupPtr ss_;
         ds::WorldPtr world_;
+        ob::RealVectorStateSpace *space;
 };
 
 std::istream& ignoreline(std::ifstream& in, std::ifstream::pos_type& pos) {

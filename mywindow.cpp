@@ -20,6 +20,7 @@ constexpr double jointMin6 = -4.7124;
 
 double jj1, jj2, jj3, jj4, jj5, jj6 =0;
 bool lines = true;
+bool tree = true;
 bool col = true;
 
 MyWindow::MyWindow(const ds::WorldPtr& world) 
@@ -198,11 +199,11 @@ void MyWindow::keyboard(unsigned char key, int x, int y)
             if (!col)
             staubli->getDof(7)->setPosition(j-k); 
             break;
-        case 'q':
-            lines  = false;
+        case 'e':
+            lines  = !lines;
             break;
-        case 'w':
-            lines  = true;
+        case 't':
+            tree  = !tree;
             break;
         case 'c':
             col = !col; 
@@ -241,12 +242,12 @@ void MyWindow::drawSkels() {
     std::lock_guard<std::mutex> lock(readMutex);
     glColor3f(0.0, 0.0, 0.0);
 
-    dg::drawStringOnScreen(0.85f, 0.65f, "Joint 1: ");
-    dg::drawStringOnScreen(0.85f, 0.625f, "Joint 2: ");
-    dg::drawStringOnScreen(0.85f, 0.6f, "Joint 3: ");
-    dg::drawStringOnScreen(0.85f, 0.575f, "Joint 4: ");
-    dg::drawStringOnScreen(0.85f, 0.55f, "Joint 5: ");
-    dg::drawStringOnScreen(0.85f, 0.525f, "Joint 6: ");
+    dg::drawStringOnScreen(0.85f, 0.65f, "J1: ");
+    dg::drawStringOnScreen(0.85f, 0.625f,"J2: ");
+    dg::drawStringOnScreen(0.85f, 0.6f,  "J3: ");
+    dg::drawStringOnScreen(0.85f, 0.575f,"J4: ");
+    dg::drawStringOnScreen(0.85f, 0.55f, "J5: ");
+    dg::drawStringOnScreen(0.85f, 0.525f,"J6: ");
 
     glColor3f(0.0, 1.0, 0.0);
 
@@ -265,13 +266,23 @@ void MyWindow::drawSkels() {
     Eigen::Vector3d tr = transform.translation();
     Eigen::Quaterniond quat1(transform.rotation());
 
-    dg::drawStringOnScreen(0.85f, 0.5f, std::to_string(tr(0)));
-    dg::drawStringOnScreen(0.85f, 0.475f, std::to_string(tr(1)));
-    dg::drawStringOnScreen(0.85f, 0.45f, std::to_string(tr(2)));
-    dg::drawStringOnScreen(0.85f, 0.425f, std::to_string(quat1.w()));
-    dg::drawStringOnScreen(0.85f, 0.4f,    std::to_string(quat1.x()));
-    dg::drawStringOnScreen(0.85f, 0.375f,  std::to_string(quat1.y()));
-    dg::drawStringOnScreen(0.85f, 0.35f,   std::to_string(quat1.z()));
+    glColor3f(0.0, 0.0, 0.0);
+    dg::drawStringOnScreen(0.85f, 0.475f, "X: ");
+    dg::drawStringOnScreen(0.85f, 0.45f , "Y: ");
+    dg::drawStringOnScreen(0.85f, 0.425f, "X: ");
+    dg::drawStringOnScreen(0.85f, 0.4f  , "qw: ");
+    dg::drawStringOnScreen(0.85f, 0.375f, "qx: ");
+    dg::drawStringOnScreen(0.85f, 0.35f , "qy: ");
+    dg::drawStringOnScreen(0.85f, 0.325f, "qx: ");
+
+    glColor3f(0.0, 1.0, 0.0);
+    dg::drawStringOnScreen(0.9f, 0.475f, std::to_string(tr(0)));
+    dg::drawStringOnScreen(0.9f, 0.45f , std::to_string(tr(1)));
+    dg::drawStringOnScreen(0.9f, 0.425f, std::to_string(tr(2)));
+    dg::drawStringOnScreen(0.9f, 0.4f  , std::to_string(quat1.w()));
+    dg::drawStringOnScreen(0.9f, 0.375f, std::to_string(quat1.x()));
+    dg::drawStringOnScreen(0.9f, 0.35f , std::to_string(quat1.y()));
+    dg::drawStringOnScreen(0.9f, 0.325f, std::to_string(quat1.z()));
 
     glEnable(GL_LIGHTING);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -295,6 +306,7 @@ void MyWindow::drawSkels() {
         }
         glVertex3f(x, y, z);
         glEnd();
+
 /*
         glLineWidth(1); 
         glColor3f(0.33, 0.66, 0.99);
@@ -319,6 +331,37 @@ void MyWindow::drawSkels() {
 
         glEnd();
 */
+    }
+    if (tree)
+    {
+        
+        using std::vector;
+        using std::string;
+        using std::size_t;
+        using std::ifstream;
+        double x1,y1,z1;
+        
+        static vector <vector <double>> solution_path;
+        if (solution_path.size() == 0)  
+        {
+            string fname{"edges.txt"};
+            ifstream fin(fname);
+            while(fin >> x1 >> y1 >> z1)
+            {
+                solution_path.push_back(vector<double>{x1, y1, z1});
+            }
+        }
+        
+        glLineWidth(1); 
+        glBegin(GL_LINES);
+        glColor3f(1, 1, 0);
+        for(size_t i = 0; i < solution_path.size() - 1; i++)
+        {
+            glVertex3d(solution_path[i][0], solution_path[i][1], solution_path[i][2]);
+            glVertex3d(solution_path[i+1][0], solution_path[i+1][1], solution_path[i+1][2]);
+
+        }
+        glEnd();
     }
     SimWindow::drawSkels();
 
