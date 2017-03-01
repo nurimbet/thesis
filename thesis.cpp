@@ -9,6 +9,7 @@
 #include "config.h"
 #include "mywindow.h"
 #include "util.h"
+#include "ompl/geometric/planners/rrt/RRTstarQ.h"
 
 #include <iostream>
 #include <fstream>
@@ -41,8 +42,8 @@ constexpr double jointMin6 = -4.7124;
 
 constexpr double jointMax[6] = {3.1416/2, 0, 2.5307, 4.7124, 2.4435, 4.7124};
 constexpr double jointMin[6] = {-3.1416/2, -2.2689, -2.5307, -4.7124, -2.0071, -4.7124};
-//constexpr double jointMax[6] = {3.1416, 2.5744, 2.5307, 4.7124, 2.4435, 4.7124};
 //constexpr double jointMin[6] = {-3.1416, -2.2689, -2.5307, -4.7124, -2.0071, -4.7124};
+//constexpr double jointMax[6] = {3.1416, 2.5744, 2.5307, 4.7124, 2.4435, 4.7124};
 
 #define DIM 3
 
@@ -81,7 +82,7 @@ class Simple3DEnvironment {
             ss_->setStartAndGoalStates(start, goal, 0.05);
 
             // this will run the algorithm for one second
-            ss_->solve(60 * 1 * 3);
+            ss_->solve(60 * 1 * 10);
 
             // ss_->solve(1000); // it will run for 1000 seconds
 
@@ -143,12 +144,12 @@ class Simple3DEnvironment {
         std::vector<unsigned int> edge_list;
         std::vector<double> reals;
         std::vector<double> realsOld;
-        bool isMajorTree = false;
+        //bool isMajorTree = false;
         ob::State* s3 = space->allocState();
         for (unsigned int i(0); i < pdat.numVertices(); ++i) {
             unsigned int n_edge = pdat.getEdges(i, edge_list);
             const ob::State* s1 = pdat.getVertex(i).getState();
-            isMajorTree = pdat.getVertex(i).getTag();
+            //isMajorTree = pdat.getVertex(i).getTag();
             for (unsigned int i2(0); i2 < n_edge; ++i2) {
                 const ob::State* s2 = pdat.getVertex(edge_list[i2]).getState();
                 double step = 0.05;
