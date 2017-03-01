@@ -20,10 +20,10 @@ constexpr double jointMin5 = -2.0071;
 constexpr double jointMin6 = -4.7124;
 
 
-double jj1, jj2, jj3, jj4, jj5, jj6 = 0;
-bool lines = true;
-bool tree = true;
-bool col = true;
+double joint1, joint2, joint3, joint4, joint5, joint6 = 0;
+bool showPath = false;
+bool showTree = false;
+bool collisionEnabled = true;
 
 MyWindow::MyWindow(const ds::WorldPtr& world) 
 { 
@@ -43,15 +43,19 @@ void MyWindow::keyboard(unsigned char key, int x, int y)
     dd::SkeletonPtr tensegrity = mWorld->getSkeleton("tensegrity");
     
     Eigen::Isometry3d tensegrityTransform = tensegrity->getRootBodyNode()->getWorldTransform();
-    Eigen::Vector3d tr1 = tensegrityTransform.translation();
-    std::cout << tr1(0) << " " << tr1(1) << " " << tr1(2) << std::endl; 
-    Eigen::Isometry3d tf1;
-    tf1.rotate(tensegrityTransform.rotation());
+    Eigen::Vector3d tenTrans = tensegrityTransform.translation();
+    
+    Eigen::Isometry3d tenMove;
+    tenMove = Eigen::Isometry3d::Identity();
+    Eigen::Quaterniond tenRot;
 
     
     
     double j  = 0; 
     double k = M_PI / 180.0;
+    static int angX, angY, angZ = 0;
+    double transStep = 0.05;
+    double rotStep = 15.0; 
     switch(key)
     {
         case '1':
@@ -61,12 +65,11 @@ void MyWindow::keyboard(unsigned char key, int x, int y)
                 staubli->getDof(2)->setPosition(j+k); 
                 if(mWorld->checkCollision())
                 {
-                    //                 std::cout << "collision?" << std::endl;
                     staubli->getDof(2)->setPosition(j); 
                 }
             }
-            //if (!col)
-            //staubli->getDof(2)->setPosition(j+k); 
+            if (!collisionEnabled)
+            staubli->getDof(2)->setPosition(j+k); 
             break;
         case '2':
             j = staubli->getDof(3)->getPosition(); 
@@ -78,8 +81,8 @@ void MyWindow::keyboard(unsigned char key, int x, int y)
                     staubli->getDof(3)->setPosition(j); 
                 }
             }
-            //if (!col)
-            //staubli->getDof(3)->setPosition(j+k); 
+            if (!collisionEnabled)
+            staubli->getDof(3)->setPosition(j+k); 
             break;
         case '3':
             j = staubli->getDof(4)->getPosition(); 
@@ -91,8 +94,8 @@ void MyWindow::keyboard(unsigned char key, int x, int y)
                     staubli->getDof(4)->setPosition(j); 
                 }
             }
-            //if (!col)
-            //staubli->getDof(4)->setPosition(j+k); 
+            if (!collisionEnabled)
+            staubli->getDof(4)->setPosition(j+k); 
             break;
         case '4':
             j = staubli->getDof(5)->getPosition(); 
@@ -104,8 +107,8 @@ void MyWindow::keyboard(unsigned char key, int x, int y)
                     staubli->getDof(5)->setPosition(j); 
                 }
             }
-            //if (!col)
-            //staubli->getDof(5)->setPosition(j+k); 
+            if (!collisionEnabled)
+            staubli->getDof(5)->setPosition(j+k); 
             break;
         case '5':
             j = staubli->getDof(6)->getPosition(); 
@@ -117,8 +120,8 @@ void MyWindow::keyboard(unsigned char key, int x, int y)
                     staubli->getDof(6)->setPosition(j); 
                 }
             }
-            //if (!col)
-            //staubli->getDof(6)->setPosition(j+k); 
+            if (!collisionEnabled)
+            staubli->getDof(6)->setPosition(j+k); 
             break;
         case '6':
             j = staubli->getDof(7)->getPosition(); 
@@ -130,8 +133,8 @@ void MyWindow::keyboard(unsigned char key, int x, int y)
                     staubli->getDof(7)->setPosition(j); 
                 }
             }
-            //if (!col)
-            //staubli->getDof(7)->setPosition(j+k); 
+            if (!collisionEnabled)
+            staubli->getDof(7)->setPosition(j+k); 
             break;
         case '!':
             j = staubli->getDof(2)->getPosition(); 
@@ -143,8 +146,8 @@ void MyWindow::keyboard(unsigned char key, int x, int y)
                     staubli->getDof(2)->setPosition(j); 
                 }
             }
-            //if (!col)
-            //staubli->getDof(2)->setPosition(j-k); 
+            if (!collisionEnabled)
+            staubli->getDof(2)->setPosition(j-k); 
             break;
         case '@':
             j = staubli->getDof(3)->getPosition(); 
@@ -156,8 +159,8 @@ void MyWindow::keyboard(unsigned char key, int x, int y)
                     staubli->getDof(3)->setPosition(j); 
                 }
             }
-            //if (!col)
-            //staubli->getDof(3)->setPosition(j-k); 
+            if (!collisionEnabled)
+            staubli->getDof(3)->setPosition(j-k); 
             break;
         case '#':
             j = staubli->getDof(4)->getPosition(); 
@@ -169,8 +172,8 @@ void MyWindow::keyboard(unsigned char key, int x, int y)
                     staubli->getDof(4)->setPosition(j); 
                 }
             }
-            //if (!col)
-            //staubli->getDof(4)->setPosition(j-k); 
+            if (!collisionEnabled)
+            staubli->getDof(4)->setPosition(j-k); 
             break;
         case '$':
             j = staubli->getDof(5)->getPosition(); 
@@ -182,8 +185,8 @@ void MyWindow::keyboard(unsigned char key, int x, int y)
                     staubli->getDof(5)->setPosition(j); 
                 }
             }
-            //if (!col)
-            //staubli->getDof(5)->setPosition(j-k); 
+            if (!collisionEnabled)
+            staubli->getDof(5)->setPosition(j-k); 
             break;
         case '%':
             j = staubli->getDof(6)->getPosition(); 
@@ -195,8 +198,8 @@ void MyWindow::keyboard(unsigned char key, int x, int y)
                     staubli->getDof(6)->setPosition(j); 
                 }
             }
-            //if (!col)
-            //staubli->getDof(6)->setPosition(j-k); 
+            if (!collisionEnabled)
+            staubli->getDof(6)->setPosition(j-k); 
             break;
         case '^':
             j = staubli->getDof(7)->getPosition(); 
@@ -208,65 +211,111 @@ void MyWindow::keyboard(unsigned char key, int x, int y)
                     staubli->getDof(7)->setPosition(j); 
                 }
             }
-            //if (!col)
-            //staubli->getDof(7)->setPosition(j-k); 
+            if (!collisionEnabled)
+            staubli->getDof(7)->setPosition(j-k); 
             break;
-        case 'e':
-            lines  = !lines;
+        case 'p':
+            showPath  = !showPath;
             break;
         case 't':
-            tree  = !tree;
+            showTree  = !showTree;
             break;
         case 'c':
-            col = !col; 
+            collisionEnabled = !collisionEnabled; 
             break;
-        case 'x':
-            tf1.translation() << (tr1(0) + 0.05), tr1(1), tr1(2);
-            moveSkeleton(tensegrity, tf1);
+        case 'a':
+            tenMove.translation() << (tenTrans(0) + transStep), tenTrans(1), tenTrans(2);
+            tenMove.rotate(tensegrityTransform.rotation());
+            moveSkeleton(tensegrity, tenMove);
         
             break;
-        case 'X':
-            tf1.translation() << (tr1(0) - 0.05), tr1(1), tr1(2);
-            moveSkeleton(tensegrity, tf1);
+        case 'A':
+            tenMove.translation() << (tenTrans(0) - transStep), tenTrans(1), tenTrans(2);
+            tenMove.rotate(tensegrityTransform.rotation());
+            moveSkeleton(tensegrity, tenMove);
         
             break;
-        case 'y':
-            tf1.translation() << tr1(0), (tr1(1) + 0.05), tr1(2);
-            moveSkeleton(tensegrity, tf1);
+        case 's':
+            tenMove.translation() << tenTrans(0), (tenTrans(1) + transStep), tenTrans(2);
+            tenMove.rotate(tensegrityTransform.rotation());
+            moveSkeleton(tensegrity, tenMove);
         
             break;
-        case 'Y':
-            tf1.translation() << tr1(0), (tr1(1) - 0.05), tr1(2);
-            moveSkeleton(tensegrity, tf1);
+        case 'S':
+            tenMove.translation() << tenTrans(0), (tenTrans(1) - transStep), tenTrans(2);
+            tenMove.rotate(tensegrityTransform.rotation());
+            moveSkeleton(tensegrity, tenMove);
         
             break;
-        case 'z':
-            tf1.translation() << tr1(0), tr1(1), (tr1(2) + 0.05);
-            moveSkeleton(tensegrity, tf1);
+        case 'd':
+            tenMove.translation() << tenTrans(0), tenTrans(1), (tenTrans(2) + transStep);
+            tenMove.rotate(tensegrityTransform.rotation());
+            moveSkeleton(tensegrity, tenMove);
         
             break;
-        case 'Z':
-            tf1.translation() << tr1(0), tr1(1), (tr1(2) - 0.05);
-            moveSkeleton(tensegrity, tf1);
+        case 'D':
+            tenMove.translation() << tenTrans(0), tenTrans(1), (tenTrans(2) - transStep);
+            tenMove.rotate(tensegrityTransform.rotation());
+            moveSkeleton(tensegrity, tenMove);
         
+            break;
+        case 'j':
+            tenRot = Eigen::AngleAxisd(rotStep*M_PI/180.0, Eigen::Vector3d::UnitX())*tensegrityTransform.rotation();
+            tenMove.rotate(tenRot);
+            tenMove.translation() << tenTrans(0), tenTrans(1), (tenTrans(2) );
+            moveSkeleton(tensegrity, tenMove);
+            angX = (int)(angX + rotStep)%360;
+            break;
+        case 'J':
+            tenRot = Eigen::AngleAxisd(-rotStep*M_PI/180.0, Eigen::Vector3d::UnitX())*tensegrityTransform.rotation();
+            tenMove.rotate(tenRot);
+            tenMove.translation() << tenTrans(0), tenTrans(1), (tenTrans(2) );
+            moveSkeleton(tensegrity, tenMove);
+            angX = (int)(angX - rotStep)%360;
+            break;
+        case 'k':
+            tenRot = Eigen::AngleAxisd(rotStep*M_PI/180.0, Eigen::Vector3d::UnitY())*tensegrityTransform.rotation();
+            tenMove.rotate(tenRot);
+            tenMove.translation() << tenTrans(0), tenTrans(1), (tenTrans(2) );
+            moveSkeleton(tensegrity, tenMove);
+            angY = (int)(angY + rotStep)%360;
+            break;
+        case 'K':
+            tenRot = Eigen::AngleAxisd(-rotStep*M_PI/180.0, Eigen::Vector3d::UnitY())*tensegrityTransform.rotation();
+            tenMove.rotate(tenRot);
+            tenMove.translation() << tenTrans(0), tenTrans(1), (tenTrans(2) );
+            moveSkeleton(tensegrity, tenMove);
+            angY = (int)(angY - rotStep)%360;
+            break;
+        case 'l':
+            tenRot = Eigen::AngleAxisd(rotStep*M_PI/180.0, Eigen::Vector3d::UnitZ())*tensegrityTransform.rotation();
+            tenMove.rotate(tenRot);
+            tenMove.translation() << tenTrans(0), tenTrans(1), (tenTrans(2) );
+            moveSkeleton(tensegrity, tenMove);
+            angZ = (int)(angZ + rotStep)%360;
+            break;
+        case 'L':
+            tenRot = Eigen::AngleAxisd(-rotStep*M_PI/180.0, Eigen::Vector3d::UnitZ())*tensegrityTransform.rotation();
+            tenMove.rotate(tenRot);
+            tenMove.translation() << tenTrans(0), tenTrans(1), (tenTrans(2) );
+            moveSkeleton(tensegrity, tenMove);
+            angZ = (int)(angZ - rotStep)%360;
             break;
         default:
             SimWindow::keyboard(key, x, y);
     }
 
-    double j1, j2, j3, j4, j5, j6 ;
-    j1 = staubli->getDof(2)->getPosition() * 180 / M_PI; 
-    j2 = staubli->getDof(3)->getPosition()* 180 / M_PI; 
-    j3 = staubli->getDof(4)->getPosition()* 180 / M_PI; 
-    j4 = staubli->getDof(5)->getPosition()* 180 / M_PI; 
-    j5 = staubli->getDof(6)->getPosition()* 180 / M_PI; 
-    j6 = staubli->getDof(7)->getPosition()* 180 / M_PI; 
-    jj1 = j1; 
-    jj2 = j2; 
-    jj3 = j3; 
-    jj4 = j4; 
-    jj5 = j5; 
-    jj6 = j6; 
+    tenTrans = tensegrityTransform.translation();
+     
+    std::cout << tenTrans(0) << " " << tenTrans(1) << " " << tenTrans(2) << " " << angX << " " << angY << " " << angZ << std::endl; 
+
+    joint1 = staubli->getDof(2)->getPosition()* 180 / M_PI; 
+    joint2 = staubli->getDof(3)->getPosition()* 180 / M_PI; 
+    joint3 = staubli->getDof(4)->getPosition()* 180 / M_PI; 
+    joint4 = staubli->getDof(5)->getPosition()* 180 / M_PI; 
+    joint5 = staubli->getDof(6)->getPosition()* 180 / M_PI; 
+    joint6 = staubli->getDof(7)->getPosition()* 180 / M_PI; 
+
     /*
        std::cout << "\r" <<
        std::setw(8) << std::setfill(' ') << j1 << " " 
@@ -281,6 +330,7 @@ void MyWindow::keyboard(unsigned char key, int x, int y)
 }
 
 void MyWindow::drawSkels() {
+
     std::lock_guard<std::mutex> lock(readMutex);
     glColor3f(0.0, 0.0, 0.0);
 
@@ -294,13 +344,12 @@ void MyWindow::drawSkels() {
     glColor3f(0.0, 1.0, 0.0);
 
 
-    dg::drawStringOnScreen(0.9f, 0.65f, std::to_string(jj1));
-    dg::drawStringOnScreen(0.9f, 0.625f,std::to_string(jj2));
-    dg::drawStringOnScreen(0.9f, 0.6f,  std::to_string(jj3));
-    dg::drawStringOnScreen(0.9f, 0.575f,std::to_string(jj4));
-    dg::drawStringOnScreen(0.9f, 0.55f, std::to_string(jj5));
-    dg::drawStringOnScreen(0.9f, 0.525f,std::to_string(jj6));
-    // Make sure lighting is turned on and that polygons get filled in
+    dg::drawStringOnScreen(0.9f, 0.65f, std::to_string(joint1));
+    dg::drawStringOnScreen(0.9f, 0.625f,std::to_string(joint2));
+    dg::drawStringOnScreen(0.9f, 0.6f,  std::to_string(joint3));
+    dg::drawStringOnScreen(0.9f, 0.575f,std::to_string(joint4));
+    dg::drawStringOnScreen(0.9f, 0.55f, std::to_string(joint5));
+    dg::drawStringOnScreen(0.9f, 0.525f,std::to_string(joint6));
 
 
     dd::SkeletonPtr staubli = mWorld->getSkeleton("staubli");
@@ -329,19 +378,19 @@ void MyWindow::drawSkels() {
     Eigen::Matrix3d rotTrackBall = mTrackBall.getRotationMatrix();
     Eigen::Quaterniond quatTrackBall(rotTrackBall);
 
-    dg::drawStringOnScreen(0.85f, 0.275f, std::to_string(-mTrans(0)));
-    dg::drawStringOnScreen(0.85f, 0.25f , std::to_string(-mTrans(1)));
-    dg::drawStringOnScreen(0.85f, 0.225f, std::to_string(-mTrans(2)));
-    dg::drawStringOnScreen(0.85f, 0.2f,   std::to_string(quatTrackBall.w()));
-    dg::drawStringOnScreen(0.85f, 0.175f, std::to_string(quatTrackBall.x()));
-    dg::drawStringOnScreen(0.85f, 0.15f,  std::to_string(quatTrackBall.y()));
-    dg::drawStringOnScreen(0.85f, 0.125f, std::to_string(quatTrackBall.z()));
+    dg::drawStringOnScreen(0.05f, 0.65f, std::to_string(-mTrans(0)));
+    dg::drawStringOnScreen(0.05f, 0.625f , std::to_string(-mTrans(1)));
+    dg::drawStringOnScreen(0.05f, 0.6f, std::to_string(-mTrans(2)));
+    dg::drawStringOnScreen(0.05f, 0.575f,   std::to_string(quatTrackBall.w()));
+    dg::drawStringOnScreen(0.05f, 0.55f, std::to_string(quatTrackBall.x()));
+    dg::drawStringOnScreen(0.05f, 0.525f,  std::to_string(quatTrackBall.y()));
+    dg::drawStringOnScreen(0.05f, 0.5f, std::to_string(quatTrackBall.z()));
 
     glEnable(GL_LIGHTING);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 
-    if (lines)  
+    if (showPath)  
     {
         double x,y,z,ign;
         glLineWidth(3); 
@@ -370,14 +419,14 @@ void MyWindow::drawSkels() {
 
         for (int ii = -xmax*10; ii <= xmax*10; ii+=1) 
         {
-            glVertex3f(ii * 1.0 / 10.0, 0.05, -ymax);
+            glVertex3f(ii * 1.0 / 10.0, transStep, -ymax);
 
-            glVertex3f(ii * 1.0 / 10.0, 0.05, ymax);
+            glVertex3f(ii * 1.0 / 10.0, transStep, ymax);
         }
         for (int ii = -ymax*0; ii <= ymax*10; ii+=1) 
         {
-            glVertex3f(-xmax, 0.05,ii * 1.0 / 10.0);
-            glVertex3f(xmax,0.05, ii * 1.0 / 10.0);
+            glVertex3f(-xmax, transStep,ii * 1.0 / 10.0);
+            glVertex3f(xmax,transStep, ii * 1.0 / 10.0);
         }
         //float rx, ry, rz, rw;
 
@@ -385,7 +434,7 @@ void MyWindow::drawSkels() {
         glEnd();
 */
     }
-    if (tree)
+    if (showTree)
     {
         
         using std::vector;
@@ -422,11 +471,11 @@ void MyWindow::drawSkels() {
 
 void MyWindow::setViewTrack(double j1,double j2,double j3,double j4,double j5,double j6){
 
-    jj1 = j1 * 180 / M_PI; 
-    jj2 = j2 * 180 / M_PI; 
-    jj3 = j3 * 180 / M_PI; 
-    jj4 = j4 * 180 / M_PI; 
-    jj5 = j5 * 180 / M_PI; 
-    jj6 = j6 * 180 / M_PI; 
+    joint1 = j1 * 180 / M_PI; 
+    joint2 = j2 * 180 / M_PI; 
+    joint3 = j3 * 180 / M_PI; 
+    joint4 = j4 * 180 / M_PI; 
+    joint5 = j5 * 180 / M_PI; 
+    joint6 = j6 * 180 / M_PI; 
 
 }

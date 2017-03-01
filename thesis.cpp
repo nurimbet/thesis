@@ -402,6 +402,7 @@ int main(int argc, char* argv[])
 
     std::ifstream initfile("init.txt");
     initfile >> x >> y >> z >> qw >> qx >> qy >> qz;
+
     /*qw = -0.171711;
     qx = 0.834576;
     qy = -0.402042;
