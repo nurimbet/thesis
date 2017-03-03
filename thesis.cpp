@@ -40,24 +40,26 @@ constexpr double jointMin4 = -4.7124;
 constexpr double jointMin5 = -2.0071;
 constexpr double jointMin6 = -4.7124;
 
-constexpr double jointMax[6] = {3.1416/2, 0, 2.5307, 4.7124, 2.4435, 4.7124};
-constexpr double jointMin[6] = {-3.1416/2, -2.2689, -2.5307, -4.7124, -2.0071, -4.7124};
+constexpr double jointMax[6] = {3.1416, 2.5744, 2.5307, 4.7124, 2.4435, 4.7124};
+constexpr double jointMin[6] = {-3.1416, -2.2689, -2.5307, -4.7124, -2.0071, -4.7124};
 //constexpr double jointMin[6] = {-3.1416, -2.2689, -2.5307, -4.7124, -2.0071, -4.7124};
 //constexpr double jointMax[6] = {3.1416, 2.5744, 2.5307, 4.7124, 2.4435, 4.7124};
 
-#define DIM 3
 
 class Simple3DEnvironment {
     public:
-        Simple3DEnvironment() {
+        Simple3DEnvironment(std::size_t jointNum) {
+            jointNumber = jointNum; 
             space = new ob::RealVectorStateSpace();
             space->addDimension(jointMin[0], jointMax[0]);
             space->addDimension(jointMin[1], jointMax[1]);
             space->addDimension(jointMin[2], jointMax[2]);
-            //space->addDimension(jointMin[3], jointMax[3]);
-            //space->addDimension(jointMin[4], jointMax[4]);
-            //space->addDimension(jointMin[5], jointMax[5]);
-
+            
+            if (jointNumber > 3){
+                space->addDimension(jointMin[3], jointMax[3]);
+                space->addDimension(jointMin[4], jointMax[4]);
+                space->addDimension(jointMin[5], jointMax[5]);
+            }
             ss_.reset(new og::SimpleSetup(ob::StateSpacePtr(space)));
 
             // set state validity checking for this space
@@ -68,21 +70,27 @@ class Simple3DEnvironment {
                    0.01 );
             std::cout << "Get MAximum EXtent***: " << space->getMaximumExtent() << std::endl;
             ss_->setPlanner(ob::PlannerPtr(new og::RRTstar(ss_->getSpaceInformation())));
+            //std::cout <<ss_->getPlanner()->as<og::RRTstar>()->setRange(10.0 * M_PI / 180.0) << std::endl;
         }
 
         bool plan(const Eigen::VectorXd &init, const Eigen::VectorXd & final) {
             if (!ss_) return false;
 
             ob::ScopedState<> start(ss_->getStateSpace());
-            for (std::size_t i = 0; i < DIM; ++i) start[i] = init[i] * M_PI / 180.0;
+            for (std::size_t i = 0; i < jointNumber; ++i) start[i] = init[i] * M_PI / 180.0;
 
             ob::ScopedState<> goal(ss_->getStateSpace());
-            for (std::size_t i = 0; i < DIM; ++i) goal[i] = final[i] * M_PI / 180.0;
+            for (std::size_t i = 0; i < jointNumber; ++i) goal[i] = final[i] * M_PI / 180.0;
 
             ss_->setStartAndGoalStates(start, goal, 0.05);
 
             // this will run the algorithm for one second
-            ss_->solve(60 * 1 * 10);
+            if (jointNumber > 3){
+                ss_->solve(60 * 1 * 1);
+            }
+            else{
+                ss_->solve(60 * 1 * 1);
+            }
 
             // ss_->solve(1000); // it will run for 1000 seconds
 
@@ -98,25 +106,28 @@ class Simple3DEnvironment {
                 return false;
         }
 
-        void recordSolution() {
+        void recordSolution(const Eigen::VectorXd &start) {
             if (!ss_ || !ss_->haveSolutionPath()) return;
             og::PathGeometric &p = ss_->getSolutionPath();
             p.interpolate(1000);
             std::ofstream resultfile;
-            resultfile.open("result.txt", std::ios::trunc);
+            resultfile.open("result1.txt", std::ios::app);
 
             std::ofstream endeffectorfile;
-            endeffectorfile.open("endeffector.txt", std::ios::trunc);
+            endeffectorfile.open("endeffector1.txt", std::ios::app);
 
             for (std::size_t i = 0 ; i < p.getStateCount() ; ++i)
             {
                 const double j1 = (double)p.getState(i)->as<ob::RealVectorStateSpace::StateType>()->values[0];
                 const double j2 = (double)p.getState(i)->as<ob::RealVectorStateSpace::StateType>()->values[1];
                 const double j3 = (double)p.getState(i)->as<ob::RealVectorStateSpace::StateType>()->values[2];
-                //const double j4 = (double)p.getState(i)->as<ob::RealVectorStateSpace::StateType>()->values[3];
-                //const double j5 = (double)p.getState(i)->as<ob::RealVectorStateSpace::StateType>()->values[4];
-                //const double j6 = (double)p.getState(i)->as<ob::RealVectorStateSpace::StateType>()->values[5];
-                double j4 = 0; double j5 = 0; double j6 = 0;
+                double j4 = start[3]; double j5 = start[4]; double j6 = start[5];
+                if (jointNumber > 3)
+                {
+                    j4 = (double)p.getState(i)->as<ob::RealVectorStateSpace::StateType>()->values[3];
+                    j5 = (double)p.getState(i)->as<ob::RealVectorStateSpace::StateType>()->values[4];
+                    j6 = (double)p.getState(i)->as<ob::RealVectorStateSpace::StateType>()->values[5];
+                }
 
                 dd::SkeletonPtr staubli = world_->getSkeleton("staubli");
 
@@ -137,7 +148,7 @@ class Simple3DEnvironment {
                     << std::endl;
             }
             resultfile.close();
-
+        
         ob::PlannerData pdat(ss_->getSpaceInformation());
         ss_->getPlannerData(pdat);
         std::ofstream ofs_e("edges.txt");
@@ -163,11 +174,10 @@ class Simple3DEnvironment {
                     
                     dd::SkeletonPtr staubli = world_->getSkeleton("staubli");
 
-                    /*
-                    for (const auto& r : realsOld)
+                    //for (const auto& r : realsOld)
                         
-                        ofs_e << r << " ";
-                    */
+                    //    ofs_e << r << " ";
+                    //
                     
                     staubli->getDof(2)->setPosition(reals[0]); 
                     staubli->getDof(3)->setPosition(reals[1]); 
@@ -177,10 +187,9 @@ class Simple3DEnvironment {
                     Eigen::Vector3d tr = transform.translation();
 
                     ofs_e << tr(0) << " " << tr(1) << " " << tr(2) << std::endl;
-                    /*
-                    for (const auto& r : reals)
-                        ofs_e << r << " ";
-                    */
+                    
+                   // for (const auto& r : reals)
+                   //    ofs_e << r << " ";
                     //
                     //ofs_e << "0x" << std::hex << (isMajorTree ? 0x4488AA : 0xDD6060)
                     //      << std::endl;
@@ -188,6 +197,7 @@ class Simple3DEnvironment {
                 }
             }
         }
+        
             //
             // ADD CODE HERE
             //
@@ -200,10 +210,13 @@ class Simple3DEnvironment {
             double j1 = state->as<ompl::base::RealVectorStateSpace::StateType>()->values[0]; 
             double j2 = state->as<ompl::base::RealVectorStateSpace::StateType>()->values[1]; 
             double j3 = state->as<ompl::base::RealVectorStateSpace::StateType>()->values[2]; 
-            //double j4 = state->as<ompl::base::RealVectorStateSpace::StateType>()->values[3]; 
-            //double j5 = state->as<ompl::base::RealVectorStateSpace::StateType>()->values[4]; 
-            //double j6 = state->as<ompl::base::RealVectorStateSpace::StateType>()->values[5]; 
             double j4 = 0; double j5 = 0; double j6 = 0;
+            if(jointNumber > 3)
+            {
+                j4 = state->as<ompl::base::RealVectorStateSpace::StateType>()->values[3]; 
+                j5 = state->as<ompl::base::RealVectorStateSpace::StateType>()->values[4]; 
+                j6 = state->as<ompl::base::RealVectorStateSpace::StateType>()->values[5]; 
+            }
             dd::SkeletonPtr staubli = world_->getSkeleton("staubli");
 
             staubli->getDof(2)->setPosition(j1); 
@@ -219,6 +232,7 @@ class Simple3DEnvironment {
         og::SimpleSetupPtr ss_;
         ds::WorldPtr world_;
         ob::RealVectorStateSpace *space;
+        std::size_t jointNumber;
 };
 
 std::istream& ignoreline(std::ifstream& in, std::ifstream::pos_type& pos) {
@@ -347,13 +361,41 @@ Eigen::VectorXd joints (const Eigen::VectorXd &init, const Eigen::Isometry3d &fi
         std::cout << theta[0] << std::endl;
         std::cout << final_joint.format(CommaInitFmt) << std::endl;
         //std::cout << std::endl;
-        std::cout << theta[1]  << " " << theta[2] << " " << theta[3] << " " << theta[4] << " " << theta[5] << " " << theta[6] << std::endl;
+        std::cout << theta[1] * 180.0 / M_PI << " " << theta[2] * 180.0 / M_PI<< " " << theta[3] * 180.0 / M_PI<< " " << theta[4] * 180.0 / M_PI<< " " << theta[5] * 180.0 / M_PI<< " " << theta[6] * 180.0 / M_PI<< std::endl;
     }
     //std::cout << theta[1]  << " " << theta[2] + M_PI / 2  << " " << theta[3] - M_PI/2 << " " << theta[4] << " " << theta[5] << " " << theta[6] << std::endl;
 
     return final_joint;
 }
 
+
+Eigen::VectorXd getLastLineasVector()
+{
+    Eigen::VectorXd start(6);
+
+    std::ifstream file("result1.txt");
+    std::string line = getLastLine(file);
+    std::cout << line << std::endl;
+    file.close();
+
+    std::string delimiter = " ";
+
+    size_t pos = 0;
+    std::string token;
+    int i = 0;
+    int arsize = 6;
+    float linear[arsize];
+    while ((pos = line.find(delimiter)) != std::string::npos && i < arsize) {
+        token = line.substr(0, pos);
+        linear[i] = std::stof(token);
+        line.erase(0, pos + delimiter.length());
+        i++;
+    }
+    
+    start << linear[0] , linear[1] , linear[2] , linear[3] , linear[4] , linear[5] ;
+    std::cout << start << std::endl;
+    return start;
+ }       
 
 int main(int argc, char* argv[]) 
 {
@@ -369,6 +411,16 @@ int main(int argc, char* argv[])
 
     dd::SkeletonPtr tensegrity = du::SdfParser::readSkeleton(prefix + std::string("/tensegrity.sdf"));
     tensegrity->setName("tensegrity");
+    
+    
+    Eigen::Isometry3d tenMove;
+    tenMove = Eigen::Isometry3d::Identity();
+    Eigen::Quaterniond tenRot;
+    tenRot = Eigen::AngleAxisd(-90.0*M_PI/180.0, Eigen::Vector3d::UnitZ()) *Eigen::AngleAxisd(-45.0*M_PI/180.0, Eigen::Vector3d::UnitY())*Eigen::AngleAxisd(0.0*M_PI/180.0, Eigen::Vector3d::UnitX());
+
+    tenMove.translation() << -0.75, -0.3, 1.4;
+    tenMove.rotate(tenRot);
+    moveSkeleton(tensegrity, tenMove);
 
     setAllColors(staubli, Eigen::Vector3d(0.9, 0.9, 0.9));
     staubli->enableSelfCollision();
@@ -421,24 +473,42 @@ int main(int argc, char* argv[])
     if (argc < 2) {
 
 
-        Simple3DEnvironment env;
+        
+        std::ofstream resultfile;
+        resultfile.open("result1.txt", std::ios::trunc);
+        resultfile.close();
+
+        std::ofstream endeffectorfile;
+        endeffectorfile.open("endeffector1.txt", std::ios::trunc);
+        endeffectorfile.close();
+        
+        //start = getLastLineasVector();
+        Simple3DEnvironment env(3);
         env.setWorld(world);
 
-        if(env.plan(start,finish))
+        if(env.plan(start * 180.0 / M_PI,finish))
         {
-            env.recordSolution();
+            env.recordSolution(start);
         }
+/*
+        start = getLastLineasVector();
+        Simple3DEnvironment env1(6);
+        env1.setWorld(world);
+        if(env1.plan(start*180.0/M_PI,finish))
+        {
+            env1.recordSolution(start);
+        }
+ */       
     }
 
     MyWindow window(world);
-    double j1, j2, j3, j4, j5, j6 = 0;
-
+    /*double j1, j2, j3, j4, j5, j6 = 0;
     std::thread t([&]()
             {
             // std::this_thread::sleep_for(std::chrono::seconds(1));
             //while (true) 
             //{
-            std::ifstream fin("result.txt");
+            std::ifstream fin("result1.txt");
 
             while (!fin.eof()) 
             {
@@ -458,13 +528,13 @@ int main(int argc, char* argv[])
     //}
             });
 
-
+*/
     glutInit(&argc, argv);
-    window.initWindow(640 * 2, 480 * 2, "SDF");
+    window.initWindow(475 * 2, 300 * 2, "SDF");
 
     glutMainLoop();
 
-    t.join();
+    //t.join();
 
     return 0;
 }

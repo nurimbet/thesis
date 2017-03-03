@@ -28,10 +28,10 @@ bool collisionEnabled = true;
 MyWindow::MyWindow(const ds::WorldPtr& world) 
 { 
     setWorld(world); 
-    mZoom = 0.20;
+    mZoom = 0.28;
     mTranslate = true;
-    mTrans = -Eigen::Vector3d(0.15,0.15,1.5)*1000;
-    Eigen::Quaterniond quat( 0.854,  -0.354, 0.146,  0.354);
+    mTrans = -Eigen::Vector3d(-0.301,-0.171,1.3)*1000;
+    Eigen::Quaterniond quat( 0.764165,  -0.644268, -0.026487,  -0.030964);
 
     mTrackBall.setQuaternion(quat);
 }
@@ -396,7 +396,7 @@ void MyWindow::drawSkels() {
         glLineWidth(3); 
         glBegin(GL_LINES);
         glColor3f(0, 0, 0);
-        std::ifstream fin_to("endeffector.txt");
+        std::ifstream fin_to("endeffector1.txt");
         fin_to >> x >> y >> z >> ign >> ign >> ign >> ign;
         glVertex3f(x, y, z);
         while(!fin_to.eof()){
