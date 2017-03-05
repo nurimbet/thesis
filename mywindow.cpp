@@ -5,20 +5,6 @@
 
 namespace dd = dart::dynamics;
 
-constexpr double jointMax1 = 3.1416;
-constexpr double jointMax2 = 2.5744;
-constexpr double jointMax3 = 2.5307;
-constexpr double jointMax4 = 4.7124;
-constexpr double jointMax5 = 2.4435;
-constexpr double jointMax6 = 4.7124;
-
-constexpr double jointMin1 = -3.1416;
-constexpr double jointMin2 = -2.2689;
-constexpr double jointMin3 = -2.5307;
-constexpr double jointMin4 = -4.7124;
-constexpr double jointMin5 = -2.0071;
-constexpr double jointMin6 = -4.7124;
-
 constexpr double jointMax[6] = {3.1416, 2.5744, 2.5307, 4.7124, 2.4435, 4.7124};
 constexpr double jointMin[6] = {-3.1416, -2.2689, -2.5307, -4.7124, -2.0071, -4.7124};
 
@@ -43,20 +29,6 @@ void MyWindow::keyboard(unsigned char key, int x, int y)
 
     dd::SkeletonPtr staubli = mWorld->getSkeleton("staubli");
 
-    dd::SkeletonPtr tensegrity = mWorld->getSkeleton("tensegrity");
-    
-    Eigen::Isometry3d tensegrityTransform = tensegrity->getRootBodyNode()->getWorldTransform();
-    Eigen::Vector3d tenTrans = tensegrityTransform.translation();
-    
-    Eigen::Isometry3d tenMove;
-    tenMove = Eigen::Isometry3d::Identity();
-    Eigen::Quaterniond tenRot;
-
-    
-    
-    static int angX, angY, angZ = 0;
-    double transStep = 0.05;
-    double rotStep = 15.0; 
     switch(key)
     {
         case '0':
@@ -113,82 +85,40 @@ void MyWindow::keyboard(unsigned char key, int x, int y)
             collisionEnabled = !collisionEnabled; 
             break;
         case 'a':
-            tenMove.translation() << (tenTrans(0) + transStep), tenTrans(1), tenTrans(2);
-            tenMove.rotate(tensegrityTransform.rotation());
-            moveSkeleton(tensegrity, tenMove);
-        
+            translateTensegrity(0, true);
             break;
         case 'A':
-            tenMove.translation() << (tenTrans(0) - transStep), tenTrans(1), tenTrans(2);
-            tenMove.rotate(tensegrityTransform.rotation());
-            moveSkeleton(tensegrity, tenMove);
-        
+            translateTensegrity(0, false);
             break;
         case 's':
-            tenMove.translation() << tenTrans(0), (tenTrans(1) + transStep), tenTrans(2);
-            tenMove.rotate(tensegrityTransform.rotation());
-            moveSkeleton(tensegrity, tenMove);
-        
+            translateTensegrity(1, true);
             break;
         case 'S':
-            tenMove.translation() << tenTrans(0), (tenTrans(1) - transStep), tenTrans(2);
-            tenMove.rotate(tensegrityTransform.rotation());
-            moveSkeleton(tensegrity, tenMove);
-        
+            translateTensegrity(1, false);
             break;
         case 'd':
-            tenMove.translation() << tenTrans(0), tenTrans(1), (tenTrans(2) + transStep);
-            tenMove.rotate(tensegrityTransform.rotation());
-            moveSkeleton(tensegrity, tenMove);
-        
+            translateTensegrity(2, true);
             break;
         case 'D':
-            tenMove.translation() << tenTrans(0), tenTrans(1), (tenTrans(2) - transStep);
-            tenMove.rotate(tensegrityTransform.rotation());
-            moveSkeleton(tensegrity, tenMove);
-        
+            translateTensegrity(1, false);
             break;
         case 'j':
-            tenRot = Eigen::AngleAxisd(rotStep*M_PI/180.0, Eigen::Vector3d::UnitX())*tensegrityTransform.rotation();
-            tenMove.rotate(tenRot);
-            tenMove.translation() << tenTrans(0), tenTrans(1), (tenTrans(2) );
-            moveSkeleton(tensegrity, tenMove);
-            angX = (int)(angX + rotStep)%360;
+            rotateTensegrity(0, true);
             break;
         case 'J':
-            tenRot = Eigen::AngleAxisd(-rotStep*M_PI/180.0, Eigen::Vector3d::UnitX())*tensegrityTransform.rotation();
-            tenMove.rotate(tenRot);
-            tenMove.translation() << tenTrans(0), tenTrans(1), (tenTrans(2) );
-            moveSkeleton(tensegrity, tenMove);
-            angX = (int)(angX - rotStep)%360;
+            rotateTensegrity(0, false);
             break;
         case 'k':
-            tenRot = Eigen::AngleAxisd(rotStep*M_PI/180.0, Eigen::Vector3d::UnitY())*tensegrityTransform.rotation();
-            tenMove.rotate(tenRot);
-            tenMove.translation() << tenTrans(0), tenTrans(1), (tenTrans(2) );
-            moveSkeleton(tensegrity, tenMove);
-            angY = (int)(angY + rotStep)%360;
+            rotateTensegrity(1, true);
             break;
         case 'K':
-            tenRot = Eigen::AngleAxisd(-rotStep*M_PI/180.0, Eigen::Vector3d::UnitY())*tensegrityTransform.rotation();
-            tenMove.rotate(tenRot);
-            tenMove.translation() << tenTrans(0), tenTrans(1), (tenTrans(2) );
-            moveSkeleton(tensegrity, tenMove);
-            angY = (int)(angY - rotStep)%360;
+            rotateTensegrity(1, false);
             break;
         case 'l':
-            tenRot = Eigen::AngleAxisd(rotStep*M_PI/180.0, Eigen::Vector3d::UnitZ())*tensegrityTransform.rotation();
-            tenMove.rotate(tenRot);
-            tenMove.translation() << tenTrans(0), tenTrans(1), (tenTrans(2) );
-            moveSkeleton(tensegrity, tenMove);
-            angZ = (int)(angZ + rotStep)%360;
+            rotateTensegrity(2, true);
             break;
         case 'L':
-            tenRot = Eigen::AngleAxisd(-rotStep*M_PI/180.0, Eigen::Vector3d::UnitZ())*tensegrityTransform.rotation();
-            tenMove.rotate(tenRot);
-            tenMove.translation() << tenTrans(0), tenTrans(1), (tenTrans(2) );
-            moveSkeleton(tensegrity, tenMove);
-            angZ = (int)(angZ - rotStep)%360;
+            rotateTensegrity(2, false);
             break;
         case '+':
             showAxes = !showAxes;
@@ -197,9 +127,6 @@ void MyWindow::keyboard(unsigned char key, int x, int y)
             SimWindow::keyboard(key, x, y);
     }
 
-    tenTrans = tensegrityTransform.translation();
-
-    std::cout << tenTrans(0) << " " << tenTrans(1) << " " << tenTrans(2) << " " << angX << " " << angY << " " << angZ << std::endl; 
 
     joint1 = staubli->getDof(2)->getPosition()* 180 / M_PI; 
     joint2 = staubli->getDof(3)->getPosition()* 180 / M_PI; 
@@ -434,4 +361,73 @@ void MyWindow::moveJoint(int numJoint, bool positive)
     }
     if (!collisionEnabled)
         staubli->getDof(numJoint)->setPosition(l); 
+}
+
+void MyWindow::translateTensegrity(int axis, bool positive)
+{
+    dd::SkeletonPtr tensegrity = mWorld->getSkeleton("tensegrity");
+    
+    Eigen::Isometry3d tensegrityTransform = tensegrity->getRootBodyNode()->getWorldTransform();
+    Eigen::Vector3d tenTrans = tensegrityTransform.translation();
+    
+    Eigen::Isometry3d tenMove;
+    
+    tenMove = Eigen::Isometry3d::Identity();
+    double transStep = 0.05;
+    double trans[3] = {0.0,0.0,0.0};
+    trans[axis] = transStep;
+   
+    if(positive)
+    { 
+        tenMove.translation() << (tenTrans(0) + trans[0]), tenTrans(1) + trans[1], tenTrans(2) + trans[2];
+    }
+    else
+    {
+        tenMove.translation() << (tenTrans(0) - trans[0]), tenTrans(1) - trans[1], tenTrans(2) - trans[2];
+    }
+    tenMove.rotate(tensegrityTransform.rotation());
+    moveSkeleton(tensegrity, tenMove);
+    
+}
+void MyWindow::rotateTensegrity(int axis, bool positive)
+{
+    dd::SkeletonPtr tensegrity = mWorld->getSkeleton("tensegrity");
+    
+    Eigen::Isometry3d tensegrityTransform = tensegrity->getRootBodyNode()->getWorldTransform();
+    Eigen::Vector3d tenTrans = tensegrityTransform.translation();
+    
+    Eigen::Isometry3d tenMove;
+    tenMove = Eigen::Isometry3d::Identity();
+    Eigen::Quaterniond tenRot;
+
+    static int angX, angY, angZ = 0;
+    double rotStep = 15.0; 
+    if(!positive)
+    {
+        rotStep = -rotStep;
+    }
+
+    if(axis == 0)
+    {
+        tenRot = Eigen::AngleAxisd(rotStep*M_PI/180.0, Eigen::Vector3d::UnitX())*tensegrityTransform.rotation();
+        angX = (int)(angX + rotStep)%360;
+    }
+    else if(axis == 1)
+    {
+        tenRot = Eigen::AngleAxisd(rotStep*M_PI/180.0, Eigen::Vector3d::UnitY())*tensegrityTransform.rotation();
+        angY = (int)(angY + rotStep)%360;
+    }
+    else if(axis == 2)
+    {
+        tenRot = Eigen::AngleAxisd(rotStep*M_PI/180.0, Eigen::Vector3d::UnitZ())*tensegrityTransform.rotation();
+        angZ = (int)(angZ + rotStep)%360;
+    }
+
+    tenMove.rotate(tenRot);
+    tenMove.translation() << tenTrans(0), tenTrans(1), (tenTrans(2) );
+    moveSkeleton(tensegrity, tenMove);
+    
+    tenTrans = tensegrityTransform.translation();
+
+    std::cout << tenTrans(0) << " " << tenTrans(1) << " " << tenTrans(2) << " " << angX << " " << angY << " " << angZ << std::endl; 
 }

@@ -22,6 +22,8 @@ class MyWindow : public dart::gui::SimWindow {
   void drawSkels() override;
   void setViewTrack(double j1,double j2,double j3,double j4,double j5,double j6);
   void moveJoint(int jointNum, bool positive);
+  void translateTensegrity(int axis, bool positive);
+  void rotateTensegrity(int axis, bool positive);
  private:
  std::mutex readMutex;
 };
