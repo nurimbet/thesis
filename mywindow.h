@@ -18,8 +18,10 @@ class MyWindow : public dart::gui::SimWindow {
 
   /// fixes rendering
   void keyboard(unsigned char key, int x, int y) override;
+  void drawAxes(const Eigen::Vector3d &tr, const Eigen::Matrix3d &rot);  
   void drawSkels() override;
   void setViewTrack(double j1,double j2,double j3,double j4,double j5,double j6);
+  void moveJoint(int jointNum, bool positive);
  private:
  std::mutex readMutex;
 };

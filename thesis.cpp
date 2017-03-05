@@ -89,7 +89,7 @@ class Simple3DEnvironment {
                 ss_->solve(60 * 1 * 1);
             }
             else{
-                ss_->solve(60 * 1 * 1);
+                ss_->solve(10 * 1 * 1);
             }
 
             // ss_->solve(1000); // it will run for 1000 seconds
@@ -226,7 +226,11 @@ class Simple3DEnvironment {
             staubli->getDof(6)->setPosition(j5); 
             staubli->getDof(7)->setPosition(j6); 
 
-            return !world_->checkCollision();
+
+            Eigen::Isometry3d transform = staubli->getBodyNode("toolflange_link")->getTransform();
+            Eigen::Vector3d tr = transform.translation();
+            
+            return !world_->checkCollision();// && tr(0) <= 0.50;
 
         } 
         og::SimpleSetupPtr ss_;
@@ -500,9 +504,11 @@ int main(int argc, char* argv[])
         }
  */       
     }
-
+    for (int jj = 2; jj <=7; jj++){
+        staubli->getDof(jj)->setPosition(0); 
+    }
     MyWindow window(world);
-    /*double j1, j2, j3, j4, j5, j6 = 0;
+    double j1, j2, j3, j4, j5, j6 = 0;
     std::thread t([&]()
             {
             // std::this_thread::sleep_for(std::chrono::seconds(1));
@@ -528,13 +534,13 @@ int main(int argc, char* argv[])
     //}
             });
 
-*/
+
     glutInit(&argc, argv);
     window.initWindow(475 * 2, 300 * 2, "SDF");
 
     glutMainLoop();
 
-    //t.join();
+    t.join();
 
     return 0;
 }

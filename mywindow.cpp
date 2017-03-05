@@ -19,11 +19,14 @@ constexpr double jointMin4 = -4.7124;
 constexpr double jointMin5 = -2.0071;
 constexpr double jointMin6 = -4.7124;
 
+constexpr double jointMax[6] = {3.1416, 2.5744, 2.5307, 4.7124, 2.4435, 4.7124};
+constexpr double jointMin[6] = {-3.1416, -2.2689, -2.5307, -4.7124, -2.0071, -4.7124};
 
 double joint1, joint2, joint3, joint4, joint5, joint6 = 0;
 bool showPath = false;
 bool showTree = false;
 bool collisionEnabled = true;
+bool showAxes = true;
 
 MyWindow::MyWindow(const ds::WorldPtr& world) 
 { 
@@ -38,8 +41,8 @@ MyWindow::MyWindow(const ds::WorldPtr& world)
 void MyWindow::keyboard(unsigned char key, int x, int y)
 {
 
-
     dd::SkeletonPtr staubli = mWorld->getSkeleton("staubli");
+
     dd::SkeletonPtr tensegrity = mWorld->getSkeleton("tensegrity");
     
     Eigen::Isometry3d tensegrityTransform = tensegrity->getRootBodyNode()->getWorldTransform();
@@ -51,168 +54,54 @@ void MyWindow::keyboard(unsigned char key, int x, int y)
 
     
     
-    double j  = 0; 
-    double k = M_PI / 180.0;
     static int angX, angY, angZ = 0;
     double transStep = 0.05;
     double rotStep = 15.0; 
     switch(key)
     {
-        case '1':
-            j = staubli->getDof(2)->getPosition(); 
-            if (j + k <= jointMax1)
+        case '0':
+            
+            for (int ii = 1; ii <=6; ii++)
             {
-                staubli->getDof(2)->setPosition(j+k); 
-                if(mWorld->checkCollision())
-                {
-                    staubli->getDof(2)->setPosition(j); 
-                }
+                staubli->getDof(ii + 1)->setPosition(0); 
             }
-            if (!collisionEnabled)
-            staubli->getDof(2)->setPosition(j+k); 
+            break;
+        case '1':
+            moveJoint(1,true);
             break;
         case '2':
-            j = staubli->getDof(3)->getPosition(); 
-            if (j + k <= jointMax2)
-            {
-                staubli->getDof(3)->setPosition(j+k); 
-                if(mWorld->checkCollision())
-                {
-                    staubli->getDof(3)->setPosition(j); 
-                }
-            }
-            if (!collisionEnabled)
-            staubli->getDof(3)->setPosition(j+k); 
+            moveJoint(2,true);
             break;
         case '3':
-            j = staubli->getDof(4)->getPosition(); 
-            if (j + k <= jointMax3)
-            {
-                staubli->getDof(4)->setPosition(j+k); 
-                if(mWorld->checkCollision())
-                {
-                    staubli->getDof(4)->setPosition(j); 
-                }
-            }
-            if (!collisionEnabled)
-            staubli->getDof(4)->setPosition(j+k); 
+            moveJoint(3,true);
             break;
         case '4':
-            j = staubli->getDof(5)->getPosition(); 
-            if (j + k <= jointMax4)
-            {
-                staubli->getDof(5)->setPosition(j+k); 
-                if(mWorld->checkCollision())
-                {
-                    staubli->getDof(5)->setPosition(j); 
-                }
-            }
-            if (!collisionEnabled)
-            staubli->getDof(5)->setPosition(j+k); 
+            moveJoint(4,true);
             break;
         case '5':
-            j = staubli->getDof(6)->getPosition(); 
-            if (j + k <= jointMax5)
-            {
-                staubli->getDof(6)->setPosition(j+k); 
-                if(mWorld->checkCollision())
-                {
-                    staubli->getDof(6)->setPosition(j); 
-                }
-            }
-            if (!collisionEnabled)
-            staubli->getDof(6)->setPosition(j+k); 
+            moveJoint(5,true);
             break;
         case '6':
-            j = staubli->getDof(7)->getPosition(); 
-            if (j + k <= jointMax6)
-            {
-                staubli->getDof(7)->setPosition(j+k); 
-                if(mWorld->checkCollision())
-                {
-                    staubli->getDof(7)->setPosition(j); 
-                }
-            }
-            if (!collisionEnabled)
-            staubli->getDof(7)->setPosition(j+k); 
+            moveJoint(6,true);
             break;
         case '!':
-            j = staubli->getDof(2)->getPosition(); 
-            if (j - k >= jointMin1)
-            {
-                staubli->getDof(2)->setPosition(j-k); 
-                if(mWorld->checkCollision())
-                {
-                    staubli->getDof(2)->setPosition(j); 
-                }
-            }
-            if (!collisionEnabled)
-            staubli->getDof(2)->setPosition(j-k); 
+            moveJoint(1,false);
             break;
         case '@':
-            j = staubli->getDof(3)->getPosition(); 
-            if (j - k >= jointMin2)
-            {
-                staubli->getDof(3)->setPosition(j-k); 
-                if(mWorld->checkCollision())
-                {
-                    staubli->getDof(3)->setPosition(j); 
-                }
-            }
-            if (!collisionEnabled)
-            staubli->getDof(3)->setPosition(j-k); 
+            moveJoint(2,false);
             break;
         case '#':
-            j = staubli->getDof(4)->getPosition(); 
-            if (j - k >= jointMin3)
-            {
-                staubli->getDof(4)->setPosition(j-k); 
-                if(mWorld->checkCollision())
-                {
-                    staubli->getDof(4)->setPosition(j); 
-                }
-            }
-            if (!collisionEnabled)
-            staubli->getDof(4)->setPosition(j-k); 
+            moveJoint(3,false);
             break;
         case '$':
-            j = staubli->getDof(5)->getPosition(); 
-            if (j - k >= jointMin4)
-            {
-                staubli->getDof(5)->setPosition(j-k); 
-                if(mWorld->checkCollision())
-                {
-                    staubli->getDof(5)->setPosition(j); 
-                }
-            }
-            if (!collisionEnabled)
-            staubli->getDof(5)->setPosition(j-k); 
+            moveJoint(4,false);
             break;
         case '%':
-            j = staubli->getDof(6)->getPosition(); 
-            if (j - k >= jointMin5)
-            {
-                staubli->getDof(6)->setPosition(j-k); 
-                if(mWorld->checkCollision())
-                {
-                    staubli->getDof(6)->setPosition(j); 
-                }
-            }
-            if (!collisionEnabled)
-            staubli->getDof(6)->setPosition(j-k); 
+            moveJoint(5,false);
             break;
         case '^':
-            j = staubli->getDof(7)->getPosition(); 
-            if (j - k >= jointMin6)
-            {
-                staubli->getDof(7)->setPosition(j-k); 
-                if(mWorld->checkCollision())
-                {
-                    staubli->getDof(7)->setPosition(j); 
-                }
-            }
-            if (!collisionEnabled)
-            staubli->getDof(7)->setPosition(j-k); 
+            moveJoint(6,false);
+            break;
             break;
         case 'p':
             showPath  = !showPath;
@@ -301,12 +190,15 @@ void MyWindow::keyboard(unsigned char key, int x, int y)
             moveSkeleton(tensegrity, tenMove);
             angZ = (int)(angZ - rotStep)%360;
             break;
+        case '+':
+            showAxes = !showAxes;
+            break;
         default:
             SimWindow::keyboard(key, x, y);
     }
 
     tenTrans = tensegrityTransform.translation();
-     
+
     std::cout << tenTrans(0) << " " << tenTrans(1) << " " << tenTrans(2) << " " << angX << " " << angY << " " << angZ << std::endl; 
 
     joint1 = staubli->getDof(2)->getPosition()* 180 / M_PI; 
@@ -456,7 +348,7 @@ void MyWindow::drawSkels() {
         
         glLineWidth(1); 
         glBegin(GL_LINES);
-        glColor3f(1, 1, 0);
+        glColor3f(0, 1, 0);
         for(size_t i = 0; i < solution_path.size() - 1; i++)
         {
             glVertex3d(solution_path[i][0], solution_path[i][1], solution_path[i][2]);
@@ -465,6 +357,25 @@ void MyWindow::drawSkels() {
         }
         glEnd();
     }
+
+    if (showAxes)
+    {
+        
+        Eigen::Matrix3d rot_tr = transform.rotation();
+        drawAxes(tr, rot_tr);
+
+
+
+        dd::SkeletonPtr tensegrity = mWorld->getSkeleton("tensegrity");
+        
+        Eigen::Isometry3d tensegrityTransform = tensegrity->getRootBodyNode()->getWorldTransform();
+        Eigen::Vector3d tenTrans = tensegrityTransform.translation();
+        Eigen::Matrix3d rot_ten = tensegrityTransform.rotation();
+
+        drawAxes(tenTrans, rot_ten);
+         
+    }
+    
     SimWindow::drawSkels();
 
 }
@@ -478,4 +389,49 @@ void MyWindow::setViewTrack(double j1,double j2,double j3,double j4,double j5,do
     joint5 = j5 * 180 / M_PI; 
     joint6 = j6 * 180 / M_PI; 
 
+}
+void MyWindow::drawAxes(const Eigen::Vector3d &tr, const Eigen::Matrix3d &rot)
+{
+
+        glLineWidth(1); 
+        glBegin(GL_LINES);
+        glColor3f(0, 0, 1);
+        
+
+        glVertex3d(tr(0), tr(1), tr(2));
+        glVertex3d(tr(0) + 0.25*rot(0,2), tr(1) + 0.25*rot(1,2), tr(2)+0.25*rot(2,2));
+        glColor3f(0, 1, 0);
+        glVertex3d(tr(0), tr(1), tr(2));
+        glVertex3d(tr(0) + 0.25*rot(0,1), tr(1) + 0.25*rot(1,1), tr(2)+0.25*rot(2,1));
+        glColor3f(1, 0, 0);
+        glVertex3d(tr(0), tr(1), tr(2));
+        glVertex3d(tr(0) + 0.25*rot(0,0), tr(1) + 0.25*rot(1,0), tr(2)+0.25*rot(2,0));
+
+        glEnd();
+}
+void MyWindow::moveJoint(int numJoint, bool positive)
+{
+
+    dd::SkeletonPtr staubli = mWorld->getSkeleton("staubli");
+    double j = staubli->getDof(numJoint+1)->getPosition(); 
+    double k = M_PI / 180.0;
+    double l = 0.0;
+    if(positive)
+    {
+        l = j + k;
+    }
+    else
+    {
+        l = j - k; 
+    }
+    if (l <= jointMax[numJoint - 1])
+    {
+        staubli->getDof(numJoint+1)->setPosition(l); 
+        if(mWorld->checkCollision())
+        {
+            staubli->getDof(numJoint+1)->setPosition(j); 
+        }
+    }
+    if (!collisionEnabled)
+        staubli->getDof(numJoint)->setPosition(l); 
 }
