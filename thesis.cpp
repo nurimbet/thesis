@@ -54,7 +54,7 @@ class Simple3DEnvironment {
             space->addDimension(jointMin[0], jointMax[0]);
             space->addDimension(jointMin[1], jointMax[1]);
             space->addDimension(jointMin[2], jointMax[2]);
-            
+
             if (jointNumber > 3){
                 space->addDimension(jointMin[3], jointMax[3]);
                 space->addDimension(jointMin[4], jointMax[4]);
@@ -67,7 +67,7 @@ class Simple3DEnvironment {
                         this, std::placeholders::_1));
             space->setup();
             ss_->getSpaceInformation()->setStateValidityCheckingResolution(
-                   0.01 );
+                    0.01 );
             std::cout << "Get MAximum EXtent***: " << space->getMaximumExtent() << std::endl;
             ss_->setPlanner(ob::PlannerPtr(new og::RRTstar(ss_->getSpaceInformation())));
             //std::cout <<ss_->getPlanner()->as<og::RRTstar>()->setRange(10.0 * M_PI / 180.0) << std::endl;
@@ -86,10 +86,10 @@ class Simple3DEnvironment {
 
             // this will run the algorithm for one second
             if (jointNumber > 3){
-                ss_->solve(60 * 1 * 1);
+                ss_->solve(60 * 1 * 10);
             }
             else{
-                ss_->solve(10 * 1 * 1);
+                ss_->solve(60 * 1 * 10);
             }
 
             // ss_->solve(1000); // it will run for 1000 seconds
@@ -148,56 +148,56 @@ class Simple3DEnvironment {
                     << std::endl;
             }
             resultfile.close();
-        
-        ob::PlannerData pdat(ss_->getSpaceInformation());
-        ss_->getPlannerData(pdat);
-        std::ofstream ofs_e("edges.txt");
-        std::vector<unsigned int> edge_list;
-        std::vector<double> reals;
-        std::vector<double> realsOld;
-        //bool isMajorTree = false;
-        ob::State* s3 = space->allocState();
-        for (unsigned int i(0); i < pdat.numVertices(); ++i) {
-            unsigned int n_edge = pdat.getEdges(i, edge_list);
-            const ob::State* s1 = pdat.getVertex(i).getState();
-            //isMajorTree = pdat.getVertex(i).getTag();
-            for (unsigned int i2(0); i2 < n_edge; ++i2) {
-                const ob::State* s2 = pdat.getVertex(edge_list[i2]).getState();
-                double step = 0.05;
-                if (space->distance(s1, s2) < 0.03) {
-                    step = 0.2;
-                }
-                space->copyToReals(realsOld, s1);
-                for (double t = step; t <= 1.01; t += step) {
-                    space->interpolate(s1, s2, t, s3);
-                    space->copyToReals(reals, s3);
-                    
-                    dd::SkeletonPtr staubli = world_->getSkeleton("staubli");
+/*
+            ob::PlannerData pdat(ss_->getSpaceInformation());
+            ss_->getPlannerData(pdat);
+            std::ofstream ofs_e("edges.txt");
+            std::vector<unsigned int> edge_list;
+            std::vector<double> reals;
+            std::vector<double> realsOld;
+            //bool isMajorTree = false;
+            ob::State* s3 = space->allocState();
+            for (unsigned int i(0); i < pdat.numVertices(); ++i) {
+                unsigned int n_edge = pdat.getEdges(i, edge_list);
+                const ob::State* s1 = pdat.getVertex(i).getState();
+                //isMajorTree = pdat.getVertex(i).getTag();
+                for (unsigned int i2(0); i2 < n_edge; ++i2) {
+                    const ob::State* s2 = pdat.getVertex(edge_list[i2]).getState();
+                    double step = 0.05;
+                    if (space->distance(s1, s2) < 0.03) {
+                        step = 0.2;
+                    }
+                    space->copyToReals(realsOld, s1);
+                    for (double t = step; t <= 1.01; t += step) {
+                        space->interpolate(s1, s2, t, s3);
+                        space->copyToReals(reals, s3);
 
-                    //for (const auto& r : realsOld)
-                        
-                    //    ofs_e << r << " ";
-                    //
-                    
-                    staubli->getDof(2)->setPosition(reals[0]); 
-                    staubli->getDof(3)->setPosition(reals[1]); 
-                    staubli->getDof(4)->setPosition(reals[2]); 
+                        dd::SkeletonPtr staubli = world_->getSkeleton("staubli");
 
-                    Eigen::Isometry3d transform = staubli->getBodyNode("toolflange_link")->getTransform();
-                    Eigen::Vector3d tr = transform.translation();
+                        //for (const auto& r : realsOld)
 
-                    ofs_e << tr(0) << " " << tr(1) << " " << tr(2) << std::endl;
-                    
-                   // for (const auto& r : reals)
-                   //    ofs_e << r << " ";
-                    //
-                    //ofs_e << "0x" << std::hex << (isMajorTree ? 0x4488AA : 0xDD6060)
-                    //      << std::endl;
-                    //ofs_e << std::endl;
+                        //    ofs_e << r << " ";
+                        //
+
+                        staubli->getDof(2)->setPosition(reals[0]); 
+                        staubli->getDof(3)->setPosition(reals[1]); 
+                        staubli->getDof(4)->setPosition(reals[2]); 
+
+                        Eigen::Isometry3d transform = staubli->getBodyNode("toolflange_link")->getTransform();
+                        Eigen::Vector3d tr = transform.translation();
+
+                        ofs_e << tr(0) << " " << tr(1) << " " << tr(2) << std::endl;
+
+                        // for (const auto& r : reals)
+                        //    ofs_e << r << " ";
+                        //
+                        //ofs_e << "0x" << std::hex << (isMajorTree ? 0x4488AA : 0xDD6060)
+                        //      << std::endl;
+                        //ofs_e << std::endl;
+                    }
                 }
             }
-        }
-        
+*/
             //
             // ADD CODE HERE
             //
@@ -229,7 +229,7 @@ class Simple3DEnvironment {
 
             Eigen::Isometry3d transform = staubli->getBodyNode("toolflange_link")->getTransform();
             Eigen::Vector3d tr = transform.translation();
-            
+
             return !world_->checkCollision();// && tr(0) <= 0.50;
 
         } 
@@ -319,7 +319,7 @@ Eigen::VectorXd joints (const Eigen::VectorXd &init, const Eigen::Isometry3d &fi
 
         theta[6] = -atan2(-a_wy / sin(theta[5]), -a_wx / sin(theta[5]));    
 
-        theta[4] = ((i == 1) ? 1:(-1)) * atan2(-o_wz / sin(theta[5]), n_wz / sin(theta[5]));    
+        theta[4] = ((i == 8) ? 1:(-1)) * atan2(-o_wz / sin(theta[5]), n_wz / sin(theta[5]));    
 
         theta[2] = theta[2] + (M_PI / 2.0);
         theta[3] = theta[3] - (M_PI / 2.0);
@@ -395,11 +395,189 @@ Eigen::VectorXd getLastLineasVector()
         line.erase(0, pos + delimiter.length());
         i++;
     }
-    
+
     start << linear[0] , linear[1] , linear[2] , linear[3] , linear[4] , linear[5] ;
     std::cout << start << std::endl;
     return start;
- }       
+}       
+
+void detachAttachStrings(Eigen::VectorXd strings, const ds::WorldPtr &world)
+{
+    
+}
+
+bool detachAttachCheck(int i, Eigen::VectorXd strings, const ds::WorldPtr &world)
+{
+   
+    detachAttachStrings(strings, world); 
+    Eigen::VectorXd zero_joints(6); 
+    zero_joints << 0,0,0,0,0,0;
+/*
+    dd::SkeletonPtr tensegrity = world->getSkeleton("tensegrity");
+
+    Eigen::Isometry3d det_transform = tensegrity->getBodyNode("detach...")->getTransform();
+    Eigen::Quaterniond det_quat(det_transform.rotation());
+    Eigen::Vector3d det_tr = det_transform.translation();
+    
+    Eigen::Isometry3d at_transform = tensegrity->getBodyNode("attach...")->getTransform();
+    Eigen::Quaterniond at_quat(at_transform.rotation());
+    Eigen::Vector3d at_tr = at_transform.translation();
+    // rotate stuff 
+
+    Eigen::VectorXd det_joints(6);
+    det_joints = joints(zero_joints, det_transform, world);
+
+    if (det_joints == zero_joints)
+    {
+        return false;
+    }
+
+    Eigen::VectorXd at_joints(6);
+    at_joints = joints(zero_joints, at_transform, world);
+
+    if (at_joints == zero_joints)
+    {
+        return false;
+    }
+*/
+    return true;    
+}
+
+void attachDetachCheckWithStrings(const ds::WorldPtr &world)
+{
+    std::ofstream sequenceFile;
+    sequenceFile.open("sequence.txt", std::ios::trunc);
+    Eigen::VectorXd strings(9);
+    strings << 1, 1, 1, 1, 1, 1, 1, 1, 1;
+
+    for(int st1 = 0; st1 < 9; st1++)
+    {
+        strings(st1) = 0;
+        if (!detachAttachCheck(st1, strings, world))
+        {
+            strings(st1) = 1;
+            break; 
+        }
+        for(int st2 = 0; st2 < 9; st2++)
+        {
+            if(strings(st2) == 0) 
+            {
+                continue;
+            }
+            strings(st2) = 0;
+            if (!detachAttachCheck(st2, strings, world))
+            {
+                strings(st2) = 1;
+                break; 
+            }
+            
+            for(int st3 = 0; st3 < 9; st3++)
+            {
+                if(strings(st3) == 0) 
+                {
+                    continue;
+                }
+                strings(st3) = 0;
+                if (!detachAttachCheck(st3, strings, world))
+                {
+                    strings(st3) = 1;
+                    break; 
+                }
+            
+                for(int st4 = 0; st4 < 9; st4++)
+                {
+                    if(strings(st4) == 0) 
+                    {
+                        continue;
+                    }
+                    strings(st4) = 0;
+                    if (!detachAttachCheck(st4, strings, world))
+                    {
+                        strings(st4) = 1;
+                        break; 
+                    }
+                    for(int st5 = 0; st5 < 9; st5++)
+                    {
+                        if(strings(st5) == 0) 
+                        {
+                            continue;
+                        }
+                        strings(st5) = 0;
+                        if (!detachAttachCheck(st5, strings, world))
+                        {
+                            strings(st5) = 1;
+                            break; 
+                        }
+                        for(int st6 = 0; st6 < 9; st6++)
+                        {
+                            if(strings(st6) == 0) 
+                            {
+                                continue;
+                            }
+                            strings(st6) = 0;
+                            if (!detachAttachCheck(st6, strings, world))
+                            {
+                                strings(st6) = 1;
+                                break; 
+                            }
+                            for(int st7 = 0; st7 < 9; st7++)
+                            {
+                                if(strings(st7) == 0) 
+                                {
+                                    continue;
+                                }
+                                strings(st7) = 0;
+                                if (!detachAttachCheck(st7, strings, world))
+                                {
+                                    strings(st7) = 1;
+                                    break; 
+                                }
+                                for(int st8 = 0; st8 < 9; st8++)
+                                {
+                                    if(strings(st8) == 0) 
+                                    {
+                                        continue;
+                                    }
+                                    strings(st8) = 0;
+                                    if (!detachAttachCheck(st8, strings, world))
+                                    {
+                                        strings(st8) = 1;
+                                        break; 
+                                    }
+                                    for(int st9 = 0; st9 < 9; st9++)
+                                    {
+                                        if(strings(st9) == 0) 
+                                        {
+                                            continue;
+                                        }
+                                        strings(st9) = 0;
+                                        if (!detachAttachCheck(st9, strings, world))
+                                        {
+                                            strings(st9) = 1;
+                                            break; 
+                                        }
+                                        sequenceFile << st9 << " " << st8 << " " << st7 << " " << st6 << " " << st5 << " " << st4 << " " << st3 << " " << st2 << " " << st1 <<std::endl;
+                                        // srite to file in the reverse order of indeces
+                                        
+                                        strings(st9) = 1;
+                                    }
+                                    strings(st8) = 1;
+                                }
+                                strings(st7) = 1;
+                            }
+                            strings(st6) = 1;
+                        }
+                        strings(st5) = 1;
+                    }
+                    strings(st4) = 1;
+                }
+                strings(st3) = 1;
+            }
+            strings(st2) = 1;
+        }
+        strings(st1) = 1;
+    }
+}
 
 int main(int argc, char* argv[]) 
 {
@@ -415,19 +593,20 @@ int main(int argc, char* argv[])
 
     dd::SkeletonPtr tensegrity = du::SdfParser::readSkeleton(prefix + std::string("/tensegrity.sdf"));
     tensegrity->setName("tensegrity");
-    
-    
+
+
     Eigen::Isometry3d tenMove;
     tenMove = Eigen::Isometry3d::Identity();
     Eigen::Quaterniond tenRot;
+
     tenRot = Eigen::AngleAxisd(-90.0*M_PI/180.0, Eigen::Vector3d::UnitZ()) *Eigen::AngleAxisd(-45.0*M_PI/180.0, Eigen::Vector3d::UnitY())*Eigen::AngleAxisd(0.0*M_PI/180.0, Eigen::Vector3d::UnitX());
 
     tenMove.translation() << -0.75, -0.3, 1.4;
     tenMove.rotate(tenRot);
     moveSkeleton(tensegrity, tenMove);
 
-    setAllColors(staubli, Eigen::Vector3d(0.9, 0.9, 0.9));
     staubli->enableSelfCollision();
+
     /*
        dd::SkeletonPtr ball = dd::Skeleton::create("ball");
        Eigen::Isometry3d tf(Eigen::Isometry3d::Identity());
@@ -452,7 +631,7 @@ int main(int argc, char* argv[])
 
     Eigen::Isometry3d tf(Eigen::Isometry3d::Identity());
     //tf.translation() = Eigen::Vector3d(685.32, 392.71, 592.72);
-    
+
     double qw, qx, qy, qz = 0;
     double x, y, z = 0;
 
@@ -460,10 +639,10 @@ int main(int argc, char* argv[])
     initfile >> x >> y >> z >> qw >> qx >> qy >> qz;
 
     /*qw = -0.171711;
-    qx = 0.834576;
-    qy = -0.402042;
-    qz = 0.335203;
-    */
+      qx = 0.834576;
+      qy = -0.402042;
+      qz = 0.335203;
+     */
     double len = sqrt(qw*qw + qx*qx + qy*qy + qz*qz);
     std::cout << x <<" " << y << " " << z << " " << qw << " " << qx << " " << qy << " " << qz << std::endl;
     tf.rotate(Eigen::Quaterniond(qw/len, qx/len, qy/len, qz/len));
@@ -473,11 +652,47 @@ int main(int argc, char* argv[])
     //tf.rotate(Eigen::AngleAxisd(-180 * M_PI / 180.0, Eigen::Vector3d::UnitX()) * Eigen::AngleAxisd(0.001 * M_PI / 180.0, Eigen::Vector3d::UnitY()) * Eigen::AngleAxisd(-0.005 * M_PI / 180.0, Eigen::Vector3d::UnitZ()));
 
     finish = joints (start, tf, world) ;
+   /* 
+       Eigen::VectorXd zero_joints(6);
+       zero_joints << 0,0,0,0,0,0;
+       for(int xx = 0; xx <= 1000; xx += 50)
+       {
+       for(int yy = -550; yy <= 550; yy += 50)
+       {
+       for(int aa_zz = -180; aa_zz < 180; aa_zz += 5)
+       {
 
+       tenMove = Eigen::Isometry3d::Identity();
+       Eigen::Quaterniond tenRot;
+
+       tenRot = Eigen::AngleAxisd(aa_zz*M_PI/180.0, Eigen::Vector3d::UnitZ());
+
+       tenMove.rotate(tenRot);
+       tenMove.translation() << xx, yy, 1.4;
+       moveSkeleton(tensegrity, tenMove);
+
+       if(!world->checkCollision())
+       {
+       int ii = 0;
+       while(ii < 9)
+       {
+
+            if (!detachAttachCheck(ii, strings, world))
+            {
+                break;
+            }
+
+            ii++;
+        }
+
+    if (ii == 9)
+    {
+        // xx, yy, aa_zz -> save
+    }
+     */
+    attachDetachCheckWithStrings(world);
     if (argc < 2) {
 
-
-        
         std::ofstream resultfile;
         resultfile.open("result1.txt", std::ios::trunc);
         resultfile.close();
@@ -485,7 +700,7 @@ int main(int argc, char* argv[])
         std::ofstream endeffectorfile;
         endeffectorfile.open("endeffector1.txt", std::ios::trunc);
         endeffectorfile.close();
-        
+
         //start = getLastLineasVector();
         Simple3DEnvironment env(3);
         env.setWorld(world);
@@ -494,21 +709,26 @@ int main(int argc, char* argv[])
         {
             env.recordSolution(start);
         }
-/*
-        start = getLastLineasVector();
-        Simple3DEnvironment env1(6);
-        env1.setWorld(world);
-        if(env1.plan(start*180.0/M_PI,finish))
-        {
-            env1.recordSolution(start);
-        }
- */       
+        /*
+           start = getLastLineasVector();
+           Simple3DEnvironment env1(6);
+           env1.setWorld(world);
+           if(env1.plan(start*180.0/M_PI,finish))
+           {
+           env1.recordSolution(start);
+           }
+         */       
     }
     for (int jj = 2; jj <=7; jj++){
         staubli->getDof(jj)->setPosition(0); 
     }
     MyWindow window(world);
     double j1, j2, j3, j4, j5, j6 = 0;
+    //staubli->getBodyNode("table")->getVisualizationShape(0)->setHidden(true);
+    //staubli->getBodyNode("table")->setCollidable(false);
+    
+    
+    staubli->getBodyNode("gripper")->getVisualizationShape(0)->setColor(Eigen::Vector3d(0,1,0));
     std::thread t([&]()
             {
             // std::this_thread::sleep_for(std::chrono::seconds(1));

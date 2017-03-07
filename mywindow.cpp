@@ -28,6 +28,8 @@ void MyWindow::keyboard(unsigned char key, int x, int y)
 {
 
     dd::SkeletonPtr staubli = mWorld->getSkeleton("staubli");
+    double gojoint[6]; 
+    std::ifstream jointfile("joints.txt");
 
     switch(key)
     {
@@ -37,6 +39,14 @@ void MyWindow::keyboard(unsigned char key, int x, int y)
             {
                 staubli->getDof(ii + 1)->setPosition(0); 
             }
+            break;
+        case '9':
+            jointfile >> gojoint[0] >> gojoint[1]>> gojoint[2]>> gojoint[3]>> gojoint[4]>> gojoint[5];
+            for (int ii = 1; ii <=6; ii++)
+            {
+                staubli->getDof(ii + 1)->setPosition(gojoint[ii-1]*M_PI/180.0); 
+            }
+
             break;
         case '1':
             moveJoint(1,true);
@@ -100,7 +110,7 @@ void MyWindow::keyboard(unsigned char key, int x, int y)
             translateTensegrity(2, true);
             break;
         case 'D':
-            translateTensegrity(1, false);
+            translateTensegrity(2, false);
             break;
         case 'j':
             rotateTensegrity(0, true);
@@ -291,6 +301,10 @@ void MyWindow::drawSkels() {
         Eigen::Matrix3d rot_tr = transform.rotation();
         drawAxes(tr, rot_tr);
 
+        Eigen::Isometry3d transform1 = staubli->getBodyNode("gripper")->getTransform();
+        Eigen::Vector3d tr1 = transform1.translation();
+        Eigen::Matrix3d rot_tr1 = transform1.rotation()*Eigen::AngleAxisd(90*M_PI/180.0, Eigen::Vector3d::UnitZ());
+        drawAxes(tr1, rot_tr1);
 
 
         dd::SkeletonPtr tensegrity = mWorld->getSkeleton("tensegrity");
@@ -336,6 +350,7 @@ void MyWindow::drawAxes(const Eigen::Vector3d &tr, const Eigen::Matrix3d &rot)
 
         glEnd();
 }
+
 void MyWindow::moveJoint(int numJoint, bool positive)
 {
 
@@ -360,7 +375,7 @@ void MyWindow::moveJoint(int numJoint, bool positive)
         }
     }
     if (!collisionEnabled)
-        staubli->getDof(numJoint)->setPosition(l); 
+        staubli->getDof(numJoint + 1)->setPosition(l); 
 }
 
 void MyWindow::translateTensegrity(int axis, bool positive)
@@ -389,6 +404,7 @@ void MyWindow::translateTensegrity(int axis, bool positive)
     moveSkeleton(tensegrity, tenMove);
     
 }
+
 void MyWindow::rotateTensegrity(int axis, bool positive)
 {
     dd::SkeletonPtr tensegrity = mWorld->getSkeleton("tensegrity");
@@ -402,6 +418,7 @@ void MyWindow::rotateTensegrity(int axis, bool positive)
 
     static int angX, angY, angZ = 0;
     double rotStep = 15.0; 
+
     if(!positive)
     {
         rotStep = -rotStep;
