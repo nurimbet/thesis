@@ -15,7 +15,6 @@
 #include <fstream>
 #include <thread>
 #include <chrono>
-#include <sstream>
 #include <string>
 #include <cmath>
 
@@ -309,17 +308,17 @@ Eigen::VectorXd joints (const Eigen::VectorXd &init, const Eigen::Isometry3d &fi
                 (Eigen::AngleAxisd(theta[3], Eigen::Vector3d::UnitZ()) * Eigen::AngleAxisd(alpha[3], Eigen::Vector3d::UnitX())));
         rot_R3_0 = rot_R3_0.transpose() * rot_final_point; 
 
-        double a_wx = rot_R3_0(2,0);
-        double a_wy = rot_R3_0(2,1);
+        double a_wx = rot_R3_0(0,2);
+        double a_wy = rot_R3_0(1,2);
         double a_wz = rot_R3_0(2,2);
-        double n_wz = rot_R3_0(0,2);
-        double o_wz = rot_R3_0(1,2);
+        double n_wz = rot_R3_0(2,0);
+        double o_wz = rot_R3_0(2,1);
 
         theta[5] = atan2(pow(-1, (i & 1)) * sqrt(a_wx*a_wx + a_wy*a_wy),a_wz);    
 
-        theta[6] = -atan2(-a_wy / sin(theta[5]), -a_wx / sin(theta[5]));    
+        theta[4] = atan2(a_wy / sin(theta[5]), a_wx / sin(theta[5]));    
 
-        theta[4] = ((i == 8) ? 1:(-1)) * atan2(-o_wz / sin(theta[5]), n_wz / sin(theta[5]));    
+        theta[6] = ((i == 8) ? 1:(1)) * atan2(o_wz / sin(theta[5]), -n_wz / sin(theta[5]));    
 
         theta[2] = theta[2] + (M_PI / 2.0);
         theta[3] = theta[3] - (M_PI / 2.0);
@@ -725,7 +724,7 @@ int main(int argc, char* argv[])
     MyWindow window(world);
     double j1, j2, j3, j4, j5, j6 = 0;
     //staubli->getBodyNode("table")->getVisualizationShape(0)->setHidden(true);
-    //staubli->getBodyNode("table")->setCollidable(false);
+    //staubli->getBodyNode("forearm_link")->setCollidable(false);
     
     
     staubli->getBodyNode("gripper")->getVisualizationShape(0)->setColor(Eigen::Vector3d(0,1,0));
