@@ -1,5 +1,5 @@
 #include "mywindow.h"
-#include <fstream>
+    #include <fstream>
 #include <iostream>
 #include "util.h"
 
@@ -303,18 +303,58 @@ void MyWindow::drawSkels() {
 
         Eigen::Isometry3d transform1 = staubli->getBodyNode("gripper")->getTransform();
         Eigen::Vector3d tr1 = transform1.translation();
-        Eigen::Matrix3d rot_tr1 = transform1.rotation()*Eigen::AngleAxisd(90*M_PI/180.0, Eigen::Vector3d::UnitZ());
+        Eigen::Matrix3d rot_tr1 = transform1.rotation();//*Eigen::AngleAxisd(90*M_PI/180.0, Eigen::Vector3d::UnitZ());
         drawAxes(tr1, rot_tr1);
 
 
         dd::SkeletonPtr tensegrity = mWorld->getSkeleton("tensegrity");
         
-        Eigen::Isometry3d tensegrityTransform = tensegrity->getRootBodyNode()->getWorldTransform();
+        //Eigen::Isometry3d tensegrityTransform = tensegrity->getRootBodyNode()->getWorldTransform();
+        Eigen::Isometry3d tensegrityTransform =tensegrity->getBodyNode("detach1")->getTransform();
         Eigen::Vector3d tenTrans = tensegrityTransform.translation();
         Eigen::Matrix3d rot_ten = tensegrityTransform.rotation();
+        drawAxes(tenTrans, rot_ten);
 
+        tensegrityTransform =tensegrity->getBodyNode("detach2")->getTransform();
+        tenTrans = tensegrityTransform.translation();
+        rot_ten = tensegrityTransform.rotation();
         drawAxes(tenTrans, rot_ten);
          
+        tensegrityTransform =tensegrity->getBodyNode("detach3")->getTransform();
+        tenTrans = tensegrityTransform.translation();
+        rot_ten = tensegrityTransform.rotation();
+        drawAxes(tenTrans, rot_ten);
+
+        tensegrityTransform =tensegrity->getBodyNode("detach4")->getTransform();
+        tenTrans = tensegrityTransform.translation();
+        rot_ten = tensegrityTransform.rotation();
+        drawAxes(tenTrans, rot_ten);
+
+
+        tensegrityTransform =tensegrity->getBodyNode("detach5")->getTransform();
+        tenTrans = tensegrityTransform.translation();
+        rot_ten = tensegrityTransform.rotation();
+        drawAxes(tenTrans, rot_ten);
+
+        tensegrityTransform =tensegrity->getBodyNode("detach6")->getTransform();
+        tenTrans = tensegrityTransform.translation();
+        rot_ten = tensegrityTransform.rotation();
+        drawAxes(tenTrans, rot_ten);
+
+        tensegrityTransform =tensegrity->getBodyNode("detach7")->getTransform();
+        tenTrans = tensegrityTransform.translation();
+        rot_ten = tensegrityTransform.rotation();
+        drawAxes(tenTrans, rot_ten);
+
+        tensegrityTransform =tensegrity->getBodyNode("detach8")->getTransform();
+        tenTrans = tensegrityTransform.translation();
+        rot_ten = tensegrityTransform.rotation();
+        drawAxes(tenTrans, rot_ten);
+
+        tensegrityTransform =tensegrity->getBodyNode("detach9")->getTransform();
+        tenTrans = tensegrityTransform.translation();
+        rot_ten = tensegrityTransform.rotation();
+        drawAxes(tenTrans, rot_ten);
     }
     
     SimWindow::drawSkels();
@@ -334,7 +374,7 @@ void MyWindow::setViewTrack(double j1,double j2,double j3,double j4,double j5,do
 void MyWindow::drawAxes(const Eigen::Vector3d &tr, const Eigen::Matrix3d &rot)
 {
 
-        glLineWidth(1); 
+        glLineWidth(2); 
         glBegin(GL_LINES);
         glColor3f(0, 0, 1);
         
