@@ -130,13 +130,13 @@ class Simple3DEnvironment {
 
                 dd::SkeletonPtr staubli = world_->getSkeleton("staubli");
 
-		staubli->getDof(2)->setPosition(j1); 
-		staubli->getDof(3)->setPosition(j2); 
+                staubli->getDof(2)->setPosition(j1); 
+                staubli->getDof(3)->setPosition(j2); 
                 staubli->getDof(4)->setPosition(j3); 
                 staubli->getDof(5)->setPosition(j4); 
                 staubli->getDof(6)->setPosition(j5); 
                 staubli->getDof(7)->setPosition(j6); 
-		
+
 
                 Eigen::Isometry3d transform = staubli->getBodyNode("toolflange_link")->getTransform();
                 Eigen::Quaterniond quat(transform.rotation());
@@ -148,56 +148,56 @@ class Simple3DEnvironment {
                     << std::endl;
             }
             resultfile.close();
-/*
-            ob::PlannerData pdat(ss_->getSpaceInformation());
-            ss_->getPlannerData(pdat);
-            std::ofstream ofs_e("edges.txt");
-            std::vector<unsigned int> edge_list;
-            std::vector<double> reals;
-            std::vector<double> realsOld;
+            /*
+               ob::PlannerData pdat(ss_->getSpaceInformation());
+               ss_->getPlannerData(pdat);
+               std::ofstream ofs_e("edges.txt");
+               std::vector<unsigned int> edge_list;
+               std::vector<double> reals;
+               std::vector<double> realsOld;
             //bool isMajorTree = false;
             ob::State* s3 = space->allocState();
             for (unsigned int i(0); i < pdat.numVertices(); ++i) {
-                unsigned int n_edge = pdat.getEdges(i, edge_list);
-                const ob::State* s1 = pdat.getVertex(i).getState();
-                //isMajorTree = pdat.getVertex(i).getTag();
-                for (unsigned int i2(0); i2 < n_edge; ++i2) {
-                    const ob::State* s2 = pdat.getVertex(edge_list[i2]).getState();
-                    double step = 0.05;
-                    if (space->distance(s1, s2) < 0.03) {
-                        step = 0.2;
-                    }
-                    space->copyToReals(realsOld, s1);
-                    for (double t = step; t <= 1.01; t += step) {
-                        space->interpolate(s1, s2, t, s3);
-                        space->copyToReals(reals, s3);
-
-                        dd::SkeletonPtr staubli = world_->getSkeleton("staubli");
-
-                        //for (const auto& r : realsOld)
-
-                        //    ofs_e << r << " ";
-                        //
-
-                        staubli->getDof(2)->setPosition(reals[0]); 
-                        staubli->getDof(3)->setPosition(reals[1]); 
-                        staubli->getDof(4)->setPosition(reals[2]); 
-
-                        Eigen::Isometry3d transform = staubli->getBodyNode("toolflange_link")->getTransform();
-                        Eigen::Vector3d tr = transform.translation();
-
-                        ofs_e << tr(0) << " " << tr(1) << " " << tr(2) << std::endl;
-
-                        // for (const auto& r : reals)
-                        //    ofs_e << r << " ";
-                        //
-                        //ofs_e << "0x" << std::hex << (isMajorTree ? 0x4488AA : 0xDD6060)
-                        //      << std::endl;
-                        //ofs_e << std::endl;
-                    }
-                }
+            unsigned int n_edge = pdat.getEdges(i, edge_list);
+            const ob::State* s1 = pdat.getVertex(i).getState();
+            //isMajorTree = pdat.getVertex(i).getTag();
+            for (unsigned int i2(0); i2 < n_edge; ++i2) {
+            const ob::State* s2 = pdat.getVertex(edge_list[i2]).getState();
+            double step = 0.05;
+            if (space->distance(s1, s2) < 0.03) {
+            step = 0.2;
             }
-*/
+            space->copyToReals(realsOld, s1);
+            for (double t = step; t <= 1.01; t += step) {
+            space->interpolate(s1, s2, t, s3);
+            space->copyToReals(reals, s3);
+
+            dd::SkeletonPtr staubli = world_->getSkeleton("staubli");
+
+            //for (const auto& r : realsOld)
+
+            //    ofs_e << r << " ";
+            //
+
+            staubli->getDof(2)->setPosition(reals[0]); 
+            staubli->getDof(3)->setPosition(reals[1]); 
+            staubli->getDof(4)->setPosition(reals[2]); 
+
+            Eigen::Isometry3d transform = staubli->getBodyNode("toolflange_link")->getTransform();
+            Eigen::Vector3d tr = transform.translation();
+
+            ofs_e << tr(0) << " " << tr(1) << " " << tr(2) << std::endl;
+
+            // for (const auto& r : reals)
+            //    ofs_e << r << " ";
+            //
+            //ofs_e << "0x" << std::hex << (isMajorTree ? 0x4488AA : 0xDD6060)
+            //      << std::endl;
+            //ofs_e << std::endl;
+            }
+            }
+            }
+             */
             //
             // ADD CODE HERE
             //
@@ -227,9 +227,9 @@ class Simple3DEnvironment {
             staubli->getDof(7)->setPosition(j6); 
 
             /*  
-            Eigen::Isometry3d transform = staubli->getBodyNode("toolflange_link")->getTransform();
-            Eigen::Vector3d tr = transform.translation();
-            */
+                Eigen::Isometry3d transform = staubli->getBodyNode("toolflange_link")->getTransform();
+                Eigen::Vector3d tr = transform.translation();
+             */
 
             return !world_->checkCollision();// && tr(0) <= 0.50;
 
@@ -240,12 +240,14 @@ class Simple3DEnvironment {
         std::size_t jointNumber;
 };
 
-std::istream& ignoreline(std::ifstream& in, std::ifstream::pos_type& pos) {
+std::istream& ignoreline(std::ifstream& in, std::ifstream::pos_type& pos) 
+{
     pos = in.tellg();
     return in.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 }
 
-std::string getLastLine(std::ifstream& in) {
+std::string getLastLine(std::ifstream& in) 
+{
     std::ifstream::pos_type pos = in.tellg();
 
     std::ifstream::pos_type lastPos;
@@ -259,7 +261,8 @@ std::string getLastLine(std::ifstream& in) {
     return line;
 }
 
-std::string getWorkingDirectory() {
+std::string getWorkingDirectory()
+{
     char buff[1024] = {0};
 
     getcwd(buff, 1024);
@@ -293,7 +296,8 @@ Eigen::VectorXd joints (const Eigen::VectorXd &init, const Eigen::Isometry3d &fi
 
     double minCost = 10000;
 
-    for (int i = 0 ; i < 8; i++) { 
+    for (int i = 0 ; i < 8; i++) 
+    { 
         theta[1] = atan2(p_ay, p_ax) - atan2(d[3], pow(-1, (i & 2) >> 1)*sqrt(p_ax*p_ax + p_ay*p_ay - d[3]));
 
         double t_1 = (pow(p_ax*cos(theta[1]) + p_ay*sin(theta[1]) - a[1],2) + a[2]*a[2] + p_az*p_az - d[4]*d[4]) / (2*a[2]); 
@@ -346,7 +350,8 @@ Eigen::VectorXd joints (const Eigen::VectorXd &init, const Eigen::Isometry3d &fi
                 1*pow(theta[5] - init[4],2) +
                 1*pow(theta[6] - init[5],2) );
         dd::SkeletonPtr staubli = world->getSkeleton("staubli");
-
+    
+       
         staubli->getDof(2)->setPosition(theta[1]); 
         staubli->getDof(3)->setPosition(theta[2]); 
         staubli->getDof(4)->setPosition(theta[3]); 
@@ -364,18 +369,20 @@ Eigen::VectorXd joints (const Eigen::VectorXd &init, const Eigen::Isometry3d &fi
 
         //std::cout << theta[0] << std::endl;
         //std::cout << std::endl;
-        std::cout << i+1 << ".\t"<<theta[1] * 180.0 / M_PI << "\t" << theta[2] * 180.0 / M_PI<< "\t" << theta[3] * 180.0 / M_PI<< "\t" << theta[4] * 180.0 / M_PI<< "\t" << theta[5] * 180.0 / M_PI<< "\t" << theta[6] * 180.0 / M_PI<< std::endl;
+        //std::cout << i+1 << ". "<<theta[1] * 180.0 / M_PI << " " << theta[2] * 180.0 / M_PI<< " " << theta[3] * 180.0 / M_PI<< " " << theta[4] * 180.0 / M_PI<< " " << theta[5] * 180.0 / M_PI<< " " << theta[6] * 180.0 / M_PI<< std::endl;
+        /*
         staubli->getDof(2)->setPosition(theta[1]); 
         staubli->getDof(3)->setPosition(theta[2]); 
         staubli->getDof(4)->setPosition(theta[3]); 
         staubli->getDof(5)->setPosition(theta[4]); 
         staubli->getDof(6)->setPosition(theta[5]); 
         staubli->getDof(7)->setPosition(theta[6]); 
+        */
     }
     //std::cout << theta[1]  << " " << theta[2] + M_PI / 2  << " " << theta[3] - M_PI/2 << " " << theta[4] << " " << theta[5] << " " << theta[6] << std::endl;
 
-    Eigen::IOFormat CommaInitFmt(Eigen::StreamPrecision, Eigen::DontAlignCols, ", ", ", ", "", "", " << ", ";");
-    std::cout << final_joint.format(CommaInitFmt) << std::endl;
+//    Eigen::IOFormat CommaInitFmt(Eigen::StreamPrecision, Eigen::DontAlignCols, ", ", ", ", "", "", " << ", ";");
+//    std::cout << final_joint.format(CommaInitFmt) << std::endl;
     return final_joint;
 }
 
@@ -410,7 +417,7 @@ Eigen::VectorXd getLastLineasVector()
 
 void detachAllStrings(const ds::WorldPtr &world)
 {
-    
+
     dd::SkeletonPtr tensegrity = world->getSkeleton("tensegrity");
     for (int ii = 1; ii <= 9; ii++)
     {
@@ -430,88 +437,118 @@ void detachAttachStrings(Eigen::VectorXd strings, const ds::WorldPtr &world)
             tensegrity->getBodyNode("tendon"+std::to_string(ii+1))->setCollidable(false);
         }
         else
-        { 
-            tensegrity->getBodyNode("tendon"+std::to_string(ii+1))->getVisualizationShape(0)->setHidden(false);
+        { tensegrity->getBodyNode("tendon"+std::to_string(ii+1))->getVisualizationShape(0)->setHidden(false);
             tensegrity->getBodyNode("tendon"+std::to_string(ii+1))->setCollidable(true);
         }
     }
 }
 
-Eigen::Isometry3d getAttachPosition(int attNum, const ds::WorldPtr &world){ 
-         
-        Eigen::Isometry3d tf(Eigen::Isometry3d::Identity());
+Eigen::Isometry3d getAttachPosition(int attNum, const ds::WorldPtr &world, bool wristUp){ 
+    Eigen::Isometry3d tf(Eigen::Isometry3d::Identity());
 
-        dd::SkeletonPtr tensegrity = world->getSkeleton("tensegrity");
-        Eigen::Isometry3d tensegrityTransform = tensegrity->getBodyNode("attach" + std::to_string(attNum))->getTransform();
-        Eigen::Vector3d tenTrans = tensegrityTransform.translation();
+    dd::SkeletonPtr tensegrity = world->getSkeleton("tensegrity");
+    Eigen::Isometry3d tensegrityTransform = tensegrity->getBodyNode("attach" + std::to_string(attNum + 1))->getTransform();
+    Eigen::Vector3d tenTrans = tensegrityTransform.translation();
 
-        Eigen::Matrix3d rot_ten = tensegrityTransform.rotation()*Eigen::AngleAxisd(-90*M_PI/180.0, Eigen::Vector3d::UnitX());
-        tenTrans *=1000;
-    
-        double ys = 70;
-        double zs = 80;
-        tenTrans(0) += ys*rot_ten(0,1) - zs*rot_ten(0,2);
-        tenTrans(1) += ys*rot_ten(1,1) - zs*rot_ten(1,2);
-        tenTrans(2) += ys*rot_ten(2,1) - zs*rot_ten(2,2);
-        tenTrans(2) -= 1278;
+    double xs = 0;
+    double ys = 70;
+    double zs = -80;
+    Eigen::Matrix3d rot_ten;
+    if (wristUp)
+    {
+        rot_ten = tensegrityTransform.rotation() *Eigen::AngleAxisd(-90*M_PI/180.0, Eigen::Vector3d::UnitX());
+    }
+    else
+    {
+        rot_ten = tensegrityTransform.rotation()*Eigen::AngleAxisd(-90*M_PI/180.0, Eigen::Vector3d::UnitX())*Eigen::AngleAxisd(180*M_PI/180.0, Eigen::Vector3d::UnitY());
+        zs = -100;
+    }
+    tenTrans *= 1000;
 
-        tf.linear() = rot_ten;
-        tf.translation() = tenTrans;
-        return tf;
+    tenTrans(0) += xs*rot_ten(0,0) + ys*rot_ten(0,1) + zs*rot_ten(0,2);
+    tenTrans(1) += xs*rot_ten(1,0) + ys*rot_ten(1,1) + zs*rot_ten(1,2);
+    tenTrans(2) += xs*rot_ten(2,0) + ys*rot_ten(2,1) + zs*rot_ten(2,2);
+    tenTrans(2) -= 1278;
+
+    tf.linear() = rot_ten;
+    tf.translation() = tenTrans;
+    return tf;
 }
 
-Eigen::Isometry3d getDetachPosition(int detNum, const ds::WorldPtr &world){ 
-         
-        Eigen::Isometry3d tf(Eigen::Isometry3d::Identity());
+Eigen::Isometry3d getDetachPosition(int detNum, const ds::WorldPtr &world, bool wristUp)
+{ 
 
-        dd::SkeletonPtr tensegrity = world->getSkeleton("tensegrity");
-        Eigen::Isometry3d tensegrityTransform = tensegrity->getBodyNode("detach" + std::to_string(detNum))->getTransform();
-        Eigen::Vector3d tenTrans = tensegrityTransform.translation();
+    Eigen::Isometry3d tf(Eigen::Isometry3d::Identity());
 
-        Eigen::Matrix3d rot_ten = tensegrityTransform.rotation();
-        tenTrans *=1000;
-    
-        double ys = 80;
-        double zs = 95;
-        tenTrans(0) += ys*rot_ten(0,1) - zs*rot_ten(0,2);
-        tenTrans(1) += ys*rot_ten(1,1) - zs*rot_ten(1,2);
-        tenTrans(2) += ys*rot_ten(2,1) - zs*rot_ten(2,2);
-        tenTrans(2) -= 1278;
+    dd::SkeletonPtr tensegrity = world->getSkeleton("tensegrity");
+    Eigen::Isometry3d tensegrityTransform = tensegrity->getBodyNode("detach" + std::to_string(detNum + 1))->getTransform();
+    Eigen::Vector3d tenTrans = tensegrityTransform.translation();
 
-        tf.linear() = rot_ten;
-        tf.translation() = tenTrans;
-        return tf;
+    double xs = 0;
+    double ys = 80;
+    double zs = -95;
+    Eigen::Matrix3d rot_ten;
+    if (wristUp)
+    {
+        rot_ten = tensegrityTransform.rotation();
+    }
+    else
+    {
+        rot_ten = tensegrityTransform.rotation()*Eigen::AngleAxisd(180*M_PI/180.0, Eigen::Vector3d::UnitY());
+        xs = -25;
+    }
+    tenTrans *=1000;
+
+    tenTrans(0) += xs*rot_ten(0,0) + ys*rot_ten(0,1) + zs*rot_ten(0,2);
+    tenTrans(1) += xs*rot_ten(1,0) + ys*rot_ten(1,1) + zs*rot_ten(1,2);
+    tenTrans(2) += xs*rot_ten(2,0) + ys*rot_ten(2,1) + zs*rot_ten(2,2);
+    tenTrans(2) -= 1278;
+
+    tf.linear() = rot_ten;
+    tf.translation() = tenTrans;
+    return tf;
 }
 
 
 bool sequenceReachibility(int i, Eigen::VectorXd strings, const ds::WorldPtr &world)
 {
-   
+
     detachAttachStrings(strings, world); 
     Eigen::VectorXd zero_joints(6); 
     zero_joints << 0,0,0,0,0,0;
-    return true;    
-    
-    Eigen::Isometry3d tf_att(Eigen::Isometry3d::Identity());
-    tf_att = getAttachPosition(i, world);
 
     Eigen::Isometry3d tf_det(Eigen::Isometry3d::Identity());
-    tf_det = getDetachPosition(i, world); 
-
     Eigen::VectorXd det_joints(6);
+
+    tf_det = getDetachPosition(i, world, false); 
     det_joints = joints(zero_joints, tf_det, world);
 
     if (det_joints == zero_joints)
     {
-        //return false;
+        tf_det = getDetachPosition(i, world, true); 
+        det_joints = joints(zero_joints, tf_det, world);
+         
+        if (det_joints == zero_joints)
+        {
+            return false;
+        }
     }
 
+    Eigen::Isometry3d tf_att(Eigen::Isometry3d::Identity());
     Eigen::VectorXd at_joints(6);
+
+    tf_att = getAttachPosition(i, world, false);
     at_joints = joints(zero_joints, tf_att, world);
 
     if (at_joints == zero_joints)
     {
-        //return false;
+        tf_att = getAttachPosition(i, world, true);
+        at_joints = joints(zero_joints, tf_att, world);
+         
+        if (at_joints == zero_joints)
+        {
+            return false;
+        }
     }
 
     return true;    
@@ -544,7 +581,7 @@ void getAttachmentSequence(const ds::WorldPtr &world)
                 strings(st2) = 1;
                 continue; 
             }
-            
+
             for(int st3 = 0; st3 < 9; st3++)
             {
                 if(strings(st3) == 0) 
@@ -557,7 +594,7 @@ void getAttachmentSequence(const ds::WorldPtr &world)
                     strings(st3) = 1;
                     continue; 
                 }
-            
+
                 for(int st4 = 0; st4 < 9; st4++)
                 {
                     if(strings(st4) == 0) 
@@ -632,7 +669,7 @@ void getAttachmentSequence(const ds::WorldPtr &world)
                                         }
                                         sequenceFile << st9 << " " << st8 << " " << st7 << " " << st6 << " " << st5 << " " << st4 << " " << st3 << " " << st2 << " " << st1 <<std::endl;
                                         // srite to file in the reverse order of indeces
-                                        
+
                                         strings(st9) = 1;
                                     }
                                     strings(st8) = 1;
@@ -653,6 +690,53 @@ void getAttachmentSequence(const ds::WorldPtr &world)
     }
 }
 
+void getFeasibleTensegrityLocation(const ds::WorldPtr &world)
+{
+    
+    std::ofstream feasibleLocation;
+    feasibleLocation.open("feasibleLocation.txt", std::ios::trunc);
+
+    Eigen::VectorXd strings(9);
+    strings << 0, 0, 0, 0, 0, 0, 0, 0, 0;
+
+    Eigen::Isometry3d tf(Eigen::Isometry3d::Identity());
+
+    dd::SkeletonPtr tensegrity = world->getSkeleton("tensegrity");
+
+    Eigen::Matrix3d rot_ten;
+    for(int xx = -1000; xx <= 1000; xx += 10)
+    {
+        for(int yy = 1000; yy <= 1000; yy += 10)
+        {
+            for(int aa_zz = -180; aa_zz <= 180; aa_zz += 5)
+            {
+                int ii = 0;
+                rot_ten = Eigen::AngleAxisd((double)aa_zz*M_PI/180.0, Eigen::Vector3d::UnitZ());
+                tf.linear() = rot_ten;
+                tf.translation() << (double)xx/1000.0 , (double)yy/1000.0 , 0.0;
+                moveSkeleton(tensegrity, tf);
+
+                while(ii<9)
+                {
+                    if (!sequenceReachibility(ii, strings, world))
+                    {
+                        break;
+                    }
+                    ii++;   
+                } 
+                std::cout << ii << std::endl;
+                if (ii == 9)
+                { 
+                    feasibleLocation << xx << " " << yy << " " << aa_zz << std::endl;
+                }
+            }
+        }
+        std::cout << xx << std::endl;
+    }
+    feasibleLocation.close();
+}
+
+
 int main(int argc, char* argv[]) 
 {
     ds::WorldPtr world = std::make_shared<ds::World>();
@@ -666,8 +750,8 @@ int main(int argc, char* argv[])
     staubli->setName("staubli");
 
     du::DartLoader dl;
-    
-   // dd::SkeletonPtr tensegrity = du::SdfParser::readSkeleton(prefix + std::string("/tensegrity.sdf"));
+
+    // dd::SkeletonPtr tensegrity = du::SdfParser::readSkeleton(prefix + std::string("/tensegrity.sdf"));
     dl.addPackageDirectory("tensegrity", prefix + std::string("/tensegrity/"));
     dd::SkeletonPtr tensegrity = dl.parseSkeleton(prefix + std::string("/tensegrity.URDF"));
     tensegrity->setName("tensegrity");
@@ -681,8 +765,7 @@ int main(int argc, char* argv[])
     tenRot = Eigen::AngleAxisd(0.0, Eigen::Vector3d::UnitZ());
 
     tenMove.translation() << -0.85, -0.4, 0.0;
-    
-    //tenMove.translation() << 0, 0, 0;
+
     tenMove.rotate(tenRot);
     moveSkeleton(tensegrity, tenMove);
 
@@ -693,7 +776,7 @@ int main(int argc, char* argv[])
 
     //    staubli->getDof(3)->setPosition(290 * M_PI / 180.0); 
     //    staubli->getDof(4)->setPosition(290 * M_PI / 180.0); 
-    ////    staubli->getDof(6)->setPosition(290 * M_PI / 180.0); 
+    //    staubli->getDof(6)->setPosition(290 * M_PI / 180.0); 
 
     Eigen::VectorXd start(6);
     start << 0,0,0,0,0,0;
@@ -702,32 +785,51 @@ int main(int argc, char* argv[])
     //finish << 0, -67, -144, 0, 0, 0;
 
     Eigen::Isometry3d tf(Eigen::Isometry3d::Identity());
-/*
-    double qw, qx, qy, qz = 0;
-    double x, y, z = 0;
+    /*
+       double qw, qx, qy, qz = 0;
+       double x, y, z = 0;
 
-    std::ifstream initfile("init.txt");
-    initfile >> x >> y >> z >> qw >> qx >> qy >> qz;
+       std::ifstream initfile("init.txt");
+       initfile >> x >> y >> z >> qw >> qx >> qy >> qz;
 
-      qw = -0.171711;
-      qx = 0.834576;
-      qy = -0.402042;
-      qz = 0.335203;
-     
-    double len = sqrt(qw*qw + qx*qx + qy*qy + qz*qz);
-    */
+       qw = -0.171711;
+       qx = 0.834576;
+       qy = -0.402042;
+       qz = 0.335203;
+
+       double len = sqrt(qw*qw + qx*qx + qy*qy + qz*qz);
+     */
     //std::cout << x <<" " << y << " " << z << " " << qw << " " << qx << " " << qy << " " << qz << std::endl;
     //tf.rotate(Eigen::Quaterniond(qw/len, qx/len, qy/len, qz/len));
     //tf.translation() = Eigen::Vector3d(x*1000, y*1000, z*1000-1278);
 
     //tf.rotate(Eigen::AngleAxisd(-167.76 * M_PI / 180.0, Eigen::Vector3d::UnitX()) * Eigen::AngleAxisd(9.18 * M_PI / 180.0, Eigen::Vector3d::UnitY()) * Eigen::AngleAxisd(12.24 * M_PI / 180.0, Eigen::Vector3d::UnitZ()));
     //tf.rotate(Eigen::AngleAxisd(-180 * M_PI / 180.0, Eigen::Vector3d::UnitX()) * Eigen::AngleAxisd(0.001 * M_PI / 180.0, Eigen::Vector3d::UnitY()) * Eigen::AngleAxisd(-0.005 * M_PI / 180.0, Eigen::Vector3d::UnitZ()));
-        detachAllStrings(world);
-   
-        tf = getDetachPosition(2, world); 
-    finish = joints (start, tf, world) ;
 
-   /* 
+    detachAllStrings(world);
+
+    //getFeasibleTensegrityLocation(world);
+    
+    tenRot = Eigen::AngleAxisd(0.0, Eigen::Vector3d::UnitZ());
+    tenMove.translation() << -1, -1, 0.0;
+    tenMove.rotate(tenRot);
+    moveSkeleton(tensegrity, tenMove);
+
+    tf = getAttachPosition(1, world, false); 
+    
+    finish = joints (start, tf, world) ;
+    std::cout << finish << std::endl;
+    std::cout << finish << std::endl;
+
+    tf = getAttachPosition(1, world, true); 
+    
+    finish = joints (start, tf, world) ;
+    std::cout << finish << std::endl;
+    std::cout << finish << std::endl;
+    
+    std::cout << "getFeasibleTensegrityLocation" << std::endl; 
+
+    /* 
        Eigen::VectorXd zero_joints(6);
        zero_joints << 0,0,0,0,0,0;
        for(int xx = 0; xx <= 1000; xx += 50)
@@ -752,22 +854,24 @@ int main(int argc, char* argv[])
        while(ii < 9)
        {
 
-            if (!sequenceReachibility(ii, strings, world))
-            {
-                break;
-            }
+       if (!sequenceReachibility(ii, strings, world))
+       {
+       break;
+       }
 
-            ii++;
+       ii++;
+       }
+
+       if (ii == 9)
+       {
+    // xx, yy, aa_zz -> save
         }
-
-    if (ii == 9)
-    {
-        // xx, yy, aa_zz -> save
     }
      */
-    getAttachmentSequence(world);
+    //getAttachmentSequence(world);
 
-    if (argc < 2) {
+    if (argc < 2) 
+    {
 
         std::ofstream resultfile;
         resultfile.open("result1.txt", std::ios::trunc);
@@ -795,54 +899,55 @@ int main(int argc, char* argv[])
            }
          */       
     }
-/*    for (int jj = 2; jj <=7; jj++){
-        staubli->getDof(jj)->setPosition(0); 
-         
-        	
-    }
- */   
+        for (int jj = 2; jj <=7; jj++){
+          staubli->getDof(jj)->setPosition(0); 
+
+
+          }
+        
     MyWindow window(world);
+    
     //staubli->getBodyNode("table")->getVisualizationShape(0)->setHidden(true);
-    //staubli->getBodyNode("forearm_link")->setCollidable(false);
-    
-    
+    //staubli->getBodyNode("table")->setCollidable(false);
+
+
     staubli->getBodyNode("gripper")->getVisualizationShape(0)->setColor(Eigen::Vector3d(0,1,0));
-    //staubli->getBodyNode("gripper")->getVisualizationShape(0)->setHidden(true);
-    //staubli->getBodyNode("gripper")->setCollidable(false);
+    staubli->getBodyNode("gripper")->getVisualizationShape(0)->setHidden(true);
+    staubli->getBodyNode("gripper")->setCollidable(false);
     /*
-    double j1, j2, j3, j4, j5, j6 = 0;
-    std::thread t([&]()
-            {
-            // std::this_thread::sleep_for(std::chrono::seconds(1));
-            //while (true) 
-            //{
-            std::ifstream fin("result1.txt");
+       double j1, j2, j3, j4, j5, j6 = 0;
+       std::thread t([&]()
+       {
+    // std::this_thread::sleep_for(std::chrono::seconds(1));
+    //while (true) 
+    //{
+    std::ifstream fin("result1.txt");
 
-            while (!fin.eof()) 
-            {
-            //float rx, ry, rz, rw;
-            fin >> j1 >> j2 >> j3 >> j4 >> j5 >> j6;
+    while (!fin.eof()) 
+    {
+    //float rx, ry, rz, rw;
+    fin >> j1 >> j2 >> j3 >> j4 >> j5 >> j6;
 
-            staubli->getDof(2)->setPosition(j1); 
-            staubli->getDof(3)->setPosition(j2); 
-            staubli->getDof(4)->setPosition(j3); 
-            staubli->getDof(5)->setPosition(j4); 
-            staubli->getDof(6)->setPosition(j5); 
-            staubli->getDof(7)->setPosition(j6); 
+    staubli->getDof(2)->setPosition(j1); 
+    staubli->getDof(3)->setPosition(j2); 
+    staubli->getDof(4)->setPosition(j3); 
+    staubli->getDof(5)->setPosition(j4); 
+    staubli->getDof(6)->setPosition(j5); 
+    staubli->getDof(7)->setPosition(j6); 
 
-            window.setViewTrack(j1,j2,j3,j4, j5, j6);
-            std::this_thread::sleep_for(std::chrono::milliseconds(5));
-            }
+    window.setViewTrack(j1,j2,j3,j4, j5, j6);
+    std::this_thread::sleep_for(std::chrono::milliseconds(5));
+    }
     //}
-            });
+    });
 
-*/
+     */
     glutInit(&argc, argv);
     window.initWindow(475 * 2, 300 * 2, "SDF");
 
     glutMainLoop();
 
- //   t.join();
-    
+    //   t.join();
+
     return 0;
 }
