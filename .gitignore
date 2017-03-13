@@ -2,3 +2,4 @@ build
 *.zip
 *CMake*.user*
 *swp
+*.cpp.*
