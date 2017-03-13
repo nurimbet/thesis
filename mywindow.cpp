@@ -13,6 +13,7 @@ bool showPath = false;
 bool showTree = false;
 bool collisionEnabled = true;
 bool showAxes = true;
+int idx = 0;
 
 MyWindow::MyWindow(const ds::WorldPtr& world) 
 { 
@@ -30,7 +31,7 @@ void MyWindow::keyboard(unsigned char key, int x, int y)
     dd::SkeletonPtr staubli = mWorld->getSkeleton("staubli");
     double gojoint[6]; 
     std::ifstream jointfile("joints.txt");
-    static int jointNum = 1;
+    static int jointNum = 0;
     int jj;
 
     switch(key)
@@ -43,7 +44,17 @@ void MyWindow::keyboard(unsigned char key, int x, int y)
             }
             break;
         case '9':
-            jj = 1;
+            if (jointfile.eof())
+            {
+                jointNum = 0;
+                jointfile.close();
+                jointfile.open("joints.txt");
+            }
+            idx = jointNum / 4;
+            jointNum = (idx == 9) ? 0:jointNum;
+            idx = (idx == 9) ? 0 : idx;
+            std::cout << idx + 1 << std::endl;
+            jj = 0;
             while(jointNum > jj)
             {
                 jointfile >> gojoint[0] >> gojoint[1]>> gojoint[2]>> gojoint[3]>> gojoint[4]>> gojoint[5];
@@ -57,10 +68,6 @@ void MyWindow::keyboard(unsigned char key, int x, int y)
             }
 
             jointNum ++;
-            if (jointNum > 8)
-            {
-                jointNum = 1;
-            }
             break;
         case '1':
             moveJoint(1,true);
@@ -324,48 +331,18 @@ void MyWindow::drawSkels() {
         dd::SkeletonPtr tensegrity = mWorld->getSkeleton("tensegrity");
         
         //Eigen::Isometry3d tensegrityTransform = tensegrity->getRootBodyNode()->getWorldTransform();
-        Eigen::Isometry3d tensegrityTransform =tensegrity->getBodyNode("attach1")->getTransform();
+        Eigen::Isometry3d tensegrityTransform =tensegrity->getBodyNode("attach" + std::to_string(idx+1))->getTransform();
         Eigen::Vector3d tenTrans = tensegrityTransform.translation();
         Eigen::Matrix3d rot_ten = tensegrityTransform.rotation();
         drawAxes(tenTrans, rot_ten);
 
-        tensegrityTransform =tensegrity->getBodyNode("attach2")->getTransform();
+        tensegrityTransform =tensegrity->getBodyNode("detach" + std::to_string(idx+1))->getTransform();
         tenTrans = tensegrityTransform.translation();
         rot_ten = tensegrityTransform.rotation();
         drawAxes(tenTrans, rot_ten);
-         
-        tensegrityTransform =tensegrity->getBodyNode("attach3")->getTransform();
-        tenTrans = tensegrityTransform.translation();
-        rot_ten = tensegrityTransform.rotation();
-        drawAxes(tenTrans, rot_ten);
-
-        tensegrityTransform =tensegrity->getBodyNode("attach4")->getTransform();
-        tenTrans = tensegrityTransform.translation();
-        rot_ten = tensegrityTransform.rotation();
-        drawAxes(tenTrans, rot_ten);
-
-
-        tensegrityTransform =tensegrity->getBodyNode("attach5")->getTransform();
-        tenTrans = tensegrityTransform.translation();
-        rot_ten = tensegrityTransform.rotation();
-        drawAxes(tenTrans, rot_ten);
-
-        tensegrityTransform =tensegrity->getBodyNode("attach6")->getTransform();
-        tenTrans = tensegrityTransform.translation();
-        rot_ten = tensegrityTransform.rotation();
-        drawAxes(tenTrans, rot_ten);
-
-        tensegrityTransform =tensegrity->getBodyNode("attach7")->getTransform();
-        tenTrans = tensegrityTransform.translation();
-        rot_ten = tensegrityTransform.rotation();
-        drawAxes(tenTrans, rot_ten);
-
-        tensegrityTransform =tensegrity->getBodyNode("attach8")->getTransform();
-        tenTrans = tensegrityTransform.translation();
-        rot_ten = tensegrityTransform.rotation();
-        drawAxes(tenTrans, rot_ten);
-
-        tensegrityTransform =tensegrity->getBodyNode("attach9")->getTransform();
+        
+        
+        tensegrityTransform =tensegrity->getBodyNode("tightener" + std::to_string(idx+1))->getTransform();
         tenTrans = tensegrityTransform.translation();
         rot_ten = tensegrityTransform.rotation();
         drawAxes(tenTrans, rot_ten);
