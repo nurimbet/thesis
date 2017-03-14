@@ -445,9 +445,9 @@ Eigen::VectorXd getInverseKinematics(const Eigen::VectorXd& init,
     // std::endl;
 
     //Eigen::DontAlignCols, ", ", ", ", "", "", " << ", ";");
-    Eigen::IOFormat CommaInitFmt(Eigen::StreamPrecision,
-        Eigen::DontAlignCols, " ", " ", "", "", "","");
-    std::cout << final_joint.format(CommaInitFmt) << std::endl;
+    //Eigen::IOFormat CommaInitFmt(Eigen::StreamPrecision,
+    //    Eigen::DontAlignCols, " ", " ", "", "", "","");
+    //std::cout << final_joint.format(CommaInitFmt) << std::endl;
     return final_joint;
 }
 
@@ -532,8 +532,8 @@ Eigen::Isometry3d getDetachPosition(int detNum, const ds::WorldPtr& world,
     Eigen::Vector3d tenTrans = tensegrityTransform.translation();
 
     double xs = 0;
-    //double ys = 80;
-    double ys = 100;
+    double ys = 80;
+    //double ys = 130;
     double zs = -95;
     Eigen::Matrix3d rot_ten;
     if (wristUp) {
@@ -728,7 +728,7 @@ void printFeasibleTensegrityLocation(const ds::WorldPtr& world)
                 continue;
             }
             for (int aa_zz = -180; aa_zz <= 180; aa_zz += 5) {
-                int ii = 8;
+                int ii = 0;
                 rot_ten = Eigen::AngleAxisd((double)aa_zz * M_PI / 180.0,
                     Eigen::Vector3d::UnitZ());
                 tf.linear() = rot_ten;
@@ -736,14 +736,14 @@ void printFeasibleTensegrityLocation(const ds::WorldPtr& world)
                     (double)0.0 / 1000.0;
                 moveSkeleton(tensegrity, tf);
 
-                while (ii > -1) {
+                while (ii < 9) {
                     if (!isReachable(ii, strings, world)) {
                         break;
                     }
-                    ii--;
+                    ii++;
                 }
-                std::cout << (double)xx / 1000.0 << " " << (double)yy / 1000.0 << " " << (double)0.0 / 1000.0 << " " << aa_zz << " " << ii << " " << std::endl;
-                if (ii == -1) {
+                //std::cout << (double)xx / 1000.0 << " " << (double)yy / 1000.0 << " " << (double)0.0 / 1000.0 << " " << aa_zz << " " << ii << " " << std::endl;
+                if (ii == 9) {
                     feasibleLocation << xx << " " << yy << " " << aa_zz
                                      << std::endl;
                 }
@@ -752,6 +752,13 @@ void printFeasibleTensegrityLocation(const ds::WorldPtr& world)
         }
     }
     feasibleLocation.close();
+}
+
+void printVector(Eigen::VectorXd final_joint)
+{
+    Eigen::IOFormat CommaInitFmt(Eigen::StreamPrecision,
+        Eigen::DontAlignCols, " ", " ", "", "", "", "");
+    std::cout << final_joint.format(CommaInitFmt) << std::endl;
 }
 
 int main(int argc, char* argv[])
@@ -771,7 +778,7 @@ int main(int argc, char* argv[])
     // dd::SkeletonPtr tensegrity = du::SdfParser::readSkeleton(prefix +
     // std::string("/tensegrity.sdf"));
     dl.addPackageDirectory("tensegrity", prefix + std::string("/tensegrity/"));
-    dd::SkeletonPtr tensegrity = dl.parseSkeleton(prefix + std::string("/tensegrity.URDF"));
+    dd::SkeletonPtr tensegrity = dl.parseSkeleton(prefix + std::string("/tensegrity/robots/tensegrity.URDF"));
     tensegrity->setName("tensegrity");
 
     Eigen::Isometry3d tenMove;
@@ -835,21 +842,28 @@ int main(int argc, char* argv[])
 
     detachAllStrings(world);
 
-    //printFeasibleTensegrityLocation(world);
+    printFeasibleTensegrityLocation(world);
 
-    tenRot = Eigen::AngleAxisd(0.0, Eigen::Vector3d::UnitZ());
-    tenMove.translation() << -0.75, -0.4, 0.0;
+    tenRot = Eigen::AngleAxisd(45.0 * M_PI / 180.0, Eigen::Vector3d::UnitZ());
+    tenMove.translation() << 0.0, -0.55, 0.0;
     tenMove.rotate(tenRot);
     moveSkeleton(tensegrity, tenMove);
+
+    //printAttachmentSequence(world);
+
     for (int kk = 0; kk < 9; kk++) {
         tf = getAttachPosition(kk, world, false);
         finish = getInverseKinematics(start, tf, world);
+        printVector(finish);
         tf = getAttachPosition(kk, world, true);
         finish = getInverseKinematics(start, tf, world);
+        printVector(finish);
         tf = getDetachPosition(kk, world, false);
         finish = getInverseKinematics(start, tf, world);
+        printVector(finish);
         tf = getDetachPosition(kk, world, true);
         finish = getInverseKinematics(start, tf, world);
+        printVector(finish);
     }
 
     // getAttachmentSequence(world);
@@ -883,9 +897,9 @@ int main(int argc, char* argv[])
     for (int jj = 2; jj <= 7; jj++) {
         staubli->getDof(jj)->setPosition(0);
     }
-
+  /*  
     MyWindow window(world);
-
+    */
     // staubli->getBodyNode("table")->getVisualizationShape(0)->setHidden(true);
     // staubli->getBodyNode("table")->setCollidable(false);
 
@@ -893,6 +907,7 @@ int main(int argc, char* argv[])
         Eigen::Vector3d(0, 1, 0));
     //staubli->getBodyNode("gripper")->getVisualizationShape(0)->setHidden(true);
     //staubli->getBodyNode("gripper")->setCollidable(false);
+
     /*
        double j1, j2, j3, j4, j5, j6 = 0;
        std::thread t([&]()
@@ -921,6 +936,7 @@ int main(int argc, char* argv[])
     });
 
      */
+ /*   
     glutInit(&argc, argv);
     //window.initWindow(475 * 2, 300 * 2, "SDF");
     window.initWindow(600 * 2, 500 * 2, "SDF");
@@ -928,6 +944,6 @@ int main(int argc, char* argv[])
     glutMainLoop();
 
     //   t.join();
-
+*/
     return 0;
 }

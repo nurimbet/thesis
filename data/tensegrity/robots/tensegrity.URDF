@@ -1,0 +1,2428 @@
+<robot
+  name="tensegrity">
+  <link
+    name="tensegrity">
+    <inertial>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <mass
+        value="2.981" />
+      <inertia
+        ixx="1.5276"
+        ixy="-0.0013205"
+        ixz="-0.0059941"
+        iyy="0.15034"
+        iyz="-0.0046967"
+        izz="1.5405" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/tensegrity.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/tensegrity.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <link
+    name="tightener1">
+    <inertial>
+      <origin
+        xyz="-0.0112648807710243 -0.00441342960711988 0.00969743752472763"
+        rpy="0 0 0" />
+      <mass
+        value="0.00856462996419102" />
+      <inertia
+        ixx="9.48346301710439E-07"
+        ixy="4.66685161768178E-07"
+        ixz="5.01471138407414E-07"
+        iyy="3.0904387326582E-06"
+        iyz="1.90238552895535E-07"
+        izz="2.84368398126264E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/tightener1.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 0.168627450980392 0.168627450980392 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/tightener1.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="tightener1"
+    type="fixed">
+    <origin
+      xyz="-0.00344000000000031 0.325880327868853 1.48698360655738"
+      rpy="0.181319774401501 -7.82047468678116E-18 -3.14159265358979" />
+    <parent
+      link="tensegrity" />
+    <child
+      link="tightener1" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="tightener2">
+    <inertial>
+      <origin
+        xyz="-0.0112649023815927 -0.00441338917167422 0.00969744047796228"
+        rpy="0 0 0" />
+      <mass
+        value="0.00856464520084429" />
+      <inertia
+        ixx="9.48345554667768E-07"
+        ixy="4.66676495816712E-07"
+        ixz="5.01469301430537E-07"
+        iyy="3.09044286567912E-06"
+        iyz="1.90238499470868E-07"
+        izz="2.84368695035432E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/tightener2.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 0.168627450980392 0.168627450980392 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/tightener2.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="tightener2"
+    type="fixed">
+    <origin
+      xyz="-0.363890155785117 -0.0931303799077181 1.34367974595797"
+      rpy="-1.82448281699546 0.769136226420718 -0.178410499351035" />
+    <parent
+      link="tensegrity" />
+    <child
+      link="tightener2" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="tightener3">
+    <inertial>
+      <origin
+        xyz="-0.0112649042192459 -0.00441343288623186 0.00969743422688465"
+        rpy="0 0 0" />
+      <mass
+        value="0.00856463183459565" />
+      <inertia
+        ixx="9.48348547824706E-07"
+        ixy="4.66688007253609E-07"
+        ixz="5.01471990198078E-07"
+        iyy="3.09044823930514E-06"
+        iyz="1.90239037244563E-07"
+        izz="2.84369551495909E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/tightener3.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 0.168627450980392 0.168627450980392 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/tightener3.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="tightener3"
+    type="fixed">
+    <origin
+      xyz="0.00229999999999975 -0.313669508196722 1.60307540983607"
+      rpy="1.57079632679489 1.3894765523934 -1.5707963267949" />
+    <parent
+      link="tensegrity" />
+    <child
+      link="tightener3" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="tightener4">
+    <inertial>
+      <origin
+        xyz="-0.0112649039981372 -0.00441345106264546 0.00969743300736448"
+        rpy="0 0 0" />
+      <mass
+        value="0.00856463280589177" />
+      <inertia
+        ixx="9.48350705657268E-07"
+        ixy="4.66692396032689E-07"
+        ixz="5.01472185591988E-07"
+        iyy="3.09044783790196E-06"
+        iyz="1.90239467213095E-07"
+        izz="2.8436972436386E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/tightener4.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 0.168627450980392 0.168627450980392 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/tightener4.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="tightener4"
+    type="fixed">
+    <origin
+      xyz="-0.257824138607135 -0.0694791309084098 1.44717746777238"
+      rpy="1.31710983659433 0.769136226420718 -0.178410499351035" />
+    <parent
+      link="tensegrity" />
+    <child
+      link="tightener4" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="tightener5">
+    <inertial>
+      <origin
+        xyz="-0.0112649434483726 -0.00441330767711112 0.00969746072280242"
+        rpy="0 0 0" />
+      <mass
+        value="0.00856464027785647" />
+      <inertia
+        ixx="9.48335413159062E-07"
+        ixy="4.66656916939347E-07"
+        ixz="5.01466109552551E-07"
+        iyy="3.09045336216765E-06"
+        iyz="1.90235224144574E-07"
+        izz="2.84368908467756E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/tightener5.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 0.168627450980392 0.168627450980392 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/tightener5.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="tightener5"
+    type="fixed">
+    <origin
+      xyz="0.0949231502555862 -0.00445692737460501 1.79552221432041"
+      rpy="-0.785398163397445 0.181319774401482 1.5707963267949" />
+    <parent
+      link="tensegrity" />
+    <child
+      link="tightener5" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="tightener6">
+    <inertial>
+      <origin
+        xyz="-0.0112648753943831 -0.00441343060605393 0.00969743601282979"
+        rpy="0 0 0" />
+      <mass
+        value="0.00856463401560627" />
+      <inertia
+        ixx="9.4834699396605E-07"
+        ixy="4.6668503581095E-07"
+        ixz="5.01471107260597E-07"
+        iyy="3.09043623385785E-06"
+        iyz="1.90238686898362E-07"
+        izz="2.84368201569941E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/tightener6.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 0.168627450980392 0.168627450980392 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/tightener6.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="tightener6"
+    type="fixed">
+    <origin
+      xyz="-0.00230000000000035 -0.166128524590164 1.5760262295082"
+      rpy="-1.5707963267949 1.3894765523934 -1.5707963267949" />
+    <parent
+      link="tensegrity" />
+    <child
+      link="tightener6" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="tightener7">
+    <inertial>
+      <origin
+        xyz="-0.0112648759677147 -0.00441343717059617 0.00969743225970304"
+        rpy="0 0 0" />
+      <mass
+        value="0.00856463670998778" />
+      <inertia
+        ixx="9.48347440075899E-07"
+        ixy="4.66686405885409E-07"
+        ixz="5.01471905064636E-07"
+        iyy="3.09043582663767E-06"
+        iyz="1.90238697252737E-07"
+        izz="2.84368197914386E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/tightener7.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 0.168627450980392 0.168627450980392 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/tightener7.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="tightener7"
+    type="fixed">
+    <origin
+      xyz="0.0103367651918467 0.0931825265927212 1.66896832686939"
+      rpy="-1.31710983659433 0.769136226420716 -2.96318215423875" />
+    <parent
+      link="tensegrity" />
+    <child
+      link="tightener7" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="tightener8">
+    <inertial>
+      <origin
+        xyz="-0.0112649294380098 -0.00441339808548946 0.00969743311534424"
+        rpy="0 0 0" />
+      <mass
+        value="0.00856465792468896" />
+      <inertia
+        ixx="9.48345449564267E-07"
+        ixy="4.66677519510116E-07"
+        ixz="5.01470596503683E-07"
+        iyy="3.0904483602827E-06"
+        iyz="1.90238351816132E-07"
+        izz="2.84369196118565E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/tightener8.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 0.168627450980392 0.168627450980392 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/tightener8.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="tightener8"
+    type="fixed">
+    <origin
+      xyz="-0.0957292519861357 0.10778459526416 1.77412506507724"
+      rpy="1.82448281699547 0.769136226420716 -2.96318215423875" />
+    <parent
+      link="tensegrity" />
+    <child
+      link="tightener8" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="tightener9">
+    <inertial>
+      <origin
+        xyz="-0.0112649161265738 -0.0044133659115434 0.00969745259179478"
+        rpy="0 0 0" />
+      <mass
+        value="0.00856463882730577" />
+      <inertia
+        ixx="9.48340756137017E-07"
+        ixy="4.66670079537862E-07"
+        ixz="5.01467287226518E-07"
+        iyy="3.09044692123592E-06"
+        iyz="1.9023719168397E-07"
+        izz="2.84368718796673E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/tightener9.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 0.168627450980392 0.168627450980392 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/tightener9.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="tightener9"
+    type="fixed">
+    <origin
+      xyz="0.364696257515673 0.0306936712240358 1.32179820667655"
+      rpy="0.785398163397445 0.181319774401485 1.5707963267949" />
+    <parent
+      link="tensegrity" />
+    <child
+      link="tightener9" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="detach1">
+    <inertial>
+      <origin
+        xyz="0.0136167294130277 0.00336313260997943 -0.00458859078875884"
+        rpy="0 0 0" />
+      <mass
+        value="0.00144131652160448" />
+      <inertia
+        ixx="2.70919111337064E-08"
+        ixy="8.31072147902918E-09"
+        ixz="-3.60183626082962E-10"
+        iyy="7.19839637780113E-08"
+        iyz="-9.2838766169693E-11"
+        izz="7.6586247123843E-08" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/detach1.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 0.168627450980392 0.168627450980392 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/detach1.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="detach"
+    type="fixed">
+    <origin
+      xyz="0.0199999999999996 0.393098360655766 1.49733196721311"
+      rpy="0 -0.181319774401501 -1.5707963267949" />
+    <parent
+      link="tensegrity" />
+    <child
+      link="detach1" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="detach2">
+    <inertial>
+      <origin
+        xyz="0.0136167294130276 0.00336313260997945 -0.00458859078875873"
+        rpy="0 0 0" />
+      <mass
+        value="0.00144131652160447" />
+      <inertia
+        ixx="2.70919111337063E-08"
+        ixy="8.3107214790287E-09"
+        ixz="-3.60183626082476E-10"
+        iyy="7.19839637780106E-08"
+        iyz="-9.28387661696897E-11"
+        izz="7.65862471238422E-08" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/detach2.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 0.168627450980392 0.168627450980392 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/detach2.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="detach2"
+    type="fixed">
+    <origin
+      xyz="-0.421300155349653 -0.0844233171255465 1.31741827022436"
+      rpy="1.31710983659433 -0.769136226420714 0.178410499351039" />
+    <parent
+      link="tensegrity" />
+    <child
+      link="detach2" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="detach3">
+    <inertial>
+      <origin
+        xyz="0.0136167294130276 0.00336313260997945 -0.00458859078875878"
+        rpy="0 0 0" />
+      <mass
+        value="0.00144131652160448" />
+      <inertia
+        ixx="2.70919111337066E-08"
+        ixy="8.31072147902923E-09"
+        ixz="-3.60183626082459E-10"
+        iyy="7.19839637780121E-08"
+        iyz="-9.28387661696795E-11"
+        izz="7.65862471238438E-08" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/detach3.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 0.168627450980392 0.168627450980392 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/detach3.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="detach3"
+    type="fixed">
+    <origin
+      xyz="-0.0110000000000003 -0.366245901639344 1.63654508196721"
+      rpy="1.5707963267949 0.181319774401488 1.5707963267949" />
+    <parent
+      link="tensegrity" />
+    <child
+      link="detach3" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="detach4">
+    <inertial>
+      <origin
+        xyz="-0.0626332705869689 0.0368031326099791 0.0177114092112323"
+        rpy="0 0 0" />
+      <mass
+        value="0.00144131652160448" />
+      <inertia
+        ixx="2.70919111337063E-08"
+        ixy="8.31072147902876E-09"
+        ixz="-3.60183626082374E-10"
+        iyy="7.1983963778011E-08"
+        iyz="-9.28387661697095E-11"
+        izz="7.65862471238426E-08" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/detach4.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 0.168627450980392 0.168627450980392 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/detach4.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="detach4"
+    type="fixed">
+    <origin
+      xyz="-0.25075307079527 -0.0707542414974347 1.44022231910497"
+      rpy="1.31710983659433 -0.769136226420712 0.178410499351048" />
+    <parent
+      link="tensegrity" />
+    <child
+      link="detach4" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="detach5">
+    <inertial>
+      <origin
+        xyz="0.0136167294130278 0.00336313260997956 -0.00458859078875884"
+        rpy="0 0 0" />
+      <mass
+        value="0.00144131652160446" />
+      <inertia
+        ixx="2.7091911133706E-08"
+        ixy="8.31072147902947E-09"
+        ixz="-3.60183626082271E-10"
+        iyy="7.19839637780109E-08"
+        iyz="-9.28387661697997E-11"
+        izz="7.65862471238428E-08" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/detach5.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 0.168627450980392 0.168627450980392 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/detach5.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="detach5"
+    type="fixed">
+    <origin
+      xyz="0.124586279726341 -0.0164765829315122 1.85994591128273"
+      rpy="0.253686490200554 0.769136226420711 -2.96318215423876" />
+    <parent
+      link="tensegrity" />
+    <child
+      link="detach5" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="detach6">
+    <inertial>
+      <origin
+        xyz="0.0136167294130276 0.00336313260997922 -0.00458859078875878"
+        rpy="0 0 0" />
+      <mass
+        value="0.00144131652160448" />
+      <inertia
+        ixx="2.70919111337065E-08"
+        ixy="8.31072147902922E-09"
+        ixz="-3.60183626082485E-10"
+        iyy="7.19839637780119E-08"
+        iyz="-9.28387661696828E-11"
+        izz="7.65862471238436E-08" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/detach6.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 0.168627450980392 0.168627450980392 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/detach6.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="detach6"
+    type="fixed">
+    <origin
+      xyz="0.0199999999999994 -0.236901639344262 1.61283196721312"
+      rpy="1.5707963267949 0.181319774401488 1.5707963267949" />
+    <parent
+      link="tensegrity" />
+    <child
+      link="detach6" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="detach7">
+    <inertial>
+      <origin
+        xyz="0.0136167294130278 0.00336313260997945 -0.00458859078875884"
+        rpy="0 0 0" />
+      <mass
+        value="0.00144131652160447" />
+      <inertia
+        ixx="2.70919111337062E-08"
+        ixy="8.31072147902912E-09"
+        ixz="-3.60183626082342E-10"
+        iyy="7.19839637780109E-08"
+        iyz="-9.28387661696475E-11"
+        izz="7.65862471238425E-08" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/detach7.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 0.168627450980392 0.168627450980392 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/detach7.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="detach7"
+    type="fixed">
+    <origin
+      xyz="-0.0270055439226141 0.0839596778251951 1.74232551541019"
+      rpy="1.31710983659433 0.769136226420715 -0.178410499351034" />
+    <parent
+      link="tensegrity" />
+    <child
+      link="detach7" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="detach8">
+    <inertial>
+      <origin
+        xyz="-0.0112648753943831 -0.00441343060605381 0.00969743601282979"
+        rpy="0 0 0" />
+      <mass
+        value="0.00856463401560627" />
+      <inertia
+        ixx="9.4834699396605E-07"
+        ixy="4.6668503581095E-07"
+        ixz="5.01471107260597E-07"
+        iyy="3.09043623385785E-06"
+        iyz="1.90238686898362E-07"
+        izz="2.84368201569941E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/detach8.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 0.168627450980392 0.168627450980392 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/detach8.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="detach8"
+    type="fixed">
+    <origin
+      xyz="-0.00230000000000035 -0.166128524590164 1.5760262295082"
+      rpy="-1.5707963267949 1.3894765523934 -1.5707963267949" />
+    <parent
+      link="tensegrity" />
+    <child
+      link="detach8" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="detach9">
+    <inertial>
+      <origin
+        xyz="0.0136167294130276 0.00336313260997939 -0.00458859078875884"
+        rpy="0 0 0" />
+      <mass
+        value="0.00144131652160446" />
+      <inertia
+        ixx="2.70919111337059E-08"
+        ixy="8.3107214790288E-09"
+        ixz="-3.60183626082327E-10"
+        iyy="7.19839637780106E-08"
+        iyz="-9.28387661697062E-11"
+        izz="7.65862471238425E-08" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/detach9.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 0.168627450980392 0.168627450980392 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/detach9.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="detach9"
+    type="fixed">
+    <origin
+      xyz="0.425896349427369 0.00228884459815839 1.29684824326267"
+      rpy="0.253686490200553 -0.769136226420708 2.96318215423877" />
+    <parent
+      link="tensegrity" />
+    <child
+      link="detach9" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="attach1">
+    <inertial>
+      <origin
+        xyz="2.22044604925031E-16 0.0109071136700519 0.000188401460229581"
+        rpy="0 0 0" />
+      <mass
+        value="0.000125397117258045" />
+      <inertia
+        ixx="5.17034833783075E-09"
+        ixy="-1.88361303940542E-23"
+        ixz="6.72084247699335E-25"
+        iyy="1.14975031600388E-10"
+        iyz="-9.61806045495618E-12"
+        izz="5.17479932232868E-09" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/attach1.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 0.549019607843137 0 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/attach1.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="attach1"
+    type="fixed">
+    <origin
+      xyz="0.318156761076164 0.0650930969857314 1.97852563931339"
+      rpy="-0.531711673196898 0.769136226420716 -2.96318215423882" />
+    <parent
+      link="tensegrity" />
+    <child
+      link="attach1" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="attach2">
+    <inertial>
+      <origin
+        xyz="-2.22044604925031E-16 0.0109071136700518 0.00018840146022947"
+        rpy="0 0 0" />
+      <mass
+        value="0.000125397117258046" />
+      <inertia
+        ixx="5.1703483378308E-09"
+        ixy="-3.04142355890957E-23"
+        ixz="1.65436122510606E-24"
+        iyy="1.1497503160039E-10"
+        iyz="-9.61806045494411E-12"
+        izz="5.17479932232872E-09" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/attach2.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 0.549019607843137 0 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/attach2.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="attach2"
+    type="fixed">
+    <origin
+      xyz="-0.328656761076175 0.166626629046522 1.94923615843558"
+      rpy="0.531711673196865 0.769136226420715 -0.178410499351044" />
+    <parent
+      link="tensegrity" />
+    <child
+      link="attach2" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="attach3">
+    <inertial>
+      <origin
+        xyz="2.77555756156289E-16 0.0109071136700518 0.000188401460229803"
+        rpy="0 0 0" />
+      <mass
+        value="0.000125397117258043" />
+      <inertia
+        ixx="5.17034833783068E-09"
+        ixy="4.64594392093504E-23"
+        ixz="-2.32644547280539E-25"
+        iyy="1.14975031600383E-10"
+        iyz="-9.61806045500768E-12"
+        izz="5.1747993223286E-09" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/attach3.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 0.549019607843137 0 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/attach3.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="attach3"
+    type="fixed">
+    <origin
+      xyz="-0.601682559529722 -0.146570547440898 1.17252428668608"
+      rpy="-2.6098809803929 -0.769136226420708 0.178410499351032" />
+    <parent
+      link="tensegrity" />
+    <child
+      link="attach3" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="attach4">
+    <inertial>
+      <origin
+        xyz="2.22044604925031E-16 0.0109071136700517 0.00018840146022947"
+        rpy="0 0 0" />
+      <mass
+        value="0.000125397117258046" />
+      <inertia
+        ixx="5.1703483378308E-09"
+        ixy="-3.12696889764919E-24"
+        ixz="-7.75481824268463E-25"
+        iyy="1.14975031600391E-10"
+        iyz="-9.61806045498036E-12"
+        izz="5.17479932232872E-09" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/attach4.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 0.549019607843137 0 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/attach4.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="attach4"
+    type="fixed">
+    <origin
+      xyz="0.546741434032771 -0.0384451766288569 1.09684449111531"
+      rpy="1.03908465359801 -0.769136226420713 2.96318215423876" />
+    <parent
+      link="tensegrity" />
+    <child
+      link="attach4" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="attach5">
+    <inertial>
+      <origin
+        xyz="2.22044604925031E-16 0.010907113670052 0.000188401460230025"
+        rpy="0 0 0" />
+      <mass
+        value="0.000125397117258043" />
+      <inertia
+        ixx="5.17034833783069E-09"
+        ixy="2.19380576911281E-23"
+        ixz="-2.27474668452083E-24"
+        iyy="1.14975031600383E-10"
+        iyz="-9.618060454966E-12"
+        izz="5.17479932232862E-09" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/attach5.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 0.549019607843137 0 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/attach5.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="attach5"
+    type="fixed">
+    <origin
+      xyz="0.0239999999999999 -0.59522390710731 1.69768777941467"
+      rpy="-2.35619449019234 0.181319774401499 1.5707963267949" />
+    <parent
+      link="tensegrity" />
+    <child
+      link="attach5" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="attach6">
+    <inertial>
+      <origin
+        xyz="1.11022302462516E-16 0.0109071136700518 0.000188401460229581"
+        rpy="0 0 0" />
+      <mass
+        value="0.000125397117258046" />
+      <inertia
+        ixx="5.17034833783079E-09"
+        ixy="1.57939798209344E-23"
+        ixz="6.97933641841617E-25"
+        iyy="1.14975031600391E-10"
+        iyz="-9.61806045501377E-12"
+        izz="5.17479932232872E-09" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/attach6.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 0.549019607843137 0 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/attach6.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="attach6"
+    type="fixed">
+    <origin
+      xyz="0.591182559529726 -0.0450370153801445 1.14323480580828"
+      rpy="2.60988098039293 -0.769136226420713 2.96318215423875" />
+    <parent
+      link="tensegrity" />
+    <child
+      link="attach6" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="attach7">
+    <inertial>
+      <origin
+        xyz="2.22044604925031E-16 0.0109071136700523 0.000188401460229803"
+        rpy="0 0 0" />
+      <mass
+        value="0.000125397117258042" />
+      <inertia
+        ixx="5.17034833783066E-09"
+        ixy="2.60561892954204E-23"
+        ixz="-5.53177034644837E-24"
+        iyy="1.14975031600382E-10"
+        iyz="-9.61806045495512E-12"
+        izz="5.17479932232859E-09" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/attach7.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 0.549019607843137 0 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/attach7.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="attach7"
+    type="fixed">
+    <origin
+      xyz="0.273715635579209 0.0585012582344451 2.02491595400636"
+      rpy="-2.10250799999181 0.769136226420727 -2.96318215423883" />
+    <parent
+      link="tensegrity" />
+    <child
+      link="attach7" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="attach8">
+    <inertial>
+      <origin
+        xyz="5.55111512312578E-17 0.0109071136700518 0.000188401460229581"
+        rpy="0 0 0" />
+      <mass
+        value="0.000125397117258044" />
+      <inertia
+        ixx="5.1703483378307E-09"
+        ixy="-2.11512667569223E-23"
+        ixz="-1.39586728368323E-24"
+        iyy="1.14975031600386E-10"
+        iyz="-9.61806045496004E-12"
+        izz="5.17479932232863E-09" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/attach8.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 0.549019607843137 0 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/attach8.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="attach8"
+    type="fixed">
+    <origin
+      xyz="-0.0240000000000005 0.622481010925478 1.47444187777533"
+      rpy="-2.35619449019234 -0.181319774401499 -1.5707963267949" />
+    <parent
+      link="tensegrity" />
+    <child
+      link="attach8" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="attach9">
+    <inertial>
+      <origin
+        xyz="2.22044604925031E-16 0.0109071136700516 0.000188401460229359"
+        rpy="0 0 0" />
+      <mass
+        value="0.000125397117258043" />
+      <inertia
+        ixx="5.17034833783069E-09"
+        ixy="2.35439513022173E-23"
+        ixz="-2.1713491079517E-24"
+        iyy="1.14975031600384E-10"
+        iyz="-9.61806045496344E-12"
+        izz="5.17479932232862E-09" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/attach9.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 0.549019607843137 0 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/attach9.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="attach9"
+    type="fixed">
+    <origin
+      xyz="0.0239999999999996 0.608469808746655 1.39801713861811"
+      rpy="0.785398163397449 -0.181319774401489 -1.57079632679489" />
+    <parent
+      link="tensegrity" />
+    <child
+      link="attach9" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="pulley1">
+    <inertial>
+      <origin
+        xyz="-0.0035467680552963 -0.00149569497349566 -0.0237500000000001"
+        rpy="0 0 0" />
+      <mass
+        value="0.00115149136839394" />
+      <inertia
+        ixx="2.47202230080769E-08"
+        ixy="-2.8951321439356E-24"
+        ixz="-7.47137288100798E-25"
+        iyy="2.47202230080769E-08"
+        iyz="-2.91978752122891E-25"
+        izz="2.72844075510586E-08" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/pulley1.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 0 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/pulley1.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="pulley1"
+    type="continuous">
+    <origin
+      xyz="-0.0240000000000005 0.622481010925478 1.47444187777533"
+      rpy="1.5707963267949 -1.35303842246507 -1.5707963267949" />
+    <parent
+      link="tensegrity" />
+    <child
+      link="pulley1" />
+    <axis
+      xyz="0 0 1" />
+  </joint>
+  <link
+    name="pulley2">
+    <inertial>
+      <origin
+        xyz="-1.11022302462516E-16 0 0.00132017230202797"
+        rpy="0 0 0" />
+      <mass
+        value="0.00115149136839393" />
+      <inertia
+        ixx="2.47202230080765E-08"
+        ixy="1.65436122510606E-24"
+        ixz="9.18170479933861E-23"
+        iyy="2.47202230080765E-08"
+        iyz="-6.762201507621E-23"
+        izz="2.72844075510583E-08" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/pulley2.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 0 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/pulley2.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="pulley2"
+    type="continuous">
+    <origin
+      xyz="-0.573455270689443 -0.0936279273956821 1.13412039602351"
+      rpy="0.631420863095884 0.532284485238217 -2.35588130681373" />
+    <parent
+      link="tensegrity" />
+    <child
+      link="pulley2" />
+    <axis
+      xyz="0 0 1" />
+  </joint>
+  <link
+    name="pulley3">
+    <inertial>
+      <origin
+        xyz="-5.55111512312578E-17 0 -0.00444107766729385"
+        rpy="0 0 0" />
+      <mass
+        value="0.00115149136839394" />
+      <inertia
+        ixx="2.47202230080766E-08"
+        ixy="4.13590306276514E-24"
+        ixz="-4.11522354745131E-23"
+        iyy="2.47202230080766E-08"
+        iyz="-2.35746474577613E-23"
+        izz="2.72844075510585E-08" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/pulley3.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 0 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/pulley3.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="pulley3"
+    type="continuous">
+    <origin
+      xyz="-0.0350000000000004 -0.60298527630066 1.65535303836004"
+      rpy="2.98449472353879 -0.0909133937987541 -0.520440071048006" />
+    <parent
+      link="tensegrity" />
+    <child
+      link="pulley3" />
+    <axis
+      xyz="0 0 1" />
+  </joint>
+  <link
+    name="pulley4">
+    <inertial>
+      <origin
+        xyz="-2.77555756156289E-17 0 0.0017312900597426"
+        rpy="0 0 0" />
+      <mass
+        value="0.00115149136839396" />
+      <inertia
+        ixx="2.47202230080774E-08"
+        ixy="0"
+        ixz="9.92616735063633E-24"
+        iyy="2.47202230080774E-08"
+        iyz="2.54358038360056E-23"
+        izz="2.72844075510591E-08" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/pulley4.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 0 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/pulley4.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="pulley4"
+    type="continuous">
+    <origin
+      xyz="-0.572811013144504 -0.162596564002146 1.14610965089734"
+      rpy="0.745639043009377 0.327890658213947 -2.08475010947139" />
+    <parent
+      link="tensegrity" />
+    <child
+      link="pulley4" />
+    <axis
+      xyz="0 0 1" />
+  </joint>
+  <link
+    name="pulley5">
+    <inertial>
+      <origin
+        xyz="0.00366250510019983 -0.00118436627901475 0.0237499999999999"
+        rpy="0 0 0" />
+      <mass
+        value="0.00115149136839394" />
+      <inertia
+        ixx="2.47202230080768E-08"
+        ixy="-1.78360819581747E-24"
+        ixz="4.4254162771587E-23"
+        iyy="2.47202230080769E-08"
+        iyz="-4.01182597088218E-23"
+        izz="2.72844075510586E-08" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/pulley5.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 0 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/pulley5.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="pulley5"
+    type="continuous">
+    <origin
+      xyz="0.273715635579209 0.0585012582344451 2.02491595400636"
+      rpy="1.36772787967172 0.464271853741143 -0.0919392370595983" />
+    <parent
+      link="tensegrity" />
+    <child
+      link="pulley5" />
+    <axis
+      xyz="0 0 -1" />
+  </joint>
+  <link
+    name="pulley6">
+    <inertial>
+      <origin
+        xyz="-2.22044604925031E-16 5.55111512312578E-17 -0.00444107766729407"
+        rpy="0 0 0" />
+      <mass
+        value="0.00115149136839394" />
+      <inertia
+        ixx="2.47202230080766E-08"
+        ixy="4.13590306276514E-25"
+        ixz="5.58346913473294E-23"
+        iyy="2.47202230080766E-08"
+        iyz="-3.72231275648862E-24"
+        izz="2.72844075510585E-08" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/pulley6.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 0 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/pulley6.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="pulley6"
+    type="continuous">
+    <origin
+      xyz="0.0349999999999996 -0.603075440235086 1.65486123508135"
+      rpy="3.12170686669581 0.180237919378081 1.4603031742211" />
+    <parent
+      link="tensegrity" />
+    <child
+      link="pulley6" />
+    <axis
+      xyz="0 0 1" />
+  </joint>
+  <link
+    name="pulley7">
+    <inertial>
+      <origin
+        xyz="-1.66533453693773E-16 -4.44089209850063E-16 -0.0125123427321154"
+        rpy="0 0 0" />
+      <mass
+        value="0.00115149136839396" />
+      <inertia
+        ixx="2.47202230080772E-08"
+        ixy="-1.24077091882954E-24"
+        ixz="-4.96308367531817E-24"
+        iyy="2.47202230080772E-08"
+        iyz="-5.55761974059065E-23"
+        izz="2.7284407551059E-08" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/pulley7.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 0 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/pulley7.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="pulley7"
+    type="continuous">
+    <origin
+      xyz="-0.310210537417404 0.111920210362038 1.97801932924749"
+      rpy="2.37738677488523 -0.271358663823417 -1.66506917334562" />
+    <parent
+      link="tensegrity" />
+    <child
+      link="pulley7" />
+    <axis
+      xyz="0 0 1" />
+  </joint>
+  <link
+    name="pulley8">
+    <inertial>
+      <origin
+        xyz="0.00392641909946193 0.000140503360593236 0.0320281745930522"
+        rpy="0 0 0" />
+      <mass
+        value="0.00115149136839396" />
+      <inertia
+        ixx="2.47202230080772E-08"
+        ixy="0"
+        ixz="4.96308367531817E-24"
+        iyy="2.47202230080772E-08"
+        iyz="4.85968609874904E-23"
+        izz="2.7284407551059E-08" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/pulley8.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 0 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/pulley8.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="pulley8"
+    type="continuous">
+    <origin
+      xyz="-0.323656761076175 0.174483417058193 1.95287908063344"
+      rpy="0.780417755714486 0.206550528203247 1.54495729002601" />
+    <parent
+      link="tensegrity" />
+    <child
+      link="pulley8" />
+    <axis
+      xyz="0 0 -1" />
+  </joint>
+  <link
+    name="pulley9">
+    <inertial>
+      <origin
+        xyz="0 2.22044604925031E-16 0.00741057511421686"
+        rpy="0 0 0" />
+      <mass
+        value="0.00115149136839394" />
+      <inertia
+        ixx="2.47202230080768E-08"
+        ixy="1.45659194336286E-25"
+        ixz="-8.49117287487946E-24"
+        iyy="2.47202230080768E-08"
+        iyz="-1.14150924532318E-22"
+        izz="2.72844075510586E-08" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/pulley9.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 0 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/pulley9.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="pulley9"
+    type="continuous">
+    <origin
+      xyz="0.598960734122778 0.0021129677620136 1.14249845306849"
+      rpy="1.3894765523934 0 0" />
+    <parent
+      link="tensegrity" />
+    <child
+      link="pulley9" />
+    <axis
+      xyz="0 0 -1" />
+  </joint>
+  <link
+    name="tendon1">
+    <inertial>
+      <origin
+        xyz="-0.0170513566647279 0.418289457663299 0.00475134458379478"
+        rpy="0 0 0" />
+      <mass
+        value="0.0103991743382068" />
+      <inertia
+        ixx="0.000593476071249886"
+        ixy="-7.78488832590247E-19"
+        ixz="-8.13151629364128E-20"
+        iyy="2.07983486764679E-08"
+        iyz="-2.21343853906023E-18"
+        izz="0.000593476071249887" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/tendon1.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/tendon1.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="tendon1"
+    type="continuous">
+    <origin
+      xyz="-0.0240000000000005 0.622481010925478 1.47444187777533"
+      rpy="0.724553090982325 -0.442232946231103 -2.97463015947492" />
+    <parent
+      link="tensegrity" />
+    <child
+      link="tendon1" />
+    <axis
+      xyz="0 -1 0" />
+  </joint>
+  <link
+    name="tendon2">
+    <inertial>
+      <origin
+        xyz="-4.44089209850063E-16 0.366061975707369 -5.55111512312578E-16"
+        rpy="0 0 0" />
+      <mass
+        value="0.0111099282601549" />
+      <inertia
+        ixx="0.00072366814700187"
+        ixy="-8.87058976324823E-19"
+        ixz="3.3881317890172E-21"
+        iyy="2.22198565202983E-08"
+        iyz="-1.03318746256752E-18"
+        izz="0.00072366814700187" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/tendon2.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/tendon2.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="tendon2"
+    type="continuous">
+    <origin
+      xyz="-0.555149044350002 -0.0669662547977792 1.21002859940116"
+      rpy="1.25842678201526 0.282523150056682 -0.0447789619628604" />
+    <parent
+      link="tensegrity" />
+    <child
+      link="tendon2" />
+    <axis
+      xyz="0 -1 0" />
+  </joint>
+  <link
+    name="tendon3">
+    <inertial>
+      <origin
+        xyz="-0.00218347509156125 0.440282786283832 0.0027358284664738"
+        rpy="0 0 0" />
+      <mass
+        value="0.0109723265019277" />
+      <inertia
+        ixx="0.000697111149307825"
+        ixy="-6.64186740800985E-19"
+        ixz="-2.71050543121376E-20"
+        iyy="2.19446530039412E-08"
+        iyz="9.40841846162714E-19"
+        izz="0.000697111149307824" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/tendon3.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/tendon3.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="tendon3"
+    type="continuous">
+    <origin
+      xyz="-0.601682559529722 -0.146570547440898 1.17252428668608"
+      rpy="2.31415645398289 0.701463240500334 0.283310410885007" />
+    <parent
+      link="tensegrity" />
+    <child
+      link="tendon3" />
+    <axis
+      xyz="0 -1 0" />
+  </joint>
+  <link
+    name="tendon4">
+    <inertial>
+      <origin
+        xyz="4.44089209850063E-16 0.0802904924972703 -5.55111512312578E-17"
+        rpy="0 0 0" />
+      <mass
+        value="0.0142485049847973" />
+      <inertia
+        ixx="0.00152654979602148"
+        ixy="7.65618049600468E-18"
+        ixz="-2.71050543121376E-20"
+        iyy="2.84970099695927E-08"
+        iyz="-1.1607916525824E-18"
+        izz="0.00152654979602148" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/tendon4.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/tendon4.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="tendon4"
+    type="continuous">
+    <origin
+      xyz="0.0622200803589977 -0.0954811833576393 1.12033347002897"
+      rpy="2.73638977967294 -1.45380155814139 -1.06047574148992" />
+    <parent
+      link="tensegrity" />
+    <child
+      link="tendon4" />
+    <axis
+      xyz="0 1 0" />
+  </joint>
+  <link
+    name="tendon5">
+    <inertial>
+      <origin
+        xyz="-1.11022302462516E-16 0.145133813273724 8.88178419700125E-16"
+        rpy="0 0 0" />
+      <mass
+        value="0.00943206645572571" />
+      <inertia
+        ixx="0.000442821636408902"
+        ixy="-3.53124644269806E-19"
+        ixz="2.71050543121376E-20"
+        iyy="1.88641329114426E-08"
+        iyz="1.11958565036807E-18"
+        izz="0.000442821636408902" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/tendon5.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/tendon5.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="tendon5"
+    type="continuous">
+    <origin
+      xyz="0.104838833938817 -0.404324883250655 1.80075313592792"
+      rpy="0.489632935594346 0.336016107582331 -0.202904079070031" />
+    <parent
+      link="tensegrity" />
+    <child
+      link="tendon5" />
+    <axis
+      xyz="0 -1 0" />
+  </joint>
+  <link
+    name="tendon6">
+    <inertial>
+      <origin
+        xyz="2.22044604925031E-16 0.140314062741869 0"
+        rpy="0 0 0" />
+      <mass
+        value="0.0117808467872556" />
+      <inertia
+        ixx="0.000862848362672803"
+        ixy="8.81536304965112E-19"
+        ixz="6.7762635780344E-20"
+        iyy="2.35616935746778E-08"
+        iyz="-9.1422730995382E-19"
+        izz="0.000862848362672803" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/tendon6.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/tendon6.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="tendon6"
+    type="continuous">
+    <origin
+      xyz="0.399200075389867 -0.241093665128849 1.32488833343546"
+      rpy="2.4063038593005 -0.634839389370555 -0.289613435886281" />
+    <parent
+      link="tensegrity" />
+    <child
+      link="tendon6" />
+    <axis
+      xyz="0 -1 0" />
+  </joint>
+  <link
+    name="tendon7">
+    <inertial>
+      <origin
+        xyz="-4.44089209850063E-16 -5.55111512312578E-17 0.102284978295176"
+        rpy="0 0 0" />
+      <mass
+        value="0.0071673551436059" />
+      <inertia
+        ixx="0.00019430850882162"
+        ixy="1.6940658945086E-21"
+        ixz="-1.86947180522246E-19"
+        iyy="0.00019430850882162"
+        iyz="-4.68474773895173E-20"
+        izz="1.43347102872121E-08" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/tendon7.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/tendon7.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="tendon7"
+    type="continuous">
+    <origin
+      xyz="-0.112898622615332 0.0957005775504391 2.00052094427155"
+      rpy="-1.01637221920297 -1.45632726607529 -2.20607332712388" />
+    <parent
+      link="tensegrity" />
+    <child
+      link="tendon7" />
+    <axis
+      xyz="0 0 -1" />
+  </joint>
+  <link
+    name="tendon8">
+    <inertial>
+      <origin
+        xyz="-6.66133814775094E-16 2.22044604925031E-16 0.269107915046925"
+        rpy="0 0 0" />
+      <mass
+        value="0.00906487710637413" />
+      <inertia
+        ixx="0.000393092541015954"
+        ixy="-3.3881317890172E-20"
+        ixz="-9.92404149646207E-19"
+        iyy="0.000393092541015954"
+        iyz="2.36265116821684E-19"
+        izz="1.81297542128196E-08" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/tendon8.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/tendon8.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="tendon8"
+    type="continuous">
+    <origin
+      xyz="-0.0724995267642046 0.564718142394954 1.53027492007169"
+      rpy="-0.749025361344523 0.223845661453569 2.8362451546136" />
+    <parent
+      link="tensegrity" />
+    <child
+      link="tendon8" />
+    <axis
+      xyz="0 0 -1" />
+  </joint>
+  <link
+    name="tendon9">
+    <inertial>
+      <origin
+        xyz="0 0.373734837954212 2.1094237467878E-15"
+        rpy="0 0 0" />
+      <mass
+        value="0.0109763477405243" />
+      <inertia
+        ixx="0.000697877873205749"
+        ixy="3.25433532493675E-20"
+        ixz="-8.13151629364128E-20"
+        iyy="2.19526954811329E-08"
+        iyz="3.96034555827933E-18"
+        izz="0.000697877873205749" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/tendon9.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://tensegrity/meshes/tendon9.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="tendon9"
+    type="continuous">
+    <origin
+      xyz="0.561786764721919 0.0442492543570693 1.16116779519199"
+      rpy="0.397368609199379 -0.717419084371909 0.488556943438376" />
+    <parent
+      link="tensegrity" />
+    <child
+      link="tendon9" />
+    <axis
+      xyz="0 1 0" />
+  </joint>
+</robot>
