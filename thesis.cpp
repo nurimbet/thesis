@@ -336,17 +336,16 @@ Eigen::VectorXd getInverseKinematics(const Eigen::VectorXd& init,
     VectorXd final_joint(6);
     final_joint << 0, 0, 0, 0, 0, 0;
     dd::SkeletonPtr staubli = world->getSkeleton("staubli");
-
-    staubli->getDof(2)->setPosition(0);
-    staubli->getDof(3)->setPosition(0);
-    staubli->getDof(4)->setPosition(0);
-    staubli->getDof(5)->setPosition(0);
-    staubli->getDof(6)->setPosition(0);
-    staubli->getDof(7)->setPosition(0);
+    /*
+    for(int kk = 2; kk <= 7; kk++)
+    {
+        staubli->getDof(kk)->setPosition(0);
+    }
 
     if (world->checkCollision()) {
         return final_joint;
     }
+    */
 
     double alpha[7] = { 0, -M_PI / 2, 0, M_PI / 2, -M_PI / 2, M_PI / 2, 0 };
     double a[7] = { 0, 50, 650, 0, 0, 0, 0 };
@@ -460,12 +459,18 @@ void detachAllStrings(const ds::WorldPtr& world)
             ->setHidden(true);
         tensegrity->getBodyNode("tendon" + std::to_string(ii))
             ->setCollidable(false);
-        /*tensegrity->getBodyNode("tightener" + std::to_string(ii))
+    }
+}
+
+void attachAllStrings(const ds::WorldPtr& world)
+{
+    dd::SkeletonPtr tensegrity = world->getSkeleton("tensegrity");
+    for (int ii = 1; ii <= 9; ii++) {
+        tensegrity->getBodyNode("tendon" + std::to_string(ii))
             ->getVisualizationShape(0)
-            ->setHidden(true);
-        tensegrity->getBodyNode("tightener" + std::to_string(ii))
-            ->setCollidable(false);
-        */
+            ->setHidden(false);
+        tensegrity->getBodyNode("tendon" + std::to_string(ii))
+            ->setCollidable(true);
     }
 }
 
@@ -487,6 +492,26 @@ void detachAttachStrings(Eigen::VectorXd strings, const ds::WorldPtr& world)
                 ->setCollidable(true);
         }
     }
+}
+
+void detachStringAt(int ii, const ds::WorldPtr& world)
+{
+        dd::SkeletonPtr tensegrity = world->getSkeleton("tensegrity");
+        tensegrity->getBodyNode("tendon" + std::to_string(ii + 1))
+            ->getVisualizationShape(0)
+            ->setHidden(true);
+        tensegrity->getBodyNode("tendon" + std::to_string(ii + 1))
+            ->setCollidable(false);
+}
+
+void attachStringAt(int ii, const ds::WorldPtr& world)
+{
+        dd::SkeletonPtr tensegrity = world->getSkeleton("tensegrity");
+        tensegrity->getBodyNode("tendon" + std::to_string(ii + 1))
+            ->getVisualizationShape(0)
+            ->setHidden(false);
+        tensegrity->getBodyNode("tendon" + std::to_string(ii + 1))
+            ->setCollidable(true);
 }
 
 Eigen::Isometry3d getAttachPosition(int attNum, const ds::WorldPtr& world,
@@ -575,6 +600,7 @@ bool isReachable(int i, Eigen::VectorXd strings, const ds::WorldPtr& world)
         }
     }
 
+    //attachStringAt(i, world);
     Eigen::Isometry3d tf_att(Eigen::Isometry3d::Identity());
     Eigen::VectorXd at_joints(6);
 
@@ -719,15 +745,16 @@ void printFeasibleTensegrityLocation(const ds::WorldPtr& world)
     Eigen::Isometry3d tf(Eigen::Isometry3d::Identity());
 
     dd::SkeletonPtr tensegrity = world->getSkeleton("tensegrity");
+    dd::SkeletonPtr staubli = world->getSkeleton("staubli");
 
     Eigen::Matrix3d rot_ten;
-    for (int xx = -1000; xx <= 1000; xx += 50) {
-        for (int yy = -1000; yy <= 1000; yy += 50) {
+    for (int xx = -600; xx <= 600; xx += 50) {
+        for (int yy = -600; yy <= 600; yy += 50) {
             //for (int zz = -500; zz <= 500; zz += 50) {
-            if ((xx >= -500 && xx <= 500) && (yy >= -350 && yy <= 350)) {
+            if ((xx >= -400 && xx <= 400) && (yy >= -350 && yy <= 350)) {
                 continue;
             }
-            for (int aa_zz = -180; aa_zz <= 180; aa_zz += 5) {
+            for (int aa_zz = -180; aa_zz < 180; aa_zz += 5) {
                 int ii = 0;
                 rot_ten = Eigen::AngleAxisd((double)aa_zz * M_PI / 180.0,
                     Eigen::Vector3d::UnitZ());
@@ -735,6 +762,16 @@ void printFeasibleTensegrityLocation(const ds::WorldPtr& world)
                 tf.translation() << (double)xx / 1000.0, (double)yy / 1000.0,
                     (double)0.0 / 1000.0;
                 moveSkeleton(tensegrity, tf);
+
+                attachAllStrings(world);
+                for (int kk = 2; kk <= 7; kk++) {
+                    staubli->getDof(kk)->setPosition(0);
+                }
+
+                if (world->checkCollision()) {
+                    continue;
+                }
+                detachAllStrings(world);
 
                 while (ii < 9) {
                     if (!isReachable(ii, strings, world)) {
@@ -770,15 +807,15 @@ int main(int argc, char* argv[])
 
     std::string prefix = getWorkingDirectory();
 
-    dd::SkeletonPtr staubli = du::SdfParser::readSkeleton(prefix + std::string("/model.sdf"));
+    dd::SkeletonPtr staubli = du::SdfParser::readSkeleton(prefix + std::string("/data/model.sdf"));
     staubli->setName("staubli");
 
     du::DartLoader dl;
 
     // dd::SkeletonPtr tensegrity = du::SdfParser::readSkeleton(prefix +
     // std::string("/tensegrity.sdf"));
-    dl.addPackageDirectory("tensegrity", prefix + std::string("/tensegrity/"));
-    dd::SkeletonPtr tensegrity = dl.parseSkeleton(prefix + std::string("/tensegrity/robots/tensegrity.URDF"));
+    dl.addPackageDirectory("tensegrity", prefix + std::string("/data/tensegrity/"));
+    dd::SkeletonPtr tensegrity = dl.parseSkeleton(prefix + std::string("/data/tensegrity/robots/tensegrity.URDF"));
     tensegrity->setName("tensegrity");
 
     Eigen::Isometry3d tenMove;
@@ -840,30 +877,36 @@ int main(int argc, char* argv[])
     // Eigen::Vector3d::UnitY()) * Eigen::AngleAxisd(-0.005 * M_PI / 180.0,
     // Eigen::Vector3d::UnitZ()));
 
-    detachAllStrings(world);
 
-    printFeasibleTensegrityLocation(world);
+    detachAllStrings(world);
+    //printFeasibleTensegrityLocation(world);
 
     tenRot = Eigen::AngleAxisd(45.0 * M_PI / 180.0, Eigen::Vector3d::UnitZ());
-    tenMove.translation() << 0.0, -0.55, 0.0;
+    tenMove.translation() << 0.0, -0.6, 0.0;
     tenMove.rotate(tenRot);
     moveSkeleton(tensegrity, tenMove);
 
+    detachAllStrings(world);
+    
+
+    //detachAllStrings(world);
     //printAttachmentSequence(world);
 
     for (int kk = 0; kk < 9; kk++) {
-        tf = getAttachPosition(kk, world, false);
-        finish = getInverseKinematics(start, tf, world);
-        printVector(finish);
-        tf = getAttachPosition(kk, world, true);
-        finish = getInverseKinematics(start, tf, world);
-        printVector(finish);
         tf = getDetachPosition(kk, world, false);
         finish = getInverseKinematics(start, tf, world);
         printVector(finish);
         tf = getDetachPosition(kk, world, true);
         finish = getInverseKinematics(start, tf, world);
         printVector(finish);
+        //attachStringAt(kk,world);
+        tf = getAttachPosition(kk, world, false);
+        finish = getInverseKinematics(start, tf, world);
+        printVector(finish);
+        tf = getAttachPosition(kk, world, true);
+        finish = getInverseKinematics(start, tf, world);
+        printVector(finish);
+        //detachStringAt(kk,world);
     }
 
     // getAttachmentSequence(world);
@@ -897,9 +940,9 @@ int main(int argc, char* argv[])
     for (int jj = 2; jj <= 7; jj++) {
         staubli->getDof(jj)->setPosition(0);
     }
-  /*  
+
     MyWindow window(world);
-    */
+
     // staubli->getBodyNode("table")->getVisualizationShape(0)->setHidden(true);
     // staubli->getBodyNode("table")->setCollidable(false);
 
@@ -936,7 +979,7 @@ int main(int argc, char* argv[])
     });
 
      */
- /*   
+
     glutInit(&argc, argv);
     //window.initWindow(475 * 2, 300 * 2, "SDF");
     window.initWindow(600 * 2, 500 * 2, "SDF");
@@ -944,6 +987,6 @@ int main(int argc, char* argv[])
     glutMainLoop();
 
     //   t.join();
-*/
+
     return 0;
 }

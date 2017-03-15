@@ -3,12 +3,14 @@
     <static>false</static>
 
     <link name="table">
-      <pose> 0 0 0.4 0 -0 0 </pose>
+      <pose>0 0 0.4 0 0 0</pose>
       <collision name="collision">
+        <pose>0 0 0.4 -1.5707 0 0</pose>
         <geometry>
-          <box>
-            <size>1 0.95 0.8</size>
-          </box>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>meshes/table.dae</uri>
+          </mesh>
         </geometry>
       </collision>
 
@@ -455,6 +457,49 @@
         <limit>
           <lower>-4.7124</lower>
           <upper>4.7124</upper>
+          <effort>0</effort>
+          <velocity>0</velocity>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+        <use_parent_model_frame>0</use_parent_model_frame>
+      </axis>
+    </joint>
+    <link name='gripper'>
+      <pose>0.05 0.05 2.768 0 -0 0</pose>
+      <collision name='gripper_link_collision'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>0.001 0.001 0.001</scale>
+            <uri>meshes/gripper.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='gripper_link_visual'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>0.001 0.001 0.001</scale>
+            <uri>meshes/gripper.stl</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <!--
+      <kinematic>1</kinematic>
+      <self_collide>1</self_collide>
+      -->
+    </link>
+    <joint name='joint7' type='revolute'>
+      <child>gripper</child>
+      <parent>toolflange_link</parent>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-0.1</lower>
+          <upper>0.1</upper>
           <effort>0</effort>
           <velocity>0</velocity>
         </limit>

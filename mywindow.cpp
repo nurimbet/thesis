@@ -346,6 +346,24 @@ void MyWindow::drawSkels() {
         tenTrans = tensegrityTransform.translation();
         rot_ten = tensegrityTransform.rotation();
         drawAxes(tenTrans, rot_ten);
+
+
+        tensegrityTransform =tensegrity->getBodyNode("tightener" + std::to_string(idx+1))->getTransform();
+        tenTrans = tensegrityTransform.translation();
+        rot_ten = tensegrityTransform.rotation();
+        drawAxes(tenTrans, rot_ten);
+
+
+        tensegrityTransform =tensegrity->getBodyNode("pulley" + std::to_string(idx+1))->getTransform();
+        tenTrans = tensegrityTransform.translation();
+        rot_ten = tensegrityTransform.rotation();
+        drawAxes(tenTrans, rot_ten);
+
+
+        tensegrityTransform =tensegrity->getBodyNode("tendon" + std::to_string(idx+1))->getTransform();
+        tenTrans = tensegrityTransform.translation();
+        rot_ten = tensegrityTransform.rotation();
+        drawAxes(tenTrans, rot_ten);
     }
     
     SimWindow::drawSkels();
