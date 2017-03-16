@@ -327,12 +327,14 @@ Eigen::VectorXd getLastLineAsVector()
     return start;
 }
 
-Eigen::VectorXd getInverseKinematics(const Eigen::VectorXd& init,
+std::vector<Eigen::VectorXd> getInverseKinematics(const Eigen::VectorXd& init,
     const Eigen::Isometry3d& final_point,
     const ds::WorldPtr& world)
 {
     using Eigen::VectorXd;
+    using std::vector;
 
+    vector<VectorXd> final_joints;
     VectorXd final_joint(6);
     final_joint << 0, 0, 0, 0, 0, 0;
     dd::SkeletonPtr staubli = world->getSkeleton("staubli");
@@ -363,7 +365,7 @@ Eigen::VectorXd getInverseKinematics(const Eigen::VectorXd& init,
     double p_ay = trans_final_point(1) - d[6] * a_y;
     double p_az = trans_final_point(2) - d[6] * a_z;
 
-    double minCost = 10000;
+    double minCost = std::numeric_limits<double>::max();
 
     for (int i = 0; i < 8; i++) {
         theta[1] = atan2(p_ay, p_ax) - atan2(d[3], pow(-1, (i & 2) >> 1) * sqrt(p_ax * p_ax + p_ay * p_ay - d[3]));
@@ -397,13 +399,13 @@ Eigen::VectorXd getInverseKinematics(const Eigen::VectorXd& init,
         theta[2] = theta[2] + (M_PI / 2.0);
         theta[3] = theta[3] - (M_PI / 2.0);
 
-        bool accept = true;
+        bool withinJointRange = true;
         for (int j = 1; j < 7; j++) {
             if (std::abs(theta[j]) > M_PI) {
                 theta[j] = -1 * theta[j] / std::abs(theta[j]) * (2 * M_PI - std::abs(theta[j]));
             }
             if (theta[j] > jointMax[j - 1] || theta[j] < jointMin[j - 1]) {
-                accept = false;
+                withinJointRange = false;
             }
         }
 
@@ -417,11 +419,12 @@ Eigen::VectorXd getInverseKinematics(const Eigen::VectorXd& init,
         staubli->getDof(6)->setPosition(theta[5]);
         staubli->getDof(7)->setPosition(theta[6]);
 
-        if (theta[0] < minCost && accept && !world->checkCollision()) {
+        if (!(std::isnan(theta[0])) && withinJointRange && !world->checkCollision()) {
             final_joint << theta[1], theta[2], theta[3], theta[4], theta[5],
                 theta[6];
             final_joint = final_joint * 180.0 / M_PI;
             minCost = theta[0];
+            final_joints.push_back(final_joint);
         }
 
         // std::cout << theta[0] << std::endl;
@@ -447,7 +450,7 @@ Eigen::VectorXd getInverseKinematics(const Eigen::VectorXd& init,
     //Eigen::IOFormat CommaInitFmt(Eigen::StreamPrecision,
     //    Eigen::DontAlignCols, " ", " ", "", "", "","");
     //std::cout << final_joint.format(CommaInitFmt) << std::endl;
-    return final_joint;
+    return final_joints;
 }
 
 void detachAllStrings(const ds::WorldPtr& world)
@@ -496,22 +499,22 @@ void detachAttachStrings(Eigen::VectorXd strings, const ds::WorldPtr& world)
 
 void detachStringAt(int ii, const ds::WorldPtr& world)
 {
-        dd::SkeletonPtr tensegrity = world->getSkeleton("tensegrity");
-        tensegrity->getBodyNode("tendon" + std::to_string(ii + 1))
-            ->getVisualizationShape(0)
-            ->setHidden(true);
-        tensegrity->getBodyNode("tendon" + std::to_string(ii + 1))
-            ->setCollidable(false);
+    dd::SkeletonPtr tensegrity = world->getSkeleton("tensegrity");
+    tensegrity->getBodyNode("tendon" + std::to_string(ii + 1))
+        ->getVisualizationShape(0)
+        ->setHidden(true);
+    tensegrity->getBodyNode("tendon" + std::to_string(ii + 1))
+        ->setCollidable(false);
 }
 
 void attachStringAt(int ii, const ds::WorldPtr& world)
 {
-        dd::SkeletonPtr tensegrity = world->getSkeleton("tensegrity");
-        tensegrity->getBodyNode("tendon" + std::to_string(ii + 1))
-            ->getVisualizationShape(0)
-            ->setHidden(false);
-        tensegrity->getBodyNode("tendon" + std::to_string(ii + 1))
-            ->setCollidable(true);
+    dd::SkeletonPtr tensegrity = world->getSkeleton("tensegrity");
+    tensegrity->getBodyNode("tendon" + std::to_string(ii + 1))
+        ->getVisualizationShape(0)
+        ->setHidden(false);
+    tensegrity->getBodyNode("tendon" + std::to_string(ii + 1))
+        ->setCollidable(true);
 }
 
 Eigen::Isometry3d getAttachPosition(int attNum, const ds::WorldPtr& world,
@@ -586,32 +589,32 @@ bool isReachable(int i, Eigen::VectorXd strings, const ds::WorldPtr& world)
     zero_joints << 0, 0, 0, 0, 0, 0;
 
     Eigen::Isometry3d tf_det(Eigen::Isometry3d::Identity());
-    Eigen::VectorXd det_joints(6);
+    std::vector<Eigen::VectorXd> det_joints;
 
     tf_det = getDetachPosition(i, world, false);
     det_joints = getInverseKinematics(zero_joints, tf_det, world);
 
-    if (det_joints == zero_joints) {
+    if (det_joints.size() == 0) {
         tf_det = getDetachPosition(i, world, true);
         det_joints = getInverseKinematics(zero_joints, tf_det, world);
 
-        if (det_joints == zero_joints) {
+        if (det_joints.size() == 0) {
             return false;
         }
     }
 
-    //attachStringAt(i, world);
+    attachStringAt(i, world);
     Eigen::Isometry3d tf_att(Eigen::Isometry3d::Identity());
-    Eigen::VectorXd at_joints(6);
+    std::vector<Eigen::VectorXd> at_joints;
 
     tf_att = getAttachPosition(i, world, false);
     at_joints = getInverseKinematics(zero_joints, tf_att, world);
 
-    if (at_joints == zero_joints) {
+    if (at_joints.size() == 0) {
         tf_att = getAttachPosition(i, world, true);
         at_joints = getInverseKinematics(zero_joints, tf_att, world);
 
-        if (at_joints == zero_joints) {
+        if (at_joints.size() == 0) {
             return false;
         }
     }
@@ -877,8 +880,7 @@ int main(int argc, char* argv[])
     // Eigen::Vector3d::UnitY()) * Eigen::AngleAxisd(-0.005 * M_PI / 180.0,
     // Eigen::Vector3d::UnitZ()));
 
-
-    detachAllStrings(world);
+    //detachAllStrings(world);
     //printFeasibleTensegrityLocation(world);
 
     tenRot = Eigen::AngleAxisd(45.0 * M_PI / 180.0, Eigen::Vector3d::UnitZ());
@@ -887,26 +889,37 @@ int main(int argc, char* argv[])
     moveSkeleton(tensegrity, tenMove);
 
     detachAllStrings(world);
-    
 
     //detachAllStrings(world);
-    //printAttachmentSequence(world);
+    printAttachmentSequence(world);
 
+    detachAllStrings(world);
+    std::vector<Eigen::VectorXd> finish1;
     for (int kk = 0; kk < 9; kk++) {
         tf = getDetachPosition(kk, world, false);
-        finish = getInverseKinematics(start, tf, world);
-        printVector(finish);
+        finish1 = getInverseKinematics(start, tf, world);
+        std::cout << kk << std::endl;
+        for (size_t mm = 0; mm < finish1.size(); mm++) {
+            printVector(finish1[mm]);
+        }
         tf = getDetachPosition(kk, world, true);
-        finish = getInverseKinematics(start, tf, world);
-        printVector(finish);
-        //attachStringAt(kk,world);
+        finish1 = getInverseKinematics(start, tf, world);
+        for (size_t mm = 0; mm < finish1.size(); mm++) {
+            printVector(finish1[mm]);
+        }
+        attachStringAt(kk, world);
         tf = getAttachPosition(kk, world, false);
-        finish = getInverseKinematics(start, tf, world);
-        printVector(finish);
+        finish1 = getInverseKinematics(start, tf, world);
+        std::cout << std::endl;
+        for (size_t mm = 0; mm < finish1.size(); mm++) {
+            printVector(finish1[mm]);
+        }
         tf = getAttachPosition(kk, world, true);
-        finish = getInverseKinematics(start, tf, world);
-        printVector(finish);
-        //detachStringAt(kk,world);
+        finish1 = getInverseKinematics(start, tf, world);
+        for (size_t mm = 0; mm < finish1.size(); mm++) {
+            printVector(finish1[mm]);
+        }
+        detachStringAt(kk, world);
     }
 
     // getAttachmentSequence(world);
