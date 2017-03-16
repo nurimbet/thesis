@@ -25,14 +25,13 @@ MyWindow::MyWindow(const ds::WorldPtr& world)
 
     mTrackBall.setQuaternion(quat);
 }
+
 void MyWindow::keyboard(unsigned char key, int x, int y)
 {
 
     dd::SkeletonPtr staubli = mWorld->getSkeleton("staubli");
     double gojoint[6]; 
-    std::ifstream jointfile("joints.txt");
-    static int jointNum = 0;
-    int jj;
+    static std::ifstream jointfile("joints.txt");
 
     switch(key)
     {
@@ -46,20 +45,11 @@ void MyWindow::keyboard(unsigned char key, int x, int y)
         case '9':
             if (jointfile.eof())
             {
-                jointNum = 0;
+                std::cout << "lol" << std::endl;
                 jointfile.close();
                 jointfile.open("joints.txt");
             }
-            idx = jointNum / 4;
-            jointNum = (idx == 9) ? 0:jointNum;
-            idx = (idx == 9) ? 0 : idx;
-            std::cout << idx + 1 << std::endl;
-            jj = 0;
-            while(jointNum > jj)
-            {
-                jointfile >> gojoint[0] >> gojoint[1]>> gojoint[2]>> gojoint[3]>> gojoint[4]>> gojoint[5];
-                jj++;
-            } 
+            
 
             jointfile >> gojoint[0] >> gojoint[1]>> gojoint[2]>> gojoint[3]>> gojoint[4]>> gojoint[5];
             for (int ii = 1; ii <=6; ii++)
@@ -67,7 +57,22 @@ void MyWindow::keyboard(unsigned char key, int x, int y)
                 staubli->getDof(ii + 1)->setPosition(gojoint[ii-1]*M_PI/180.0); 
             }
 
-            jointNum ++;
+            break;
+        case '8':
+            idx = idx + 1;
+            if (idx > 8)
+            {
+                idx = 0;
+            }
+            std::cout << idx + 1 << std::endl;
+            break;
+        case '7':
+            idx = idx - 1;
+            if(idx < 0)
+            {
+                idx = 8;
+            }
+            std::cout << idx + 1 << std::endl;
             break;
         case '1':
             moveJoint(1,true);
@@ -322,9 +327,17 @@ void MyWindow::drawSkels() {
         Eigen::Matrix3d rot_tr = transform.rotation();
         drawAxes(tr, rot_tr);
 
+        double xs = 30.0 / 1000.0;
+        double ys = -60.0 / 1000.0;
+        double zs = 95.0 / 1000.0;
         Eigen::Isometry3d transform1 = staubli->getBodyNode("gripper")->getTransform();
         Eigen::Vector3d tr1 = transform1.translation();
+        
         Eigen::Matrix3d rot_tr1 = transform1.rotation();//*Eigen::AngleAxisd(90*M_PI/180.0, Eigen::Vector3d::UnitZ());
+        tr1(0) += xs * rot_tr1(0, 0) + ys * rot_tr1(0, 1) + zs * rot_tr1(0, 2);
+        tr1(1) += xs * rot_tr1(1, 0) + ys * rot_tr1(1, 1) + zs * rot_tr1(1, 2);
+        tr1(2) += xs * rot_tr1(2, 0) + ys * rot_tr1(2, 1) + zs * rot_tr1(2, 2);
+        
         drawAxes(tr1, rot_tr1);
 
 
@@ -363,7 +376,7 @@ void MyWindow::drawSkels() {
         tensegrityTransform =tensegrity->getBodyNode("tendon" + std::to_string(idx+1))->getTransform();
         tenTrans = tensegrityTransform.translation();
         rot_ten = tensegrityTransform.rotation();
-        drawAxes(tenTrans, rot_ten);
+        //drawAxes(tenTrans, rot_ten);
     }
     
     SimWindow::drawSkels();
