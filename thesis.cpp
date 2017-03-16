@@ -42,10 +42,8 @@ constexpr double jointMin6 = -4.7124;
 constexpr double jointMax[6] = { 3.1416, 2.5744, 2.5307, 4.7124, 2.4435, 4.7124 };
 constexpr double jointMin[6] = { -3.1416, -2.2689, -2.5307,
     -4.7124, -2.0071, -4.7124 };
-// constexpr double jointMin[6] = {-3.1416, -2.2689, -2.5307, -4.7124, -2.0071,
-// -4.7124};
-// constexpr double jointMax[6] = {3.1416, 2.5744, 2.5307, 4.7124, 2.4435,
-// 4.7124};
+
+ds::WorldPtr world = std::make_shared<ds::World>();
 
 class Simple3DEnvironment {
 public:
@@ -69,12 +67,8 @@ public:
             &Simple3DEnvironment::isStateValid, this, std::placeholders::_1));
         space->setup();
         ss_->getSpaceInformation()->setStateValidityCheckingResolution(0.01);
-        // std::cout << "Get MAximum EXtent***: " << space->getMaximumExtent()
-        // << std::endl;
         ss_->setPlanner(
             ob::PlannerPtr(new og::RRTstar(ss_->getSpaceInformation())));
-        // std::cout <<ss_->getPlanner()->as<og::RRTstar>()->setRange(10.0 *
-        // M_PI / 180.0) << std::endl;
     }
 
     bool plan(const Eigen::VectorXd& init, const Eigen::VectorXd& final)
@@ -98,8 +92,6 @@ public:
         } else {
             ss_->solve(60 * 1 * 10);
         }
-
-        // ss_->solve(1000); // it will run for 1000 seconds
 
         const std::size_t ns = ss_->getProblemDefinition()->getSolutionCount();
         OMPL_INFORM("Found %d solutions", (int)ns);
@@ -221,9 +213,6 @@ public:
             }
             }
              */
-        //
-        // ADD CODE HERE
-        //
     }
 
     void setWorld(const ds::WorldPtr& world) { world_ = world; }
@@ -305,7 +294,7 @@ Eigen::VectorXd getLastLineAsVector()
 
     std::ifstream file("result1.txt");
     std::string line = getLastLine(file);
-    // std::cout << line << std::endl;
+
     file.close();
 
     std::string delimiter = " ";
@@ -327,9 +316,8 @@ Eigen::VectorXd getLastLineAsVector()
     return start;
 }
 
-std::vector<Eigen::VectorXd> getInverseKinematics(const Eigen::VectorXd& init,
-    const Eigen::Isometry3d& final_point,
-    const ds::WorldPtr& world)
+std::vector<Eigen::VectorXd> getInverseKinematics(
+    const Eigen::Isometry3d& final_point) 
 {
     using Eigen::VectorXd;
     using std::vector;
@@ -338,16 +326,6 @@ std::vector<Eigen::VectorXd> getInverseKinematics(const Eigen::VectorXd& init,
     VectorXd final_joint(6);
     final_joint << 0, 0, 0, 0, 0, 0;
     dd::SkeletonPtr staubli = world->getSkeleton("staubli");
-    /*
-    for(int kk = 2; kk <= 7; kk++)
-    {
-        staubli->getDof(kk)->setPosition(0);
-    }
-
-    if (world->checkCollision()) {
-        return final_joint;
-    }
-    */
 
     double alpha[7] = { 0, -M_PI / 2, 0, M_PI / 2, -M_PI / 2, M_PI / 2, 0 };
     double a[7] = { 0, 50, 650, 0, 0, 0, 0 };
@@ -364,8 +342,6 @@ std::vector<Eigen::VectorXd> getInverseKinematics(const Eigen::VectorXd& init,
     double p_ax = trans_final_point(0) - d[6] * a_x;
     double p_ay = trans_final_point(1) - d[6] * a_y;
     double p_az = trans_final_point(2) - d[6] * a_z;
-
-    double minCost = std::numeric_limits<double>::max();
 
     for (int i = 0; i < 8; i++) {
         theta[1] = atan2(p_ay, p_ax) - atan2(d[3], pow(-1, (i & 2) >> 1) * sqrt(p_ax * p_ax + p_ay * p_ay - d[3]));
@@ -409,9 +385,6 @@ std::vector<Eigen::VectorXd> getInverseKinematics(const Eigen::VectorXd& init,
             }
         }
 
-        theta[0] = sqrt(
-            10 * pow(theta[1] - init[0], 2) + 10 * pow(theta[2] - init[1], 2) + 10 * pow(theta[3] - init[2], 2) + 1 * pow(theta[4] - init[3], 2) + 1 * pow(theta[5] - init[4], 2) + 1 * pow(theta[6] - init[5], 2));
-
         staubli->getDof(2)->setPosition(theta[1]);
         staubli->getDof(3)->setPosition(theta[2]);
         staubli->getDof(4)->setPosition(theta[3]);
@@ -423,28 +396,9 @@ std::vector<Eigen::VectorXd> getInverseKinematics(const Eigen::VectorXd& init,
             final_joint << theta[1], theta[2], theta[3], theta[4], theta[5],
                 theta[6];
             final_joint = final_joint * 180.0 / M_PI;
-            minCost = theta[0];
             final_joints.push_back(final_joint);
         }
-
-        // std::cout << theta[0] << std::endl;
-        // std::cout << std::endl;
-        // std::cout << i+1 << ". "<<theta[1] * 180.0 / M_PI << " " << theta[2]
-        // * 180.0 / M_PI<< " " << theta[3] * 180.0 / M_PI<< " " << theta[4] *
-        // 180.0 / M_PI<< " " << theta[5] * 180.0 / M_PI<< " " << theta[6] *
-        // 180.0 / M_PI<< std::endl;
-        /*
-           staubli->getDof(2)->setPosition(theta[1]);
-           staubli->getDof(3)->setPosition(theta[2]);
-           staubli->getDof(4)->setPosition(theta[3]);
-           staubli->getDof(5)->setPosition(theta[4]);
-           staubli->getDof(6)->setPosition(theta[5]);
-           staubli->getDof(7)->setPosition(theta[6]);
-         */
     }
-    // std::cout << theta[1]  << " " << theta[2] + M_PI / 2  << " " << theta[3]
-    // - M_PI/2 << " " << theta[4] << " " << theta[5] << " " << theta[6] <<
-    // std::endl;
 
     //Eigen::DontAlignCols, ", ", ", ", "", "", " << ", ";");
     //Eigen::IOFormat CommaInitFmt(Eigen::StreamPrecision,
@@ -453,7 +407,7 @@ std::vector<Eigen::VectorXd> getInverseKinematics(const Eigen::VectorXd& init,
     return final_joints;
 }
 
-void detachAllStrings(const ds::WorldPtr& world)
+void detachAllStrings()
 {
     dd::SkeletonPtr tensegrity = world->getSkeleton("tensegrity");
     for (int ii = 1; ii <= 9; ii++) {
@@ -465,7 +419,7 @@ void detachAllStrings(const ds::WorldPtr& world)
     }
 }
 
-void attachAllStrings(const ds::WorldPtr& world)
+void attachAllStrings()
 {
     dd::SkeletonPtr tensegrity = world->getSkeleton("tensegrity");
     for (int ii = 1; ii <= 9; ii++) {
@@ -477,7 +431,7 @@ void attachAllStrings(const ds::WorldPtr& world)
     }
 }
 
-void detachAttachStrings(Eigen::VectorXd strings, const ds::WorldPtr& world)
+void detachAttachStrings(Eigen::VectorXd strings)
 {
     dd::SkeletonPtr tensegrity = world->getSkeleton("tensegrity");
     for (int ii = 0; ii < 9; ii++) {
@@ -497,7 +451,7 @@ void detachAttachStrings(Eigen::VectorXd strings, const ds::WorldPtr& world)
     }
 }
 
-void detachStringAt(int ii, const ds::WorldPtr& world)
+void detachStringAt(int ii)
 {
     dd::SkeletonPtr tensegrity = world->getSkeleton("tensegrity");
     tensegrity->getBodyNode("tendon" + std::to_string(ii + 1))
@@ -507,7 +461,7 @@ void detachStringAt(int ii, const ds::WorldPtr& world)
         ->setCollidable(false);
 }
 
-void attachStringAt(int ii, const ds::WorldPtr& world)
+void attachStringAt(int ii)
 {
     dd::SkeletonPtr tensegrity = world->getSkeleton("tensegrity");
     tensegrity->getBodyNode("tendon" + std::to_string(ii + 1))
@@ -517,7 +471,7 @@ void attachStringAt(int ii, const ds::WorldPtr& world)
         ->setCollidable(true);
 }
 
-Eigen::Isometry3d getAttachPosition(int attNum, const ds::WorldPtr& world,
+Eigen::Isometry3d getAttachPosition(int attNum,
     bool wristUp)
 {
     Eigen::Isometry3d tf(Eigen::Isometry3d::Identity());
@@ -549,7 +503,7 @@ Eigen::Isometry3d getAttachPosition(int attNum, const ds::WorldPtr& world,
     return tf;
 }
 
-Eigen::Isometry3d getDetachPosition(int detNum, const ds::WorldPtr& world,
+Eigen::Isometry3d getDetachPosition(int detNum,
     bool wristUp)
 {
     Eigen::Isometry3d tf(Eigen::Isometry3d::Identity());
@@ -561,7 +515,7 @@ Eigen::Isometry3d getDetachPosition(int detNum, const ds::WorldPtr& world,
 
     double xs = 0;
     double ys = 80;
-    //double ys = 130;
+
     double zs = -95;
     Eigen::Matrix3d rot_ten;
     if (wristUp) {
@@ -582,37 +536,35 @@ Eigen::Isometry3d getDetachPosition(int detNum, const ds::WorldPtr& world,
     return tf;
 }
 
-bool isReachable(int i, Eigen::VectorXd strings, const ds::WorldPtr& world)
+bool isReachable(int i, Eigen::VectorXd strings)
 {
-    detachAttachStrings(strings, world);
-    Eigen::VectorXd zero_joints(6);
-    zero_joints << 0, 0, 0, 0, 0, 0;
+    detachAttachStrings(strings);
 
     Eigen::Isometry3d tf_det(Eigen::Isometry3d::Identity());
     std::vector<Eigen::VectorXd> det_joints;
 
-    tf_det = getDetachPosition(i, world, false);
-    det_joints = getInverseKinematics(zero_joints, tf_det, world);
+    tf_det = getDetachPosition(i, false);
+    det_joints = getInverseKinematics(tf_det);
 
     if (det_joints.size() == 0) {
-        tf_det = getDetachPosition(i, world, true);
-        det_joints = getInverseKinematics(zero_joints, tf_det, world);
+        tf_det = getDetachPosition(i, true);
+        det_joints = getInverseKinematics(tf_det);
 
         if (det_joints.size() == 0) {
             return false;
         }
     }
 
-    attachStringAt(i, world);
+    attachStringAt(i);
     Eigen::Isometry3d tf_att(Eigen::Isometry3d::Identity());
     std::vector<Eigen::VectorXd> at_joints;
 
-    tf_att = getAttachPosition(i, world, false);
-    at_joints = getInverseKinematics(zero_joints, tf_att, world);
+    tf_att = getAttachPosition(i, false);
+    at_joints = getInverseKinematics(tf_att);
 
     if (at_joints.size() == 0) {
-        tf_att = getAttachPosition(i, world, true);
-        at_joints = getInverseKinematics(zero_joints, tf_att, world);
+        tf_att = getAttachPosition(i, true);
+        at_joints = getInverseKinematics(tf_att);
 
         if (at_joints.size() == 0) {
             return false;
@@ -622,7 +574,7 @@ bool isReachable(int i, Eigen::VectorXd strings, const ds::WorldPtr& world)
     return true;
 }
 
-void printAttachmentSequence(const ds::WorldPtr& world)
+void printAttachmentSequence()
 {
     std::ofstream sequenceFile;
     sequenceFile.open("sequence.txt", std::ios::trunc);
@@ -631,7 +583,7 @@ void printAttachmentSequence(const ds::WorldPtr& world)
 
     for (int st1 = 0; st1 < 9; st1++) {
         strings(st1) = 0;
-        if (!isReachable(st1, strings, world)) {
+        if (!isReachable(st1, strings)) {
             strings(st1) = 1;
             continue;
         }
@@ -640,7 +592,7 @@ void printAttachmentSequence(const ds::WorldPtr& world)
                 continue;
             }
             strings(st2) = 0;
-            if (!isReachable(st2, strings, world)) {
+            if (!isReachable(st2, strings)) {
                 strings(st2) = 1;
                 continue;
             }
@@ -650,7 +602,7 @@ void printAttachmentSequence(const ds::WorldPtr& world)
                     continue;
                 }
                 strings(st3) = 0;
-                if (!isReachable(st3, strings, world)) {
+                if (!isReachable(st3, strings)) {
                     strings(st3) = 1;
                     continue;
                 }
@@ -660,7 +612,7 @@ void printAttachmentSequence(const ds::WorldPtr& world)
                         continue;
                     }
                     strings(st4) = 0;
-                    if (!isReachable(st4, strings, world)) {
+                    if (!isReachable(st4, strings)) {
                         strings(st4) = 1;
                         continue;
                     }
@@ -669,7 +621,7 @@ void printAttachmentSequence(const ds::WorldPtr& world)
                             continue;
                         }
                         strings(st5) = 0;
-                        if (!isReachable(st5, strings, world)) {
+                        if (!isReachable(st5, strings)) {
                             strings(st5) = 1;
                             continue;
                         }
@@ -678,7 +630,7 @@ void printAttachmentSequence(const ds::WorldPtr& world)
                                 continue;
                             }
                             strings(st6) = 0;
-                            if (!isReachable(st6, strings, world)) {
+                            if (!isReachable(st6, strings)) {
                                 strings(st6) = 1;
                                 continue;
                             }
@@ -687,7 +639,7 @@ void printAttachmentSequence(const ds::WorldPtr& world)
                                     continue;
                                 }
                                 strings(st7) = 0;
-                                if (!isReachable(st7, strings, world)) {
+                                if (!isReachable(st7, strings)) {
                                     strings(st7) = 1;
                                     continue;
                                 }
@@ -696,7 +648,7 @@ void printAttachmentSequence(const ds::WorldPtr& world)
                                         continue;
                                     }
                                     strings(st8) = 0;
-                                    if (!isReachable(st8, strings, world)) {
+                                    if (!isReachable(st8, strings)) {
                                         strings(st8) = 1;
                                         continue;
                                     }
@@ -705,7 +657,7 @@ void printAttachmentSequence(const ds::WorldPtr& world)
                                             continue;
                                         }
                                         strings(st9) = 0;
-                                        if (!isReachable(st9, strings, world)) {
+                                        if (!isReachable(st9, strings)) {
                                             strings(st9) = 1;
                                             continue;
                                         }
@@ -714,8 +666,6 @@ void printAttachmentSequence(const ds::WorldPtr& world)
                                                      << st5 << " " << st4 << " "
                                                      << st3 << " " << st2 << " "
                                                      << st1 << std::endl;
-                                        // srite to file in the reverse order of
-                                        // indeces
 
                                         strings(st9) = 1;
                                     }
@@ -737,7 +687,7 @@ void printAttachmentSequence(const ds::WorldPtr& world)
     }
 }
 
-void printFeasibleTensegrityLocation(const ds::WorldPtr& world)
+void printFeasibleTensegrityLocation()
 {
     std::ofstream feasibleLocation;
     feasibleLocation.open("feasibleLocation.txt", std::ios::trunc);
@@ -753,7 +703,6 @@ void printFeasibleTensegrityLocation(const ds::WorldPtr& world)
     Eigen::Matrix3d rot_ten;
     for (int xx = -600; xx <= 600; xx += 50) {
         for (int yy = -600; yy <= 600; yy += 50) {
-            //for (int zz = -500; zz <= 500; zz += 50) {
             if ((xx >= -400 && xx <= 400) && (yy >= -350 && yy <= 350)) {
                 continue;
             }
@@ -766,7 +715,7 @@ void printFeasibleTensegrityLocation(const ds::WorldPtr& world)
                     (double)0.0 / 1000.0;
                 moveSkeleton(tensegrity, tf);
 
-                attachAllStrings(world);
+                attachAllStrings();
                 for (int kk = 2; kk <= 7; kk++) {
                     staubli->getDof(kk)->setPosition(0);
                 }
@@ -774,21 +723,19 @@ void printFeasibleTensegrityLocation(const ds::WorldPtr& world)
                 if (world->checkCollision()) {
                     continue;
                 }
-                detachAllStrings(world);
+                detachAllStrings();
 
                 while (ii < 9) {
-                    if (!isReachable(ii, strings, world)) {
+                    if (!isReachable(ii, strings)) {
                         break;
                     }
                     ii++;
                 }
-                //std::cout << (double)xx / 1000.0 << " " << (double)yy / 1000.0 << " " << (double)0.0 / 1000.0 << " " << aa_zz << " " << ii << " " << std::endl;
                 if (ii == 9) {
                     feasibleLocation << xx << " " << yy << " " << aa_zz
                                      << std::endl;
                 }
             }
-            //}
         }
     }
     feasibleLocation.close();
@@ -803,10 +750,8 @@ void printVector(Eigen::VectorXd final_joint)
 
 int main(int argc, char* argv[])
 {
-    ds::WorldPtr world = std::make_shared<ds::World>();
     world->getConstraintSolver()->setCollisionDetector(
         new dc::FCLCollisionDetector());
-    //    world->setGravity(Eigen::Vector3d(0.0, 0.0, -9.8));
 
     std::string prefix = getWorkingDirectory();
 
@@ -815,8 +760,6 @@ int main(int argc, char* argv[])
 
     du::DartLoader dl;
 
-    // dd::SkeletonPtr tensegrity = du::SdfParser::readSkeleton(prefix +
-    // std::string("/tensegrity.sdf"));
     dl.addPackageDirectory("tensegrity", prefix + std::string("/data/tensegrity/"));
     dd::SkeletonPtr tensegrity = dl.parseSkeleton(prefix + std::string("/data/tensegrity/robots/tensegrity.URDF"));
     tensegrity->setName("tensegrity");
@@ -825,10 +768,6 @@ int main(int argc, char* argv[])
     tenMove = Eigen::Isometry3d::Identity();
     Eigen::Quaterniond tenRot;
 
-    // tenRot = Eigen::AngleAxisd(-90.0*M_PI/180.0, Eigen::Vector3d::UnitZ())
-    // *Eigen::AngleAxisd(-45.0*M_PI/180.0,
-    // Eigen::Vector3d::UnitY())*Eigen::AngleAxisd(0.0*M_PI/180.0,
-    // Eigen::Vector3d::UnitX());
     tenRot = Eigen::AngleAxisd(0.0, Eigen::Vector3d::UnitZ());
 
     tenMove.translation() << -0.85, -0.4, 0.0;
@@ -841,15 +780,10 @@ int main(int argc, char* argv[])
     world->addSkeleton(staubli);
     world->addSkeleton(tensegrity);
 
-    //    staubli->getDof(3)->setPosition(290 * M_PI / 180.0);
-    //    staubli->getDof(4)->setPosition(290 * M_PI / 180.0);
-    //    staubli->getDof(6)->setPosition(290 * M_PI / 180.0);
-
     Eigen::VectorXd start(6);
     start << 0, 0, 0, 0, 0, 0;
 
     Eigen::VectorXd finish(6);
-    // finish << 0, -67, -144, 0, 0, 0;
 
     Eigen::Isometry3d tf(Eigen::Isometry3d::Identity());
     /*
@@ -866,63 +800,47 @@ int main(int argc, char* argv[])
 
        double len = sqrt(qw*qw + qx*qx + qy*qy + qz*qz);
      */
-    // std::cout << x <<" " << y << " " << z << " " << qw << " " << qx << " " <<
-    // qy << " " << qz << std::endl;
-    // tf.rotate(Eigen::Quaterniond(qw/len, qx/len, qy/len, qz/len));
-    // tf.translation() = Eigen::Vector3d(x*1000, y*1000, z*1000-1278);
-
-    // tf.rotate(Eigen::AngleAxisd(-167.76 * M_PI / 180.0,
-    // Eigen::Vector3d::UnitX()) * Eigen::AngleAxisd(9.18 * M_PI / 180.0,
-    // Eigen::Vector3d::UnitY()) * Eigen::AngleAxisd(12.24 * M_PI / 180.0,
-    // Eigen::Vector3d::UnitZ()));
-    // tf.rotate(Eigen::AngleAxisd(-180 * M_PI / 180.0,
-    // Eigen::Vector3d::UnitX()) * Eigen::AngleAxisd(0.001 * M_PI / 180.0,
-    // Eigen::Vector3d::UnitY()) * Eigen::AngleAxisd(-0.005 * M_PI / 180.0,
-    // Eigen::Vector3d::UnitZ()));
 
     //detachAllStrings(world);
-    //printFeasibleTensegrityLocation(world);
+    //printFeasibleTensegrityLocation();
 
     tenRot = Eigen::AngleAxisd(45.0 * M_PI / 180.0, Eigen::Vector3d::UnitZ());
     tenMove.translation() << 0.0, -0.6, 0.0;
     tenMove.rotate(tenRot);
     moveSkeleton(tensegrity, tenMove);
 
-    detachAllStrings(world);
+    detachAllStrings();
 
-    //detachAllStrings(world);
-    printAttachmentSequence(world);
+    //printAttachmentSequence();
 
-    detachAllStrings(world);
+    detachAllStrings();
     std::vector<Eigen::VectorXd> finish1;
     for (int kk = 0; kk < 9; kk++) {
-        tf = getDetachPosition(kk, world, false);
-        finish1 = getInverseKinematics(start, tf, world);
+        tf = getDetachPosition(kk, false);
+        finish1 = getInverseKinematics(tf);
         std::cout << kk << std::endl;
         for (size_t mm = 0; mm < finish1.size(); mm++) {
             printVector(finish1[mm]);
         }
-        tf = getDetachPosition(kk, world, true);
-        finish1 = getInverseKinematics(start, tf, world);
+        tf = getDetachPosition(kk, true);
+        finish1 = getInverseKinematics(tf);
         for (size_t mm = 0; mm < finish1.size(); mm++) {
             printVector(finish1[mm]);
         }
-        attachStringAt(kk, world);
-        tf = getAttachPosition(kk, world, false);
-        finish1 = getInverseKinematics(start, tf, world);
+        attachStringAt(kk);
+        tf = getAttachPosition(kk, false);
+        finish1 = getInverseKinematics(tf);
         std::cout << std::endl;
         for (size_t mm = 0; mm < finish1.size(); mm++) {
             printVector(finish1[mm]);
         }
-        tf = getAttachPosition(kk, world, true);
-        finish1 = getInverseKinematics(start, tf, world);
+        tf = getAttachPosition(kk, true);
+        finish1 = getInverseKinematics(tf);
         for (size_t mm = 0; mm < finish1.size(); mm++) {
             printVector(finish1[mm]);
         }
-        detachStringAt(kk, world);
+        detachStringAt(kk);
     }
-
-    // getAttachmentSequence(world);
 
     if (argc < 2) {
         std::ofstream resultfile;
