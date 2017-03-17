@@ -15,11 +15,11 @@
       </collision>
 
       <visual name="visual">
-        <pose>0 0 0.4 -1.5707 0 0</pose>
+        <pose>0 0 0.4 1.5707 0 1.5707</pose>
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>meshes/table.dae</uri>
+            <uri>meshes/Table.STL</uri>
           </mesh>
         </geometry>
       </visual>
