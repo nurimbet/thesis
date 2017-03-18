@@ -301,7 +301,7 @@ void MyWindow::drawSkels()
         glLineWidth(1);
         glBegin(GL_LINES);
         glColor3f(0, 1, 0);
-        for (size_t i = 0; i < solution_path.size() - 1; i++) {
+        for (size_t i = 0; i < solution_path.size() - 1; i+=2) {
             glVertex3d(solution_path[i][0], solution_path[i][1], solution_path[i][2]);
             glVertex3d(solution_path[i + 1][0], solution_path[i + 1][1], solution_path[i + 1][2]);
         }
