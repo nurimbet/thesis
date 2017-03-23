@@ -10,10 +10,10 @@ constexpr double jointMax[6] = { 3.1416, 2.5744, 2.5307, 4.7124, 2.4435, 4.7124 
 constexpr double jointMin[6] = { -3.1416, -2.2689, -2.5307, -4.7124, -2.0071, -4.7124 };
 
 double joint1, joint2, joint3, joint4, joint5, joint6 = 0;
-bool showPath = false;
+bool showPath = true;
 bool showTree = false;
 bool collisionEnabled = true;
-bool showAxes = true;
+bool showAxes = false;
 bool showFloor = true;
 int idx = 0;
 
@@ -24,7 +24,7 @@ MyWindow::MyWindow(const ds::WorldPtr& world)
     mTranslate = true;
     mTrans = -Eigen::Vector3d(-0.301, -0.171, 1.3) * 1000;
     Eigen::Quaterniond quat(0.764165, -0.644268, -0.026487, -0.030964);
-    replay = true;
+    replay = false;
 
     mTrackBall.setQuaternion(quat);
 }
@@ -155,7 +155,7 @@ void MyWindow::keyboard(unsigned char key, int x, int y)
         showAxes = !showAxes;
         break;
     case 'r':
-        replay = !replay;
+        replay = true;
         break;
     case 'f':
         showFloor = !showFloor;
@@ -252,12 +252,12 @@ void MyWindow::drawSkels()
         int ymax = 4;
         int transStep = 0;
 
-        for (int ii = -xmax*2; ii <= xmax*2; ii += 1) {
+        for (int ii = -xmax * 2; ii <= xmax * 2; ii += 1) {
             glVertex3f(ii * 1.0 / 2.0, -ymax, transStep);
 
             glVertex3f(ii * 1.0 / 2.0, ymax, transStep);
         }
-        for (int ii = -ymax*2; ii <= ymax*2; ii += 1) {
+        for (int ii = -ymax * 2; ii <= ymax * 2; ii += 1) {
             glVertex3f(-xmax, ii * 1.0 / 2.0, transStep);
             glVertex3f(xmax, ii * 1.0 / 2.0, transStep);
         }
@@ -301,7 +301,7 @@ void MyWindow::drawSkels()
         glLineWidth(1);
         glBegin(GL_LINES);
         glColor3f(0, 1, 0);
-        for (size_t i = 0; i < solution_path.size() - 1; i+=2) {
+        for (size_t i = 0; i < solution_path.size() - 1; i += 2) {
             glVertex3d(solution_path[i][0], solution_path[i][1], solution_path[i][2]);
             glVertex3d(solution_path[i + 1][0], solution_path[i + 1][1], solution_path[i + 1][2]);
         }
