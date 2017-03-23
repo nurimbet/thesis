@@ -254,108 +254,55 @@ public:
             }
         }
     }
-    double isPlannable(const Eigen::Vector3d& finish)
+    double getMinDistTreeAttach(const Eigen::Vector3d& finish, const Eigen::VectorXd& attach)
     {
         if (!ss_ || !ss_->haveSolutionPath())
             return -1;
 
         ob::PlannerData pdat(ss_->getSpaceInformation());
         ss_->getPlannerData(pdat);
-        //std::ofstream ofs_e("edges.txt");
+
         std::vector<unsigned int> edge_list;
         std::vector<double> reals;
         std::vector<double> realsOld;
-        //bool isMajorTree = false;
-        //ob::State* s3 = space->allocState();
+
         double distMin = std::numeric_limits<float>::max();
         for (unsigned int i(0); i < pdat.numVertices(); ++i) {
             unsigned int n_edge = pdat.getEdges(i, edge_list);
-            const ob::State* s1 = pdat.getVertex(i).getState();
-            //isMajorTree = pdat.getVertex(i).getTag();
             for (unsigned int i2(0); i2 < n_edge; ++i2) {
                 const ob::State* s2 = pdat.getVertex(edge_list[i2]).getState();
-                /*
-                double step = 0.05;
-                if (space->distance(s1, s2) < 0.03) {
-                    step = 0.2;
-                }
-                */
-                //space->copyToReals(realsOld, s1);
+
                 dd::SkeletonPtr staubli = world_->getSkeleton("staubli");
-
-                //double xs = 30.0 / 1000.0;
-                //double ys = -60.0 / 1000.0;
-                //double zs = 95.0 / 1000.0;
-
-                //staubli->getDof(2)->setPosition(realsOld[0]);
-                //staubli->getDof(3)->setPosition(realsOld[1]);
-                //staubli->getDof(4)->setPosition(realsOld[2]);
-                //staubli->getDof(5)->setPosition(realsOld[3]);
-                //staubli->getDof(6)->setPosition(realsOld[4]);
-                //staubli->getDof(7)->setPosition(realsOld[5]);
-
-                Eigen::Isometry3d gripperTransform = staubli->getBodyNode("gripper")->getTransform();
-                Eigen::Vector3d tr = gripperTransform.translation();
-                //Eigen::Matrix3d gripperRot = gripperTransform.rotation();
-
-                //tr(0) += xs * gripperRot(0, 0) + ys * gripperRot(0, 1) + zs * gripperRot(0, 2);
-                //tr(1) += xs * gripperRot(1, 0) + ys * gripperRot(1, 1) + zs * gripperRot(1, 2);
-                //tr(2) += xs * gripperRot(2, 0) + ys * gripperRot(2, 1) + zs * gripperRot(2, 2);
-
-                //ofs_e << tr(0) << " " << tr(1) << " " << tr(2) << std::endl;
-                /*
-                for (double t = step; t <= 1.01; t += step) {
-                    space->interpolate(s1, s2, t, s3);
-                    space->copyToReals(reals, s3);
-
-                    //for (const auto& r : realsOld)
-
-                    //    ofs_e << r << " ";
-                    //
-
-                    staubli->getDof(2)->setPosition(reals[0]);
-                    staubli->getDof(3)->setPosition(reals[1]);
-                    staubli->getDof(4)->setPosition(reals[2]);
-
-                    transform = staubli->getBodyNode("toolflange_link")->getTransform();
-                    tr = transform.translation();
-
-                    ofs_e << tr(0) << " " << tr(1) << " " << tr(2) << std::endl;
-                    ofs_e << tr(0) << " " << tr(1) << " " << tr(2) << std::endl;
-
-                    // for (const auto& r : reals)
-                    //    ofs_e << r << " ";
-                    //
-                    //ofs_e << "0x" << std::hex << (isMajorTree ? 0x4488AA : 0xDD6060)
-                    //      << std::endl;
-                    //ofs_e << std::endl;
-                }
-*/
                 space->copyToReals(reals, s2);
 
                 staubli->getDof(2)->setPosition(reals[0]);
                 staubli->getDof(3)->setPosition(reals[1]);
                 staubli->getDof(4)->setPosition(reals[2]);
-                //staubli->getDof(5)->setPosition(reals[3]);
-                //staubli->getDof(6)->setPosition(reals[4]);
-                //staubli->getDof(7)->setPosition(reals[5]);
+                staubli->getDof(5)->setPosition(attach[3]);
+                staubli->getDof(6)->setPosition(attach[4]);
+                staubli->getDof(7)->setPosition(attach[5]);
 
-                gripperTransform = staubli->getBodyNode("gripper")->getTransform();
-                tr = gripperTransform.translation();
-                //gripperRot = gripperTransform.rotation();
+                Eigen::Isometry3d gripperTransform = staubli->getBodyNode("gripper")->getTransform();
 
-                //tr(0) += xs * gripperRot(0, 0) + ys * gripperRot(0, 1) + zs * gripperRot(0, 2);
-                //tr(1) += xs * gripperRot(1, 0) + ys * gripperRot(1, 1) + zs * gripperRot(1, 2);
-                //tr(2) += xs * gripperRot(2, 0) + ys * gripperRot(2, 1) + zs * gripperRot(2, 2);
+                Eigen::Vector3d tr = gripperTransform.translation();
+
+                Eigen::Matrix3d gripperRot = gripperTransform.rotation();
+
+                double xs = 30.0 / 1000.0;
+                double ys = -60.0 / 1000.0;
+                double zs = 95.0 / 1000.0;
+
+                tr(0) += xs * gripperRot(0, 0) + ys * gripperRot(0, 1) + zs * gripperRot(0, 2);
+                tr(1) += xs * gripperRot(1, 0) + ys * gripperRot(1, 1) + zs * gripperRot(1, 2);
+                tr(2) += xs * gripperRot(2, 0) + ys * gripperRot(2, 1) + zs * gripperRot(2, 2);
 
                 double curMin = sqrt(pow(tr(0) - finish(0) / 1000, 2) + pow(tr(1) - finish(1) / 1000, 2) + pow(tr(2) - finish(2) / 1000, 2));
-                if (curMin < distMin)
-                {
+
+                if (curMin < distMin) {
                     distMin = curMin;
                 }
             }
         }
-        //std::cout << "Minimum Distance: " << distMin << std::endl;
         return distMin;
     }
 
@@ -1011,8 +958,11 @@ Eigen::VectorXd collisionlessFinal(const Eigen::VectorXd& start, const Eigen::Ve
     return cFinal;
 }
 
-void isPlannable(int kk)
+double isPlannable(int kk)
 {
+    //std::ofstream plannable;
+    //plannable.open("plannable.txt", std::ios::app);
+
     std::vector<Eigen::VectorXd> part1;
     std::vector<Eigen::VectorXd> part2;
     std::vector<Eigen::VectorXd> fullDetach;
@@ -1046,22 +996,37 @@ void isPlannable(int kk)
     //isWithinReach(kk);
     detachStringAt(kk);
 
-    //for (size_t dd = 0; dd < fullDetach.size(); dd++) {
-    for (size_t dd = 0; dd < 1; dd++) {
-
-            Simple3DEnvironment env_t(3, kk);
-            env_t.setWorld(world);
-
-            Eigen::VectorXd finish_trans(6);
-            finish_trans = collisionlessFinal(fullDetach[dd], fullAttach[0]);
-
-            if (env_t.plan(fullDetach[dd], finish_trans)) {
-                double minDist = env_t.isPlannable(tf.translation());
-                std::cout << "kk = " << kk << " Minimum Distance = " << minDist << std::endl; 
-                
+    int minDetIdx = 0;
+    int minAttIdx = 0;
+    double minJointDist = std::numeric_limits<float>::max();
+    //std::cout << fullDetach.size() << " " << fullAttach.size() << std::endl;
+    for (size_t dd = 0; dd < fullDetach.size(); dd++) {
+        for (size_t aa = 0; aa < fullAttach.size(); aa++) {
+            double jointDist = (fullDetach[dd] - fullAttach[aa]).squaredNorm();
+            if (jointDist < minJointDist) {
+                minDetIdx = dd;
+                minAttIdx = aa;
+                minJointDist = jointDist;
             }
+        }
     }
-    //return false;
+    //std::cout << minDetIdx << " " << minAttIdx << std::endl;
+
+    Simple3DEnvironment env_t(3, kk);
+    env_t.setWorld(world);
+
+    Eigen::VectorXd finish_trans(6);
+    finish_trans = collisionlessFinal(fullDetach[minDetIdx], fullAttach[minAttIdx]);
+
+    if (env_t.plan(fullDetach[minDetIdx], finish_trans)) {
+        Eigen::VectorXd attachLoc = tf.translation();
+        attachLoc[2] += 1278;
+        double minDist = env_t.getMinDistTreeAttach(attachLoc, fullAttach[minAttIdx]);
+        //plannable << "kk = " << kk << " Minimum Distance = " << minDist << std::endl;
+        return minDist;
+    }
+
+    return -1;
 }
 
 int main(int argc, char* argv[])
@@ -1082,7 +1047,7 @@ int main(int argc, char* argv[])
 
     Eigen::Isometry3d tenMove;
     tenMove = Eigen::Isometry3d::Identity();
-    Eigen::Quaterniond tenRot;
+    Eigen::Matrix3d tenRot;
 
     tenRot = Eigen::AngleAxisd(0.0, Eigen::Vector3d::UnitZ());
 
@@ -1119,26 +1084,41 @@ int main(int argc, char* argv[])
     //detachAllStrings(world);
     //printFeasibleTensegrityLocation();
 
-    tenRot = Eigen::AngleAxisd(50.0 * M_PI / 180.0, Eigen::Vector3d::UnitZ());
-    tenMove.translation() << 0.05, -0.6, 0.0;
-    tenMove.rotate(tenRot);
-    moveSkeleton(tensegrity, tenMove);
-
-    detachAllStrings();
-
-    //printAttachmentSequence();
+    int kk = 2;
 
     std::vector<Eigen::VectorXd> part1;
     std::vector<Eigen::VectorXd> part2;
     std::vector<Eigen::VectorXd> fullDetach;
     std::vector<Eigen::VectorXd> fullAttach;
     //for (int kk = 0; kk < 9; kk++) {
-    int kk = 2;
-    
-    for (kk = 0; kk < 9; kk++)
-    {
-        isPlannable(kk);
+    std::ofstream plannable;
+    plannable.open("plannable.txt", std::ios::trunc);
+
+    std::ifstream feas("feasibleLocation.txt");
+    double xx, yy, aa_zz;
+    double minDist;
+    while (!feas.eof()) {
+        feas >> xx>> yy>> aa_zz;
+        plannable << "Location: " << xx << " " << yy << " " << aa_zz << std::endl;
+
+        tenRot = Eigen::AngleAxisd(aa_zz * M_PI / 180.0, Eigen::Vector3d::UnitZ());
+        tenMove.linear() = tenRot;
+        tenMove.translation() << (double)xx / 1000.0, (double)yy / 1000.0, 0.0;
+        moveSkeleton(tensegrity, tenMove);
+
+        detachAllStrings();
+
+        //printAttachmentSequence();
+
+        for (kk = 0; kk < 9; kk++) {
+            minDist = isPlannable(kk);
+            plannable << "kk = " << kk << " minimum distance = " << minDist << std::endl;
+        }
+        plannable << "********************" << std::endl;
     }
+    plannable.close();
+    kk = 2;
+
     Eigen::Isometry3d tf(Eigen::Isometry3d::Identity());
     tf = getDetachPosition(kk, false);
     part1 = getInverseKinematics(tf);
