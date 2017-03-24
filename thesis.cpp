@@ -517,6 +517,15 @@ std::vector<Eigen::VectorXd> getInverseKinematics(
                 withinJointRange = false;
             }
         }
+        /*
+                final_joint << theta[1], theta[2], theta[3], theta[4], theta[5],
+                    theta[6];
+                final_joint = final_joint * 180.0 / M_PI;
+    Eigen::IOFormat CommaInitFmt(Eigen::StreamPrecision,
+        Eigen::DontAlignCols, " ", " ", "", "", "","");
+    std::cout << final_joint.format(CommaInitFmt) << std::endl;
+                std::cout << final_joint.format(CommaInitFmt) << std::endl;
+        */
 
         if (!(std::isnan(theta[1])) && !(std::isnan(theta[2])) && !(std::isnan(theta[3])) && !(std::isnan(theta[4])) && !(std::isnan(theta[5])) && !(std::isnan(theta[6]))) {
             staubli->getDof(2)->setPosition(theta[1]);
@@ -658,6 +667,34 @@ Eigen::Isometry3d getDetachPosition(int detNum,
         rot_ten = tensegrityTransform.rotation() * Eigen::AngleAxisd(180 * M_PI / 180.0, Eigen::Vector3d::UnitY());
         xs = -25;
     }
+    tenTrans *= 1000;
+
+    tenTrans(0) += xs * rot_ten(0, 0) + ys * rot_ten(0, 1) + zs * rot_ten(0, 2);
+    tenTrans(1) += xs * rot_ten(1, 0) + ys * rot_ten(1, 1) + zs * rot_ten(1, 2);
+    tenTrans(2) += xs * rot_ten(2, 0) + ys * rot_ten(2, 1) + zs * rot_ten(2, 2);
+    tenTrans(2) -= 1278;
+
+    tf.linear() = rot_ten;
+    tf.translation() = tenTrans;
+    return tf;
+}
+
+Eigen::Isometry3d getTightenerPoint(int detNum)
+{
+    Eigen::Isometry3d tf(Eigen::Isometry3d::Identity());
+
+    dd::SkeletonPtr tensegrity = world->getSkeleton("tensegrity");
+    Eigen::Isometry3d tensegrityTransform = tensegrity->getBodyNode("tightener" + std::to_string(detNum + 1))->getTransform();
+    Eigen::Vector3d tenTrans = tensegrityTransform.translation();
+
+    double xs = -9;
+    double ys = 4.5;
+    double zs = -190;
+
+    Eigen::Matrix3d rot_ten;
+
+    rot_ten = tensegrityTransform.rotation() * Eigen::AngleAxisd(90 * M_PI / 180.0, Eigen::Vector3d::UnitY()) * Eigen::AngleAxisd(90 * M_PI / 180.0, Eigen::Vector3d::UnitZ());
+
     tenTrans *= 1000;
 
     tenTrans(0) += xs * rot_ten(0, 0) + ys * rot_ten(0, 1) + zs * rot_ten(0, 2);
@@ -962,7 +999,10 @@ double isPlannable(int kk)
 {
     //std::ofstream plannable;
     //plannable.open("plannable.txt", std::ios::app);
-
+    int kkk = kk;
+    if (kk == 2) {
+        kkk = 3;
+    }
     std::vector<Eigen::VectorXd> part1;
     std::vector<Eigen::VectorXd> part2;
     std::vector<Eigen::VectorXd> fullDetach;
@@ -970,10 +1010,10 @@ double isPlannable(int kk)
 
     Eigen::Isometry3d tf(Eigen::Isometry3d::Identity());
 
-    tf = getDetachPosition(kk, false);
+    tf = getDetachPosition(kkk, false);
     part1 = getInverseKinematics(tf);
 
-    tf = getDetachPosition(kk, true);
+    tf = getDetachPosition(kkk, true);
     part2 = getInverseKinematics(tf);
 
     fullDetach.reserve(part1.size() + part2.size());
@@ -1084,15 +1124,53 @@ int main(int argc, char* argv[])
     //detachAllStrings(world);
     //printFeasibleTensegrityLocation();
 
-    int kk = 2;
 
+    std::vector<Eigen::VectorXd> part1;
+    detachAllStrings();
+    Eigen::Isometry3d tf(Eigen::Isometry3d::Identity());
+
+    std::ifstream feas("feasibleLocation.txt");
+    double xx, yy, aa_zz;
+    std::ofstream tightener;
+    tightener.open("tightener.txt", std::ios::trunc);
+    while (!feas.eof()) {
+        feas >> xx >> yy >> aa_zz;
+        tightener << "Location: " << xx << " " << yy << " " << aa_zz << std::endl;
+
+        tenRot = Eigen::AngleAxisd(aa_zz * M_PI / 180.0, Eigen::Vector3d::UnitZ());
+        tenMove.linear() = tenRot;
+        tenMove.translation() << (double)xx / 1000.0, (double)yy / 1000.0, 0.0;
+        moveSkeleton(tensegrity, tenMove);
+
+        int count = 0;
+        for (int ll = 0; ll < 9; ll++) {
+            tf = getTightenerPoint(ll);
+            part1 = getInverseKinematics(tf);
+
+            std::cout << ll << std::endl;
+            for (size_t mm = 0; mm < part1.size(); mm++) {
+                printVector(part1[mm]);
+            }
+            if (part1.size() > 0)
+            {
+                count+=1;
+            }
+        }
+        tightener << count << std::endl;
+    }
+    tightener.close();
+    feas.close();
+    /*
+    int kk = 0;
     std::vector<Eigen::VectorXd> part1;
     std::vector<Eigen::VectorXd> part2;
     std::vector<Eigen::VectorXd> fullDetach;
     std::vector<Eigen::VectorXd> fullAttach;
     //for (int kk = 0; kk < 9; kk++) {
+*/
+    /*
     std::ofstream plannable;
-    plannable.open("plannable.txt", std::ios::trunc);
+    plannable.open("plannable1.txt", std::ios::trunc);
 
     std::ifstream feas("feasibleLocation.txt");
     double xx, yy, aa_zz;
@@ -1113,11 +1191,19 @@ int main(int argc, char* argv[])
         for (kk = 0; kk < 9; kk++) {
             minDist = isPlannable(kk);
             plannable << "kk = " << kk << " minimum distance = " << minDist << std::endl;
+            //if(minDist > 0.5)
+            //{
+            //    break;
+            //}
         }
         plannable << "********************" << std::endl;
     }
+
     plannable.close();
-    kk = 2;
+
+
+    kk = 1;
+    detachAllStrings();
 
     Eigen::Isometry3d tf(Eigen::Isometry3d::Identity());
     tf = getDetachPosition(kk, false);
@@ -1134,9 +1220,10 @@ int main(int argc, char* argv[])
     for (size_t mm = 0; mm < fullDetach.size(); mm++) {
         printVector(fullDetach[mm]);
     }
+    std::cout << "lol1" << std::endl;
 
     start = fullDetach[0];
-    isWithinReach(kk);
+    //isWithinReach(kk);
     attachStringAt(kk);
 
     tf = getAttachPosition(kk, false);
@@ -1153,10 +1240,12 @@ int main(int argc, char* argv[])
     for (size_t mm = 0; mm < fullAttach.size(); mm++) {
         printVector(fullAttach[mm]);
     }
+    std::cout << "lol2" << std::endl;
 
-    finish = fullAttach[2];
-    isWithinReach(kk);
+    finish = fullAttach[0];
+    //isWithinReach(kk);
     detachStringAt(kk);
+    std::cout << "lol3" << std::endl;
     //}
 
     if (argc < 2) {
@@ -1175,21 +1264,22 @@ int main(int argc, char* argv[])
         Eigen::VectorXd finish_trans(6);
         finish_trans = collisionlessFinal(start, finish);
         //std::cout << "finish_trans" << std::endl;
-        //std::cout << finish_trans << std::endl;
+        std::cout << finish_trans << std::endl;
 
         if (env.plan(start, finish_trans)) {
             env.recordSolution(start);
             //env.isPlannable(tf.translation());
         }
-        /* 
-        start = getLastLineAsVector();
-        Simple3DEnvironment env1(6, kk);
-        env1.setWorld(world);
-        if (env1.plan(start * 180.0 / M_PI, finish)) {
-            env1.recordSolution(start * 180.0 / M_PI);
-        }
-        */
+         
+        //start = getLastLineAsVector();
+        //Simple3DEnvironment env1(6, kk);
+        //env1.setWorld(world);
+        //if (env1.plan(start * 180.0 / M_PI, finish)) {
+        //    env1.recordSolution(start * 180.0 / M_PI);
+        //}
+        
     }
+*/
     for (int jj = 2; jj <= 7; jj++) {
         staubli->getDof(jj)->setPosition(0);
     }
