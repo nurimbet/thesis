@@ -313,9 +313,9 @@ void MyWindow::drawSkels()
         Eigen::Matrix3d rot_tr = transform.rotation();
         drawAxes(tr, rot_tr);
 
-        double xs = 30.0 / 1000.0;
-        double ys = -60.0 / 1000.0;
-        double zs = 95.0 / 1000.0;
+        double xs = 0.0 / 1000.0;
+        double ys = 50.0 / 1000.0;
+        double zs = 90.0 / 1000.0;
         Eigen::Isometry3d transform1 = staubli->getBodyNode("gripper")->getTransform();
         Eigen::Vector3d tr1 = transform1.translation();
 
@@ -347,23 +347,29 @@ void MyWindow::drawSkels()
         tensegrityTransform = tensegrity->getBodyNode("tightener" + std::to_string(idx + 1))->getTransform();
         rot_ten = tensegrityTransform.rotation() * Eigen::AngleAxisd(90 * M_PI / 180.0, Eigen::Vector3d::UnitY()) * Eigen::AngleAxisd(90 * M_PI / 180.0, Eigen::Vector3d::UnitZ());
         tenTrans = tensegrityTransform.translation();
+
         xs = -9 / 1000.0;
         ys = 4.5 / 1000.0;
         zs = -95.0 / 1000.0;
         tenTrans(0) += xs * rot_ten(0, 0) + ys * rot_ten(0, 1) + zs * rot_ten(0, 2);
         tenTrans(1) += xs * rot_ten(1, 0) + ys * rot_ten(1, 1) + zs * rot_ten(1, 2);
         tenTrans(2) += xs * rot_ten(2, 0) + ys * rot_ten(2, 1) + zs * rot_ten(2, 2);
-        drawAxes(tenTrans, rot_ten);
+//        drawAxes(tenTrans, rot_ten);
 
         tensegrityTransform = tensegrity->getBodyNode("pulley" + std::to_string(idx + 1))->getTransform();
         tenTrans = tensegrityTransform.translation();
         rot_ten = tensegrityTransform.rotation();
         drawAxes(tenTrans, rot_ten);
-
+        
+        
+        Eigen::Isometry3d tensegrityTransform1 = tensegrity->getBodyNode("attach" + std::to_string(idx + 1))->getTransform();
+        Eigen::Vector3d diff = tensegrityTransform1.translation() - tenTrans;
+        tenTrans = tenTrans + 0.2*diff/diff.squaredNorm(); 
+         
         tensegrityTransform = tensegrity->getBodyNode("tendon" + std::to_string(idx + 1))->getTransform();
-        tenTrans = tensegrityTransform.translation();
-        rot_ten = tensegrityTransform.rotation();
-        //drawAxes(tenTrans, rot_ten);
+        rot_ten = tensegrityTransform.rotation() ;//* Eigen::AngleAxisd(-90 * M_PI / 180.0, Eigen::Vector3d::UnitX()) * Eigen::AngleAxisd(90 * M_PI / 180.0, Eigen::Vector3d::UnitY());
+
+        drawAxes(tenTrans, rot_ten);
     }
 
     SimWindow::drawSkels();

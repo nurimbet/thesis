@@ -555,9 +555,9 @@ void detachAllStrings()
 {
     dd::SkeletonPtr tensegrity = world->getSkeleton("tensegrity");
     for (int ii = 1; ii <= 9; ii++) {
-        tensegrity->getBodyNode("tendon" + std::to_string(ii))
-            ->getVisualizationShape(0)
-            ->setHidden(true);
+     //   tensegrity->getBodyNode("tendon" + std::to_string(ii))
+     //       ->getVisualizationShape(0)
+     //       ->setHidden(true);
         tensegrity->getBodyNode("tendon" + std::to_string(ii))
             ->setCollidable(false);
     }
@@ -694,6 +694,42 @@ Eigen::Isometry3d getTightenerPoint(int detNum)
     Eigen::Matrix3d rot_ten;
 
     rot_ten = tensegrityTransform.rotation() * Eigen::AngleAxisd(90 * M_PI / 180.0, Eigen::Vector3d::UnitY()) * Eigen::AngleAxisd(90 * M_PI / 180.0, Eigen::Vector3d::UnitZ());
+
+    tenTrans *= 1000;
+
+    tenTrans(0) += xs * rot_ten(0, 0) + ys * rot_ten(0, 1) + zs * rot_ten(0, 2);
+    tenTrans(1) += xs * rot_ten(1, 0) + ys * rot_ten(1, 1) + zs * rot_ten(1, 2);
+    tenTrans(2) += xs * rot_ten(2, 0) + ys * rot_ten(2, 1) + zs * rot_ten(2, 2);
+    tenTrans(2) -= 1278;
+
+    tf.linear() = rot_ten;
+    tf.translation() = tenTrans;
+    return tf;
+}
+
+Eigen::Isometry3d getTendonPoint(int detNum)
+{
+    Eigen::Isometry3d tf(Eigen::Isometry3d::Identity());
+
+    dd::SkeletonPtr tensegrity = world->getSkeleton("tensegrity");
+    Eigen::Isometry3d tensegrityTransform = tensegrity->getBodyNode("pulley" + std::to_string(detNum + 1))->getTransform();
+    Eigen::Vector3d tenTrans = tensegrityTransform.translation();
+
+
+    Eigen::Isometry3d tensegrityTransform1 = tensegrity->getBodyNode("attach" + std::to_string(detNum  + 1))->getTransform();
+    Eigen::Vector3d diff = tensegrityTransform1.translation() - tenTrans;
+    tenTrans = tenTrans + 0.2*diff/diff.squaredNorm(); 
+
+
+    tensegrityTransform = tensegrity->getBodyNode("tendon" + std::to_string(detNum + 1))->getTransform();
+    Eigen::Matrix3d rot_ten;
+    rot_ten = tensegrityTransform.rotation() * Eigen::AngleAxisd(-90 * M_PI / 180.0, Eigen::Vector3d::UnitX()) * Eigen::AngleAxisd(90 * M_PI / 180.0, Eigen::Vector3d::UnitY());
+
+    double xs = 0.0;
+    double ys = -50.0;
+    double zs = -75.0;
+
+
 
     tenTrans *= 1000;
 
@@ -1069,6 +1105,98 @@ double isPlannable(int kk)
     return -1;
 }
 
+void printTightenerFeasibility()
+{
+    dd::SkeletonPtr tensegrity = world->getSkeleton("tensegrity");
+
+    Eigen::Isometry3d tenMove;
+    tenMove = Eigen::Isometry3d::Identity();
+    Eigen::Matrix3d tenRot;
+
+    std::vector<Eigen::VectorXd> part1;
+    detachAllStrings();
+    Eigen::Isometry3d tf(Eigen::Isometry3d::Identity());
+
+    std::ifstream feas("feasibleLocation.txt");
+    double xx, yy, aa_zz;
+    std::ofstream tightener;
+    tightener.open("tightener.txt", std::ios::trunc);
+    while (!feas.eof()) {
+        feas >> xx >> yy >> aa_zz;
+        tightener << "Location: " << xx << " " << yy << " " << aa_zz << std::endl;
+
+        tenRot = Eigen::AngleAxisd(aa_zz * M_PI / 180.0, Eigen::Vector3d::UnitZ());
+        tenMove.linear() = tenRot;
+        tenMove.translation() << (double)xx / 1000.0, (double)yy / 1000.0, 0.0;
+        moveSkeleton(tensegrity, tenMove);
+
+        int count = 0;
+        for (int ll = 0; ll < 9; ll++) {
+            tf = getTightenerPoint(ll);
+            part1 = getInverseKinematics(tf);
+
+            std::cout << ll << std::endl;
+            for (size_t mm = 0; mm < part1.size(); mm++) {
+                printVector(part1[mm]);
+            }
+            if (part1.size() > 0) {
+                count += 1;
+            }
+        }
+        tightener << count << std::endl;
+    }
+    tightener.close();
+    feas.close();
+}
+
+
+void printTendonFeasibility()
+{
+    dd::SkeletonPtr tensegrity = world->getSkeleton("tensegrity");
+
+    Eigen::Isometry3d tenMove;
+    tenMove = Eigen::Isometry3d::Identity();
+    Eigen::Matrix3d tenRot;
+
+    std::vector<Eigen::VectorXd> part1;
+    detachAllStrings();
+    Eigen::Isometry3d tf(Eigen::Isometry3d::Identity());
+
+    //std::ifstream feas("feasibleLocation.txt");
+    double xx, yy, aa_zz;
+    std::ofstream tendon;
+    tendon.open("tendon.txt", std::ios::trunc);
+    //while (!feas.eof()) {
+    //    feas >> xx >> yy >> aa_zz;
+    xx = 0.0;
+    yy = -600.0;
+    aa_zz = 45.0;
+        tendon << "Location: " << xx << " " << yy << " " << aa_zz << std::endl;
+
+        tenRot = Eigen::AngleAxisd(aa_zz * M_PI / 180.0, Eigen::Vector3d::UnitZ());
+        tenMove.linear() = tenRot;
+        tenMove.translation() << (double)xx / 1000.0, (double)yy / 1000.0, 0.0;
+        moveSkeleton(tensegrity, tenMove);
+
+        int count = 0;
+        for (int ll = 0; ll < 9; ll++) {
+            tf = getTendonPoint(ll);
+            part1 = getInverseKinematics(tf);
+
+            std::cout << ll << std::endl;
+            for (size_t mm = 0; mm < part1.size(); mm++) {
+                printVector(part1[mm]);
+            }
+            if (part1.size() > 0) {
+                count += 1;
+            }
+        }
+        tendon << count << std::endl;
+    //}
+    tendon.close();
+    //feas.close();
+}
+
 int main(int argc, char* argv[])
 {
     world->getConstraintSolver()->setCollisionDetector(
@@ -1124,42 +1252,8 @@ int main(int argc, char* argv[])
     //detachAllStrings(world);
     //printFeasibleTensegrityLocation();
 
-
-    std::vector<Eigen::VectorXd> part1;
-    detachAllStrings();
-    Eigen::Isometry3d tf(Eigen::Isometry3d::Identity());
-
-    std::ifstream feas("feasibleLocation.txt");
-    double xx, yy, aa_zz;
-    std::ofstream tightener;
-    tightener.open("tightener.txt", std::ios::trunc);
-    while (!feas.eof()) {
-        feas >> xx >> yy >> aa_zz;
-        tightener << "Location: " << xx << " " << yy << " " << aa_zz << std::endl;
-
-        tenRot = Eigen::AngleAxisd(aa_zz * M_PI / 180.0, Eigen::Vector3d::UnitZ());
-        tenMove.linear() = tenRot;
-        tenMove.translation() << (double)xx / 1000.0, (double)yy / 1000.0, 0.0;
-        moveSkeleton(tensegrity, tenMove);
-
-        int count = 0;
-        for (int ll = 0; ll < 9; ll++) {
-            tf = getTightenerPoint(ll);
-            part1 = getInverseKinematics(tf);
-
-            std::cout << ll << std::endl;
-            for (size_t mm = 0; mm < part1.size(); mm++) {
-                printVector(part1[mm]);
-            }
-            if (part1.size() > 0)
-            {
-                count+=1;
-            }
-        }
-        tightener << count << std::endl;
-    }
-    tightener.close();
-    feas.close();
+    //printTightenerFeasibility();
+    printTendonFeasibility();
     /*
     int kk = 0;
     std::vector<Eigen::VectorXd> part1;
