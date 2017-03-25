@@ -74,7 +74,6 @@ public:
 
         ss_->setStartAndGoalStates(start, goal, 0.05);
 
-        // this will run the algorithm for one second
         if (jointNumber > 3) {
             ss_->solve(60 * 1 * 1);
         } else {
@@ -168,7 +167,6 @@ public:
         std::vector<unsigned int> edge_list;
         std::vector<double> reals;
         std::vector<double> realsOld;
-        //bool isMajorTree = false;
         //ob::State* s3 = space->allocState();
         for (unsigned int i(0); i < pdat.numVertices(); ++i) {
             unsigned int n_edge = pdat.getEdges(i, edge_list);
@@ -185,24 +183,12 @@ public:
                 space->copyToReals(realsOld, s1);
                 dd::SkeletonPtr staubli = world_->getSkeleton("staubli");
 
-                //double xs = 30.0 / 1000.0;
-                //double ys = -60.0 / 1000.0;
-                //double zs = 95.0 / 1000.0;
-
                 staubli->getDof(2)->setPosition(realsOld[0]);
                 staubli->getDof(3)->setPosition(realsOld[1]);
                 staubli->getDof(4)->setPosition(realsOld[2]);
-                //staubli->getDof(5)->setPosition(realsOld[3]);
-                //staubli->getDof(6)->setPosition(realsOld[4]);
-                //staubli->getDof(7)->setPosition(realsOld[5]);
 
                 Eigen::Isometry3d gripperTransform = staubli->getBodyNode("gripper")->getTransform();
                 Eigen::Vector3d tr = gripperTransform.translation();
-                //Eigen::Matrix3d gripperRot = gripperTransform.rotation();
-
-                //tr(0) += xs * gripperRot(0, 0) + ys * gripperRot(0, 1) + zs * gripperRot(0, 2);
-                //tr(1) += xs * gripperRot(1, 0) + ys * gripperRot(1, 1) + zs * gripperRot(1, 2);
-                //tr(2) += xs * gripperRot(2, 0) + ys * gripperRot(2, 1) + zs * gripperRot(2, 2);
 
                 ofs_e << tr(0) << " " << tr(1) << " " << tr(2) << std::endl;
                 /*
@@ -225,12 +211,6 @@ public:
                     ofs_e << tr(0) << " " << tr(1) << " " << tr(2) << std::endl;
                     ofs_e << tr(0) << " " << tr(1) << " " << tr(2) << std::endl;
 
-                    // for (const auto& r : reals)
-                    //    ofs_e << r << " ";
-                    //
-                    //ofs_e << "0x" << std::hex << (isMajorTree ? 0x4488AA : 0xDD6060)
-                    //      << std::endl;
-                    //ofs_e << std::endl;
                 }
 */
                 space->copyToReals(reals, s2);
@@ -238,17 +218,9 @@ public:
                 staubli->getDof(2)->setPosition(reals[0]);
                 staubli->getDof(3)->setPosition(reals[1]);
                 staubli->getDof(4)->setPosition(reals[2]);
-                //staubli->getDof(5)->setPosition(reals[3]);
-                //staubli->getDof(6)->setPosition(reals[4]);
-                //staubli->getDof(7)->setPosition(reals[5]);
 
                 gripperTransform = staubli->getBodyNode("gripper")->getTransform();
                 tr = gripperTransform.translation();
-                //gripperRot = gripperTransform.rotation();
-
-                //tr(0) += xs * gripperRot(0, 0) + ys * gripperRot(0, 1) + zs * gripperRot(0, 2);
-                //tr(1) += xs * gripperRot(1, 0) + ys * gripperRot(1, 1) + zs * gripperRot(1, 2);
-                //tr(2) += xs * gripperRot(2, 0) + ys * gripperRot(2, 1) + zs * gripperRot(2, 2);
 
                 ofs_e << tr(0) << " " << tr(1) << " " << tr(2) << std::endl;
             }
@@ -371,14 +343,7 @@ private:
             staubli->getDof(7)->setPosition(j6);
         }
 
-        /*
-               Eigen::Isometry3d transform =
-               staubli->getBodyNode("toolflange_link")->getTransform();
-               Eigen::Vector3d tr = transform.translation();
-             */
-
-        return isWithinReach() && !world_->checkCollision(); // && tr(0) <= 0.50;
-        //return !world_->checkCollision(); // && tr(0) <= 0.50;
+        return isWithinReach() && !world_->checkCollision();
     }
 
     og::SimpleSetupPtr ss_;
@@ -425,7 +390,6 @@ Eigen::VectorXd getLastLineAsVector()
 
     std::ifstream file("result1.txt");
     std::string line = getLastLine(file);
-    //std::cout << line << std::endl;
 
     file.close();
 
@@ -445,7 +409,6 @@ Eigen::VectorXd getLastLineAsVector()
     }
 
     start << linear[0], linear[1], linear[2], linear[3], linear[4], linear[5];
-    //std::cout << start << std::endl;
     return start;
 }
 
@@ -517,15 +480,6 @@ std::vector<Eigen::VectorXd> getInverseKinematics(
                 withinJointRange = false;
             }
         }
-        /*
-                final_joint << theta[1], theta[2], theta[3], theta[4], theta[5],
-                    theta[6];
-                final_joint = final_joint * 180.0 / M_PI;
-    Eigen::IOFormat CommaInitFmt(Eigen::StreamPrecision,
-        Eigen::DontAlignCols, " ", " ", "", "", "","");
-    std::cout << final_joint.format(CommaInitFmt) << std::endl;
-                std::cout << final_joint.format(CommaInitFmt) << std::endl;
-        */
 
         if (!(std::isnan(theta[1])) && !(std::isnan(theta[2])) && !(std::isnan(theta[3])) && !(std::isnan(theta[4])) && !(std::isnan(theta[5])) && !(std::isnan(theta[6]))) {
             staubli->getDof(2)->setPosition(theta[1]);
@@ -555,9 +509,9 @@ void detachAllStrings()
 {
     dd::SkeletonPtr tensegrity = world->getSkeleton("tensegrity");
     for (int ii = 1; ii <= 9; ii++) {
-     //   tensegrity->getBodyNode("tendon" + std::to_string(ii))
-     //       ->getVisualizationShape(0)
-     //       ->setHidden(true);
+        tensegrity->getBodyNode("tendon" + std::to_string(ii))
+            ->getVisualizationShape(0)
+            ->setHidden(true);
         tensegrity->getBodyNode("tendon" + std::to_string(ii))
             ->setCollidable(false);
     }
@@ -715,11 +669,9 @@ Eigen::Isometry3d getTendonPoint(int detNum)
     Eigen::Isometry3d tensegrityTransform = tensegrity->getBodyNode("pulley" + std::to_string(detNum + 1))->getTransform();
     Eigen::Vector3d tenTrans = tensegrityTransform.translation();
 
-
-    Eigen::Isometry3d tensegrityTransform1 = tensegrity->getBodyNode("attach" + std::to_string(detNum  + 1))->getTransform();
+    Eigen::Isometry3d tensegrityTransform1 = tensegrity->getBodyNode("attach" + std::to_string(detNum + 1))->getTransform();
     Eigen::Vector3d diff = tensegrityTransform1.translation() - tenTrans;
-    tenTrans = tenTrans + 0.2*diff/diff.squaredNorm(); 
-
+    tenTrans = tenTrans + 0.2 * diff / diff.squaredNorm();
 
     tensegrityTransform = tensegrity->getBodyNode("tendon" + std::to_string(detNum + 1))->getTransform();
     Eigen::Matrix3d rot_ten;
@@ -728,8 +680,6 @@ Eigen::Isometry3d getTendonPoint(int detNum)
     double xs = 0.0;
     double ys = -50.0;
     double zs = -75.0;
-
-
 
     tenTrans *= 1000;
 
@@ -955,33 +905,6 @@ void printVector(Eigen::VectorXd final_joint)
     std::cout << final_joint.format(CommaInitFmt) << std::endl;
 }
 
-void isWithinReach(int tendonNumber)
-{
-
-    dd::SkeletonPtr staubli = world->getSkeleton("staubli");
-    dd::SkeletonPtr tensegrity = world->getSkeleton("tensegrity");
-
-    Eigen::Isometry3d attachTransform = tensegrity->getBodyNode("attach" + std::to_string(tendonNumber + 1))->getTransform();
-    Eigen::Vector3d attachTrans = attachTransform.translation();
-
-    Eigen::Isometry3d pulleyTransform = tensegrity->getBodyNode("pulley" + std::to_string(tendonNumber + 1))->getTransform();
-    Eigen::Vector3d pulleyTrans = pulleyTransform.translation();
-
-    Eigen::Isometry3d gripperTransform = staubli->getBodyNode("gripper")->getTransform();
-    Eigen::Vector3d gripperTrans = gripperTransform.translation();
-    Eigen::Matrix3d gripperRot = gripperTransform.rotation();
-
-    double xs = 30.0 / 1000.0;
-    double ys = -60.0 / 1000.0;
-    double zs = 95.0 / 1000.0;
-
-    gripperTrans(0) += xs * gripperRot(0, 0) + ys * gripperRot(0, 1) + zs * gripperRot(0, 2);
-    gripperTrans(1) += xs * gripperRot(1, 0) + ys * gripperRot(1, 1) + zs * gripperRot(1, 2);
-    gripperTrans(2) += xs * gripperRot(2, 0) + ys * gripperRot(2, 1) + zs * gripperRot(2, 2);
-    std::cout << (pulleyTrans - attachTrans).squaredNorm() << std::endl;
-    std::cout << (gripperTrans - pulleyTrans).squaredNorm() << std::endl;
-}
-
 Eigen::VectorXd collisionlessFinal(const Eigen::VectorXd& start, const Eigen::VectorXd& finish)
 {
     Eigen::VectorXd cFinal(6);
@@ -1033,8 +956,6 @@ Eigen::VectorXd collisionlessFinal(const Eigen::VectorXd& start, const Eigen::Ve
 
 double isPlannable(int kk)
 {
-    //std::ofstream plannable;
-    //plannable.open("plannable.txt", std::ios::app);
     int kkk = kk;
     if (kk == 2) {
         kkk = 3;
@@ -1056,7 +977,6 @@ double isPlannable(int kk)
     fullDetach.insert(fullDetach.end(), part1.begin(), part1.end());
     fullDetach.insert(fullDetach.end(), part2.begin(), part2.end());
 
-    //isWithinReach(kk);
     attachStringAt(kk);
 
     tf = getAttachPosition(kk, false);
@@ -1069,13 +989,11 @@ double isPlannable(int kk)
     fullAttach.insert(fullAttach.end(), part1.begin(), part1.end());
     fullAttach.insert(fullAttach.end(), part2.begin(), part2.end());
 
-    //isWithinReach(kk);
     detachStringAt(kk);
 
     int minDetIdx = 0;
     int minAttIdx = 0;
     double minJointDist = std::numeric_limits<float>::max();
-    //std::cout << fullDetach.size() << " " << fullAttach.size() << std::endl;
     for (size_t dd = 0; dd < fullDetach.size(); dd++) {
         for (size_t aa = 0; aa < fullAttach.size(); aa++) {
             double jointDist = (fullDetach[dd] - fullAttach[aa]).squaredNorm();
@@ -1086,7 +1004,6 @@ double isPlannable(int kk)
             }
         }
     }
-    //std::cout << minDetIdx << " " << minAttIdx << std::endl;
 
     Simple3DEnvironment env_t(3, kk);
     env_t.setWorld(world);
@@ -1098,7 +1015,6 @@ double isPlannable(int kk)
         Eigen::VectorXd attachLoc = tf.translation();
         attachLoc[2] += 1278;
         double minDist = env_t.getMinDistTreeAttach(attachLoc, fullAttach[minAttIdx]);
-        //plannable << "kk = " << kk << " Minimum Distance = " << minDist << std::endl;
         return minDist;
     }
 
@@ -1149,7 +1065,6 @@ void printTightenerFeasibility()
     feas.close();
 }
 
-
 void printTendonFeasibility()
 {
     dd::SkeletonPtr tensegrity = world->getSkeleton("tensegrity");
@@ -1171,30 +1086,76 @@ void printTendonFeasibility()
     xx = 0.0;
     yy = -600.0;
     aa_zz = 45.0;
-        tendon << "Location: " << xx << " " << yy << " " << aa_zz << std::endl;
+    tendon << "Location: " << xx << " " << yy << " " << aa_zz << std::endl;
+
+    tenRot = Eigen::AngleAxisd(aa_zz * M_PI / 180.0, Eigen::Vector3d::UnitZ());
+    tenMove.linear() = tenRot;
+    tenMove.translation() << (double)xx / 1000.0, (double)yy / 1000.0, 0.0;
+    moveSkeleton(tensegrity, tenMove);
+
+    int count = 0;
+    for (int ll = 0; ll < 9; ll++) {
+        tf = getTendonPoint(ll);
+        part1 = getInverseKinematics(tf);
+
+        std::cout << ll << std::endl;
+        for (size_t mm = 0; mm < part1.size(); mm++) {
+            printVector(part1[mm]);
+        }
+        if (part1.size() > 0) {
+            count += 1;
+        }
+    }
+    tendon << count << std::endl;
+    //}
+    tendon.close();
+    //feas.close();
+}
+
+void printPlannable()
+{
+
+    dd::SkeletonPtr tensegrity = world->getSkeleton("tensegrity");
+
+    Eigen::Isometry3d tenMove;
+    tenMove = Eigen::Isometry3d::Identity();
+    Eigen::Matrix3d tenRot;
+
+    int kk = 0;
+    std::vector<Eigen::VectorXd> part1;
+    std::vector<Eigen::VectorXd> part2;
+    std::vector<Eigen::VectorXd> fullDetach;
+    std::vector<Eigen::VectorXd> fullAttach;
+
+    std::ofstream plannable;
+    plannable.open("plannable.txt", std::ios::trunc);
+
+    std::ifstream feas("feasibleLocation.txt");
+    double xx, yy, aa_zz;
+    double minDist;
+    while (!feas.eof()) {
+        feas >> xx >> yy >> aa_zz;
+        plannable << "Location: " << xx << " " << yy << " " << aa_zz << std::endl;
 
         tenRot = Eigen::AngleAxisd(aa_zz * M_PI / 180.0, Eigen::Vector3d::UnitZ());
         tenMove.linear() = tenRot;
         tenMove.translation() << (double)xx / 1000.0, (double)yy / 1000.0, 0.0;
         moveSkeleton(tensegrity, tenMove);
 
-        int count = 0;
-        for (int ll = 0; ll < 9; ll++) {
-            tf = getTendonPoint(ll);
-            part1 = getInverseKinematics(tf);
+        detachAllStrings();
 
-            std::cout << ll << std::endl;
-            for (size_t mm = 0; mm < part1.size(); mm++) {
-                printVector(part1[mm]);
-            }
-            if (part1.size() > 0) {
-                count += 1;
-            }
+        for (kk = 0; kk < 9; kk++) {
+            minDist = isPlannable(kk);
+            plannable << "kk = " << kk << " minimum distance = " << minDist << std::endl;
+            //if(minDist > 0.5)
+            //{
+            //    break;
+            //}
         }
-        tendon << count << std::endl;
-    //}
-    tendon.close();
-    //feas.close();
+        plannable << "********************" << std::endl;
+    }
+
+    plannable.close();
 }
 
 int main(int argc, char* argv[])
@@ -1234,68 +1195,20 @@ int main(int argc, char* argv[])
 
     Eigen::VectorXd finish(6);
 
-    /*
-       double qw, qx, qy, qz = 0;
-       double x, y, z = 0;
-
-       std::ifstream initfile("init.txt");
-       initfile >> x >> y >> z >> qw >> qx >> qy >> qz;
-
-       qw = -0.171711;
-       qx = 0.834576;
-       qy = -0.402042;
-       qz = 0.335203;
-
-       double len = sqrt(qw*qw + qx*qx + qy*qy + qz*qz);
-     */
-
     //detachAllStrings(world);
     //printFeasibleTensegrityLocation();
 
     //printTightenerFeasibility();
-    printTendonFeasibility();
+    //printTendonFeasibility();
+    printPlannable();
     /*
     int kk = 0;
     std::vector<Eigen::VectorXd> part1;
     std::vector<Eigen::VectorXd> part2;
     std::vector<Eigen::VectorXd> fullDetach;
     std::vector<Eigen::VectorXd> fullAttach;
-    //for (int kk = 0; kk < 9; kk++) {
 */
     /*
-    std::ofstream plannable;
-    plannable.open("plannable1.txt", std::ios::trunc);
-
-    std::ifstream feas("feasibleLocation.txt");
-    double xx, yy, aa_zz;
-    double minDist;
-    while (!feas.eof()) {
-        feas >> xx>> yy>> aa_zz;
-        plannable << "Location: " << xx << " " << yy << " " << aa_zz << std::endl;
-
-        tenRot = Eigen::AngleAxisd(aa_zz * M_PI / 180.0, Eigen::Vector3d::UnitZ());
-        tenMove.linear() = tenRot;
-        tenMove.translation() << (double)xx / 1000.0, (double)yy / 1000.0, 0.0;
-        moveSkeleton(tensegrity, tenMove);
-
-        detachAllStrings();
-
-        //printAttachmentSequence();
-
-        for (kk = 0; kk < 9; kk++) {
-            minDist = isPlannable(kk);
-            plannable << "kk = " << kk << " minimum distance = " << minDist << std::endl;
-            //if(minDist > 0.5)
-            //{
-            //    break;
-            //}
-        }
-        plannable << "********************" << std::endl;
-    }
-
-    plannable.close();
-
-
     kk = 1;
     detachAllStrings();
 
@@ -1380,26 +1293,16 @@ int main(int argc, char* argv[])
 
     MyWindow window(world);
 
-    // staubli->getBodyNode("table")->getVisualizationShape(0)->setHidden(true);
-    // staubli->getBodyNode("table")->setCollidable(false);
-
     staubli->getBodyNode("gripper")->getVisualizationShape(0)->setColor(Eigen::Vector3d(0, 1.0, 0));
     staubli->getBodyNode("table")->getVisualizationShape(0)->setColor(Eigen::Vector3d(0.6, 0.6, 0.6));
-    //    tensegrity->getBodyNode("tensegrity")->getVisualizationShape(0)->setColor(Eigen::Vector3d(121.0 / 255.0, 96.0 / 255.0, 76.0 / 255.0));
-    //tensegrity->getBodyNode("tensegrity")->getVisualizationShape(0)->setColor(Eigen::Vector3d(0.8, 0.8, 0.8));
-    //staubli->getBodyNode("gripper")->getVisualizationShape(0)->setHidden(true);
-    //staubli->getBodyNode("gripper")->setCollidable(false);
 
     double jk1, jk2, jk3, jk4, jk5, jk6 = 0;
     std::thread t([&]() {
         while (true) {
-            //while (true)
-            //{
             if (window.replay) {
                 std::ifstream fin("result1.txt");
 
                 while (!fin.eof()) {
-                    //float rx, ry, rz, rw;
                     fin >> jk1 >> jk2 >> jk3 >> jk4 >> jk5 >> jk6;
 
                     staubli->getDof(2)->setPosition(jk1);
@@ -1417,7 +1320,6 @@ int main(int argc, char* argv[])
     });
 
     glutInit(&argc, argv);
-    //window.initWindow(475 * 2, 300 * 2, "SDF");
     window.initWindow(600 * 2, 500 * 2, "SDF");
 
     glutMainLoop();
