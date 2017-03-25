@@ -17,6 +17,10 @@ bool showAxes = false;
 bool showFloor = true;
 int idx = 0;
 
+std::string endeffectorFileName = "endeffector1.txt";
+std::string jointsFileName = "joints.txt";
+std::string edgesFileName = "edges.txt";
+
 MyWindow::MyWindow(const ds::WorldPtr& world)
 {
     setWorld(world);
@@ -34,7 +38,7 @@ void MyWindow::keyboard(unsigned char key, int x, int y)
 
     dd::SkeletonPtr staubli = mWorld->getSkeleton("staubli");
     double gojoint[6];
-    static std::ifstream jointfile("joints.txt");
+    static std::ifstream jointfile(jointsFileName);
 
     switch (key) {
     case '0':
@@ -46,7 +50,7 @@ void MyWindow::keyboard(unsigned char key, int x, int y)
     case '9':
         if (jointfile.eof()) {
             jointfile.close();
-            jointfile.open("joints.txt");
+            jointfile.open(jointsFileName);
         }
 
         jointfile >> gojoint[0] >> gojoint[1] >> gojoint[2] >> gojoint[3] >> gojoint[4] >> gojoint[5];
@@ -269,7 +273,7 @@ void MyWindow::drawSkels()
         glLineWidth(3);
         glBegin(GL_LINES);
         glColor3f(0, 0, 0);
-        std::ifstream fin_to("endeffector1.txt");
+        std::ifstream fin_to(endeffectorFileName);
         fin_to >> x >> y >> z >> ign >> ign >> ign >> ign;
         glVertex3f(x, y, z);
         while (!fin_to.eof()) {
@@ -291,8 +295,7 @@ void MyWindow::drawSkels()
 
         static vector<vector<double> > solution_path;
         if (solution_path.size() == 0) {
-            string fname{ "edges.txt" };
-            ifstream fin(fname);
+            ifstream fin(edgesFileName);
             while (fin >> x1 >> y1 >> z1) {
                 solution_path.push_back(vector<double>{ x1, y1, z1 });
             }

@@ -29,6 +29,15 @@ namespace du = dart::utils;
 constexpr double jointMax[6] = { 3.1416, 2.5744, 2.5307, 4.7124, 2.4435, 4.7124 };
 constexpr double jointMin[6] = { -3.1416, -2.2689, -2.5307, -4.7124, -2.0071, -4.7124 };
 
+std::string resultFName = "result1.txt";
+std::string endeffectorFName = "endeffector1.txt";
+std::string edgesFName = "edges.txt";
+std::string feasibleLocFName = "feasibleLocation.txt";
+std::string plannableFName = "plannable.txt";
+std::string sequenceFName = "sequence.txt";
+std::string tightenerFName = "tightener.txt";
+std::string tendonFName = "plannable.txt";
+
 ds::WorldPtr world = std::make_shared<ds::World>();
 
 class Simple3DEnvironment {
@@ -99,10 +108,10 @@ public:
         og::PathGeometric& p = ss_->getSolutionPath();
         p.interpolate(1000);
         std::ofstream resultfile;
-        resultfile.open("result1.txt", std::ios::app);
+        resultfile.open(resultFName, std::ios::app);
 
         std::ofstream endeffectorfile;
-        endeffectorfile.open("endeffector1.txt", std::ios::app);
+        endeffectorfile.open(endeffectorFName, std::ios::app);
 
         for (std::size_t i = 0; i < p.getStateCount(); ++i) {
             const double j1 = (double)p.getState(i)
@@ -163,7 +172,7 @@ public:
 
         ob::PlannerData pdat(ss_->getSpaceInformation());
         ss_->getPlannerData(pdat);
-        std::ofstream ofs_e("edges.txt");
+        std::ofstream ofs_e(edgesFName);
         std::vector<unsigned int> edge_list;
         std::vector<double> reals;
         std::vector<double> realsOld;
@@ -388,7 +397,7 @@ Eigen::VectorXd getLastLineAsVector()
 {
     Eigen::VectorXd start(6);
 
-    std::ifstream file("result1.txt");
+    std::ifstream file(resultFName);
     std::string line = getLastLine(file);
 
     file.close();
@@ -734,7 +743,7 @@ bool isReachable(int i, Eigen::VectorXd strings)
 void printFeasibleTensegrityLocation()
 {
     std::ofstream feasibleLocation;
-    feasibleLocation.open("feasibleLocation.txt", std::ios::trunc);
+    feasibleLocation.open(feasibleLocFName, std::ios::trunc);
 
     Eigen::VectorXd strings(9);
     strings << 0, 0, 0, 0, 0, 0, 0, 0, 0;
@@ -788,7 +797,7 @@ void printFeasibleTensegrityLocation()
 void printAttachmentSequence()
 {
     std::ofstream sequenceFile;
-    sequenceFile.open("sequence.txt", std::ios::trunc);
+    sequenceFile.open(sequenceFName, std::ios::trunc);
     Eigen::VectorXd strings(9);
     strings << 1, 1, 1, 1, 1, 1, 1, 1, 1;
 
@@ -1033,10 +1042,10 @@ void printTightenerFeasibility()
     detachAllStrings();
     Eigen::Isometry3d tf(Eigen::Isometry3d::Identity());
 
-    std::ifstream feas("feasibleLocation.txt");
+    std::ifstream feas(feasibleLocFName);
     double xx, yy, aa_zz;
     std::ofstream tightener;
-    tightener.open("tightener.txt", std::ios::trunc);
+    tightener.open(tightenerFName, std::ios::trunc);
     while (!feas.eof()) {
         feas >> xx >> yy >> aa_zz;
         tightener << "Location: " << xx << " " << yy << " " << aa_zz << std::endl;
@@ -1077,10 +1086,10 @@ void printTendonFeasibility()
     detachAllStrings();
     Eigen::Isometry3d tf(Eigen::Isometry3d::Identity());
 
-    //std::ifstream feas("feasibleLocation.txt");
+    //std::ifstream feas(feasibleLocFName);
     double xx, yy, aa_zz;
     std::ofstream tendon;
-    tendon.open("tendon.txt", std::ios::trunc);
+    tendon.open(tendonFName, std::ios::trunc);
     //while (!feas.eof()) {
     //    feas >> xx >> yy >> aa_zz;
     xx = 0.0;
@@ -1128,9 +1137,9 @@ void printPlannable()
     std::vector<Eigen::VectorXd> fullAttach;
 
     std::ofstream plannable;
-    plannable.open("plannable.txt", std::ios::trunc);
+    plannable.open(plannableFName, std::ios::trunc);
 
-    std::ifstream feas("feasibleLocation.txt");
+    std::ifstream feas(feasibleLocFName);
     double xx, yy, aa_zz;
     double minDist;
     while (!feas.eof()) {
@@ -1257,11 +1266,11 @@ int main(int argc, char* argv[])
 
     if (argc < 2) {
         std::ofstream resultfile;
-        resultfile.open("result1.txt", std::ios::trunc);
+        resultfile.open(resultFName, std::ios::trunc);
         resultfile.close();
 
         std::ofstream endeffectorfile;
-        endeffectorfile.open("endeffector1.txt", std::ios::trunc);
+        endeffectorfile.open(endeffectorFName, std::ios::trunc);
         endeffectorfile.close();
 
         // start = getLastLineAsVector();
@@ -1300,7 +1309,7 @@ int main(int argc, char* argv[])
     std::thread t([&]() {
         while (true) {
             if (window.replay) {
-                std::ifstream fin("result1.txt");
+                std::ifstream fin(resultFName);
 
                 while (!fin.eof()) {
                     fin >> jk1 >> jk2 >> jk3 >> jk4 >> jk5 >> jk6;
