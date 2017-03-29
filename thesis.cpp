@@ -1283,15 +1283,23 @@ void planAttachDirect(int kk)
     }
 }
 
-int main(int argc, char* argv[])
+void setUpStaubli()
 {
-    world->getConstraintSolver()->setCollisionDetector(
-        new dc::FCLCollisionDetector());
-
     std::string prefix = getWorkingDirectory();
 
     dd::SkeletonPtr staubli = du::SdfParser::readSkeleton(prefix + std::string("/data/model.sdf"));
     staubli->setName("staubli");
+
+    world->addSkeleton(staubli);
+
+    staubli->getBodyNode("gripper")->getVisualizationShape(0)->setColor(Eigen::Vector3d(0, 1.0, 0));
+    staubli->getBodyNode("table")->getVisualizationShape(0)->setColor(Eigen::Vector3d(0.6, 0.6, 0.6));
+    
+}
+
+void setUpTensegrity()
+{
+    std::string prefix = getWorkingDirectory();
 
     du::DartLoader dl;
 
@@ -1309,15 +1317,20 @@ int main(int argc, char* argv[])
     tenMove.rotate(tenRot);
     moveSkeleton(tensegrity, tenMove);
 
-    staubli->enableSelfCollision();
-
-    world->addSkeleton(staubli);
     world->addSkeleton(tensegrity);
+}
+
+int main(int argc, char* argv[])
+{
+    world->getConstraintSolver()->setCollisionDetector(
+        new dc::FCLCollisionDetector());
+
+    setUpStaubli(); 
+    setUpTensegrity();
     
     detachAllStrings(); 
 
-    printFeasibleTensegrityLocation();
-
+    //printFeasibleTensegrityLocation();
     //printTightenerFeasibility();
     //printTendonFeasibility();
     //printPlannable();
@@ -1326,14 +1339,14 @@ int main(int argc, char* argv[])
         int kk = 8;
         planAttachDirect(kk);
     }
+
+    dd::SkeletonPtr staubli = world->getSkeleton("staubli");
     for (int jj = 2; jj <= 7; jj++) {
         staubli->getDof(jj)->setPosition(0);
     }
 
     MyWindow window(world);
 
-    staubli->getBodyNode("gripper")->getVisualizationShape(0)->setColor(Eigen::Vector3d(0, 1.0, 0));
-    staubli->getBodyNode("table")->getVisualizationShape(0)->setColor(Eigen::Vector3d(0.6, 0.6, 0.6));
 
     double jk1, jk2, jk3, jk4, jk5, jk6 = 0;
     std::thread t([&]() {
