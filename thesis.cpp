@@ -29,8 +29,8 @@ namespace du = dart::utils;
 constexpr double jointMax[6] = { 3.1416, 2.5744, 2.5307, 4.7124, 2.4435, 4.7124 };
 constexpr double jointMin[6] = { -3.1416, -2.2689, -2.5307, -4.7124, -2.0071, -4.7124 };
 
-std::string resultFName = "result1.txt";
-std::string endeffectorFName = "endeffector1.txt";
+std::string resultFName = "result.txt";
+std::string endeffectorFName = "endeffector.txt";
 std::string edgesFName = "edges.txt";
 std::string feasibleLocFName = "feasibleLocation.txt";
 std::string plannableFName = "plannable.txt";
@@ -40,12 +40,13 @@ std::string tendonFName = "plannable.txt";
 
 ds::WorldPtr world = std::make_shared<ds::World>();
 
-class Simple3DEnvironment {
+class tensegrityEnvironment {
 public:
-    Simple3DEnvironment(std::size_t jointNum, std::size_t tendonNum)
+    tensegrityEnvironment(std::size_t jointNum, std::size_t tendonNum, bool withStringConstraint)
     {
         jointNumber = jointNum;
         tendonNumber = tendonNum;
+        withString = withStringConstraint;
         //space = new ob::WeightedRealVectorStateSpace();
         space = new ob::RealVectorStateSpace();
         space->addDimension(jointMin[0], jointMax[0]);
@@ -61,7 +62,7 @@ public:
 
         // set state validity checking for this space
         ss_->setStateValidityChecker(std::bind(
-            &Simple3DEnvironment::isStateValid, this, std::placeholders::_1));
+            &tensegrityEnvironment::isStateValid, this, std::placeholders::_1));
         space->setup();
         ss_->getSpaceInformation()->setStateValidityCheckingResolution(0.01);
         ss_->setPlanner(
@@ -352,7 +353,11 @@ private:
             staubli->getDof(7)->setPosition(j6);
         }
 
-        return isWithinReach() && !world_->checkCollision();
+        if (withString) {
+            return isWithinReach() && !world_->checkCollision();
+        } else {
+            return !world_->checkCollision();
+        }
     }
 
     og::SimpleSetupPtr ss_;
@@ -360,6 +365,7 @@ private:
     ob::RealVectorStateSpace* space;
     std::size_t jointNumber;
     std::size_t tendonNumber;
+    bool withString;
 };
 
 std::istream& ignoreLine(std::ifstream& in, std::ifstream::pos_type& pos)
@@ -426,6 +432,7 @@ std::vector<Eigen::VectorXd> getInverseKinematics(
 {
     using Eigen::VectorXd;
     using std::vector;
+    //std::cout << final_point.translation();
 
     vector<VectorXd> final_joints;
     VectorXd final_joint(6);
@@ -485,12 +492,16 @@ std::vector<Eigen::VectorXd> getInverseKinematics(
             if (std::abs(theta[j]) > M_PI) {
                 theta[j] = -1 * theta[j] / std::abs(theta[j]) * (2 * M_PI - std::abs(theta[j]));
             }
+        }
+        for (int j = 1; j < 7; j++) {
             if (theta[j] > jointMax[j - 1] || theta[j] < jointMin[j - 1]) {
                 withinJointRange = false;
             }
         }
+        //std::cout << theta[1]*180/M_PI <<" " << theta[2]*180/M_PI <<" " <<theta[3]*180/M_PI <<" " <<theta[4]*180/M_PI <<" " <<theta[5]*180/M_PI <<" " <<theta[6]*180/M_PI  << std::endl;
 
         if (!(std::isnan(theta[1])) && !(std::isnan(theta[2])) && !(std::isnan(theta[3])) && !(std::isnan(theta[4])) && !(std::isnan(theta[5])) && !(std::isnan(theta[6]))) {
+
             staubli->getDof(2)->setPosition(theta[1]);
             staubli->getDof(3)->setPosition(theta[2]);
             staubli->getDof(4)->setPosition(theta[3]);
@@ -499,6 +510,7 @@ std::vector<Eigen::VectorXd> getInverseKinematics(
             staubli->getDof(7)->setPosition(theta[6]);
 
             if (withinJointRange && !world->checkCollision()) {
+                //std::cout << std::endl;
                 final_joint << theta[1], theta[2], theta[3], theta[4], theta[5],
                     theta[6];
                 final_joint = final_joint * 180.0 / M_PI;
@@ -507,10 +519,10 @@ std::vector<Eigen::VectorXd> getInverseKinematics(
         }
     }
 
-    //Eigen::DontAlignCols, ", ", ", ", "", "", " << ", ";");
-    //Eigen::IOFormat CommaInitFmt(Eigen::StreamPrecision,
-    //    Eigen::DontAlignCols, " ", " ", "", "", "","");
-    //std::cout << final_joint.format(CommaInitFmt) << std::endl;
+    /*    Eigen::IOFormat CommaInitFmt(Eigen::StreamPrecision,
+        Eigen::DontAlignCols, " ", " ", "", "", "","");
+    std::cout << final_joint.format(CommaInitFmt) << std::endl;
+*/
     return final_joints;
 }
 
@@ -560,6 +572,9 @@ void detachAttachStrings(Eigen::VectorXd strings)
 
 void detachStringAt(int ii)
 {
+    dd::SkeletonPtr staubli = world->getSkeleton("staubli");
+    staubli->getBodyNode("claws")
+        ->setCollidable(true);
     dd::SkeletonPtr tensegrity = world->getSkeleton("tensegrity");
     tensegrity->getBodyNode("tendon" + std::to_string(ii + 1))
         ->getVisualizationShape(0)
@@ -570,6 +585,10 @@ void detachStringAt(int ii)
 
 void attachStringAt(int ii)
 {
+    dd::SkeletonPtr staubli = world->getSkeleton("staubli");
+    staubli->getBodyNode("claws")
+        ->setCollidable(false);
+
     dd::SkeletonPtr tensegrity = world->getSkeleton("tensegrity");
     tensegrity->getBodyNode("tendon" + std::to_string(ii + 1))
         ->getVisualizationShape(0)
@@ -590,7 +609,8 @@ Eigen::Isometry3d getAttachPosition(int attNum,
 
     double xs = 0;
     double ys = 70;
-    double zs = -80;
+    //double zs = -80;
+    double zs = -95;
     Eigen::Matrix3d rot_ten;
     if (wristUp) {
         rot_ten = tensegrityTransform.rotation() * Eigen::AngleAxisd(-90 * M_PI / 180.0, Eigen::Vector3d::UnitX());
@@ -722,6 +742,7 @@ bool isReachable(int i, Eigen::VectorXd strings)
     }
 
     attachStringAt(i);
+
     Eigen::Isometry3d tf_att(Eigen::Isometry3d::Identity());
     std::vector<Eigen::VectorXd> at_joints;
 
@@ -736,6 +757,7 @@ bool isReachable(int i, Eigen::VectorXd strings)
             return false;
         }
     }
+    detachStringAt(i);
 
     return true;
 }
@@ -744,6 +766,8 @@ void printFeasibleTensegrityLocation()
 {
     std::ofstream feasibleLocation;
     feasibleLocation.open(feasibleLocFName, std::ios::trunc);
+    //std::ofstream nonFeasIdx;
+    //nonFeasIdx.open("nonFeas.txt", std::ios::trunc);
 
     Eigen::VectorXd strings(9);
     strings << 0, 0, 0, 0, 0, 0, 0, 0, 0;
@@ -760,6 +784,7 @@ void printFeasibleTensegrityLocation()
                 continue;
             }
             for (int aa_zz = -180; aa_zz < 180; aa_zz += 5) {
+                //    for (int zz = -500; zz <= 500; zz += 10) {
                 int ii = 0;
                 rot_ten = Eigen::AngleAxisd((double)aa_zz * M_PI / 180.0,
                     Eigen::Vector3d::UnitZ());
@@ -785,13 +810,23 @@ void printFeasibleTensegrityLocation()
                     ii++;
                 }
                 if (ii == 9) {
+                    //feasibleLocation << xx << " " << yy << " " << zz << " " << aa_zz
                     feasibleLocation << xx << " " << yy << " " << aa_zz
                                      << std::endl;
                 }
+                /*
+                    else
+                    {
+                        nonFeasIdx << ii << std::endl;
+                    }
+*/
+
+                //}
             }
         }
     }
     feasibleLocation.close();
+    //    nonFeasIdx.close();
 }
 
 void printAttachmentSequence()
@@ -965,10 +1000,12 @@ Eigen::VectorXd collisionlessFinal(const Eigen::VectorXd& start, const Eigen::Ve
 
 double isPlannable(int kk)
 {
+    /*
     int kkk = kk;
     if (kk == 2) {
         kkk = 3;
     }
+*/
     std::vector<Eigen::VectorXd> part1;
     std::vector<Eigen::VectorXd> part2;
     std::vector<Eigen::VectorXd> fullDetach;
@@ -976,10 +1013,10 @@ double isPlannable(int kk)
 
     Eigen::Isometry3d tf(Eigen::Isometry3d::Identity());
 
-    tf = getDetachPosition(kkk, false);
+    tf = getDetachPosition(kk, false);
     part1 = getInverseKinematics(tf);
 
-    tf = getDetachPosition(kkk, true);
+    tf = getDetachPosition(kk, true);
     part2 = getInverseKinematics(tf);
 
     fullDetach.reserve(part1.size() + part2.size());
@@ -1014,7 +1051,7 @@ double isPlannable(int kk)
         }
     }
 
-    Simple3DEnvironment env_t(3, kk);
+    tensegrityEnvironment env_t(3, kk, true);
     env_t.setWorld(world);
 
     Eigen::VectorXd finish_trans(6);
@@ -1156,15 +1193,94 @@ void printPlannable()
         for (kk = 0; kk < 9; kk++) {
             minDist = isPlannable(kk);
             plannable << "kk = " << kk << " minimum distance = " << minDist << std::endl;
-            //if(minDist > 0.5)
-            //{
-            //    break;
-            //}
+            if (minDist > 0.4) {
+                break;
+            }
         }
         plannable << "********************" << std::endl;
     }
 
     plannable.close();
+}
+
+void planAttachDirect(int kk)
+{
+    std::vector<Eigen::VectorXd> part1;
+    std::vector<Eigen::VectorXd> part2;
+    std::vector<Eigen::VectorXd> fullDetach;
+    std::vector<Eigen::VectorXd> fullAttach;
+
+    Eigen::Isometry3d tf(Eigen::Isometry3d::Identity());
+
+    tf = getDetachPosition(kk, false);
+    part1 = getInverseKinematics(tf);
+
+    tf = getDetachPosition(kk, true);
+    part2 = getInverseKinematics(tf);
+
+    fullDetach.reserve(part1.size() + part2.size());
+    fullDetach.insert(fullDetach.end(), part1.begin(), part1.end());
+    fullDetach.insert(fullDetach.end(), part2.begin(), part2.end());
+
+    attachStringAt(kk);
+
+    tf = getAttachPosition(kk, false);
+    part1 = getInverseKinematics(tf);
+
+    tf = getAttachPosition(kk, true);
+    part2 = getInverseKinematics(tf);
+
+    fullAttach.reserve(part1.size() + part2.size());
+    fullAttach.insert(fullAttach.end(), part1.begin(), part1.end());
+    fullAttach.insert(fullAttach.end(), part2.begin(), part2.end());
+
+    detachStringAt(kk);
+
+    int minDetIdx = 0;
+    int minAttIdx = 0;
+    double minJointDist = std::numeric_limits<float>::max();
+    for (size_t dd = 0; dd < fullDetach.size(); dd++) {
+        for (size_t aa = 0; aa < fullAttach.size(); aa++) {
+            double jointDist = (fullDetach[dd] - fullAttach[aa]).squaredNorm();
+            if (jointDist < minJointDist) {
+                minDetIdx = dd;
+                minAttIdx = aa;
+                minJointDist = jointDist;
+            }
+        }
+    }
+
+    Eigen::VectorXd start(6);
+    Eigen::VectorXd finish(6);
+    start = fullDetach[minDetIdx];
+    finish = fullAttach[minAttIdx];
+
+    std::ofstream resultfile;
+    resultfile.open(resultFName, std::ios::trunc);
+    resultfile.close();
+
+    std::ofstream endeffectorfile;
+    endeffectorfile.open(endeffectorFName, std::ios::trunc);
+    endeffectorfile.close();
+
+    tensegrityEnvironment env(3, kk, true);
+    env.setWorld(world);
+
+    Eigen::VectorXd finish_trans(6);
+    finish_trans = collisionlessFinal(start, finish);
+
+    std::cout << finish_trans << std::endl;
+
+    if (env.plan(start, finish_trans)) {
+        env.recordSolution(start);
+    }
+
+    start = getLastLineAsVector();
+    tensegrityEnvironment env1(6, kk, true);
+    env1.setWorld(world);
+    if (env1.plan(start * 180.0 / M_PI, finish)) {
+        env1.recordSolution(start * 180.0 / M_PI);
+    }
 }
 
 int main(int argc, char* argv[])
@@ -1187,10 +1303,9 @@ int main(int argc, char* argv[])
     tenMove = Eigen::Isometry3d::Identity();
     Eigen::Matrix3d tenRot;
 
-    tenRot = Eigen::AngleAxisd(0.0, Eigen::Vector3d::UnitZ());
+    tenRot = Eigen::AngleAxisd(80.0 * M_PI / 180.0, Eigen::Vector3d::UnitZ());
 
-    tenMove.translation() << -0.85, -0.4, 0.0;
-
+    tenMove.translation() << -0.6, -0.5, 0.0;
     tenMove.rotate(tenRot);
     moveSkeleton(tensegrity, tenMove);
 
@@ -1198,104 +1313,19 @@ int main(int argc, char* argv[])
 
     world->addSkeleton(staubli);
     world->addSkeleton(tensegrity);
+    
+    detachAllStrings(); 
 
-    Eigen::VectorXd start(6);
-    start << 0, 0, 0, 0, 0, 0;
-
-    Eigen::VectorXd finish(6);
-
-    //detachAllStrings(world);
-    //printFeasibleTensegrityLocation();
+    printFeasibleTensegrityLocation();
 
     //printTightenerFeasibility();
     //printTendonFeasibility();
-    printPlannable();
-    /*
-    int kk = 0;
-    std::vector<Eigen::VectorXd> part1;
-    std::vector<Eigen::VectorXd> part2;
-    std::vector<Eigen::VectorXd> fullDetach;
-    std::vector<Eigen::VectorXd> fullAttach;
-*/
-    /*
-    kk = 1;
-    detachAllStrings();
-
-    Eigen::Isometry3d tf(Eigen::Isometry3d::Identity());
-    tf = getDetachPosition(kk, false);
-    part1 = getInverseKinematics(tf);
-    //std::cout << kk << std::endl;
-    //if (part1.size() == 0) {
-    tf = getDetachPosition(kk, true);
-    part2 = getInverseKinematics(tf);
-    //}
-    fullDetach.reserve(part1.size() + part2.size());
-    fullDetach.insert(fullDetach.end(), part1.begin(), part1.end());
-    fullDetach.insert(fullDetach.end(), part2.begin(), part2.end());
-
-    for (size_t mm = 0; mm < fullDetach.size(); mm++) {
-        printVector(fullDetach[mm]);
-    }
-    std::cout << "lol1" << std::endl;
-
-    start = fullDetach[0];
-    //isWithinReach(kk);
-    attachStringAt(kk);
-
-    tf = getAttachPosition(kk, false);
-    part1 = getInverseKinematics(tf);
-
-    //if (part1.size() == 0) {
-    tf = getAttachPosition(kk, true);
-    part2 = getInverseKinematics(tf);
-    //}
-    fullAttach.reserve(part1.size() + part2.size());
-    fullAttach.insert(fullAttach.end(), part1.begin(), part1.end());
-    fullAttach.insert(fullAttach.end(), part2.begin(), part2.end());
-    std::cout << fullAttach.size() << std::endl;
-    for (size_t mm = 0; mm < fullAttach.size(); mm++) {
-        printVector(fullAttach[mm]);
-    }
-    std::cout << "lol2" << std::endl;
-
-    finish = fullAttach[0];
-    //isWithinReach(kk);
-    detachStringAt(kk);
-    std::cout << "lol3" << std::endl;
-    //}
+    //printPlannable();
 
     if (argc < 2) {
-        std::ofstream resultfile;
-        resultfile.open(resultFName, std::ios::trunc);
-        resultfile.close();
-
-        std::ofstream endeffectorfile;
-        endeffectorfile.open(endeffectorFName, std::ios::trunc);
-        endeffectorfile.close();
-
-        // start = getLastLineAsVector();
-        Simple3DEnvironment env(3, kk);
-        env.setWorld(world);
-
-        Eigen::VectorXd finish_trans(6);
-        finish_trans = collisionlessFinal(start, finish);
-        //std::cout << "finish_trans" << std::endl;
-        std::cout << finish_trans << std::endl;
-
-        if (env.plan(start, finish_trans)) {
-            env.recordSolution(start);
-            //env.isPlannable(tf.translation());
-        }
-         
-        //start = getLastLineAsVector();
-        //Simple3DEnvironment env1(6, kk);
-        //env1.setWorld(world);
-        //if (env1.plan(start * 180.0 / M_PI, finish)) {
-        //    env1.recordSolution(start * 180.0 / M_PI);
-        //}
-        
+        int kk = 8;
+        planAttachDirect(kk);
     }
-*/
     for (int jj = 2; jj <= 7; jj++) {
         staubli->getDof(jj)->setPosition(0);
     }
@@ -1322,6 +1352,8 @@ int main(int argc, char* argv[])
                     staubli->getDof(7)->setPosition(jk6);
 
                     std::this_thread::sleep_for(std::chrono::milliseconds(5));
+                    while (!window.replay) {
+                    }
                 }
                 window.replay = false;
             }

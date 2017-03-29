@@ -17,7 +17,7 @@ bool showAxes = false;
 bool showFloor = true;
 int idx = 0;
 
-std::string endeffectorFileName = "endeffector1.txt";
+std::string endeffectorFileName = "endeffector.txt";
 std::string jointsFileName = "joints.txt";
 std::string edgesFileName = "edges.txt";
 
@@ -159,7 +159,7 @@ void MyWindow::keyboard(unsigned char key, int x, int y)
         showAxes = !showAxes;
         break;
     case 'r':
-        replay = true;
+        replay = !replay;
         break;
     case 'f':
         showFloor = !showFloor;
