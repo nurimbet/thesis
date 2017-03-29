@@ -26,7 +26,7 @@ public:
     void rotateTensegrity(int axis, bool positive);
     bool replay;
 private:
-    std::mutex readMutex;
+    //std::mutex readMutex;
 };
 
 #endif // MYWINDOW_H

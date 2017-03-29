@@ -191,7 +191,7 @@ void MyWindow::drawSkels()
     joint5 = staubli->getDof(6)->getPosition() * 180 / M_PI;
     joint6 = staubli->getDof(7)->getPosition() * 180 / M_PI;
 
-    std::lock_guard<std::mutex> lock(readMutex);
+    //std::lock_guard<std::mutex> lock(readMutex);
     glColor3f(0.0, 0.0, 0.0);
 
     dg::drawStringOnScreen(0.85f, 0.65f, "J1: ");
