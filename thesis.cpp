@@ -1456,7 +1456,7 @@ void setUpTensegrity()
     world->addSkeleton(tensegrity);
 }
 
-void resultReplay(const MyWindow& window)
+void resultReplay(MyWindow& window)
 {
 
     dd::SkeletonPtr staubli = world->getSkeleton("staubli");
@@ -1482,6 +1482,7 @@ void resultReplay(const MyWindow& window)
                 while (!window.replay) {
                 }
             }
+            window.replay = false;
         }
     }
 }
@@ -1513,37 +1514,7 @@ int main(int argc, char* argv[])
     glutInit(&argc, argv);
     window.initWindow(600 * 2, 500 * 2, "SDF");
 
-    //    std::thread t(resultReplay, window);
-
-    dd::SkeletonPtr staubli = world->getSkeleton("staubli");
-    for (int jj = 2; jj <= 7; jj++) {
-        staubli->getDof(jj)->setPosition(0);
-    }
-
-    std::thread t([&]() {
-        double jk1, jk2, jk3, jk4, jk5, jk6 = 0;
-        while (true) {
-            if (window.replay) {
-                std::ifstream fin(resultFName);
-
-                while (!fin.eof()) {
-                    fin >> jk1 >> jk2 >> jk3 >> jk4 >> jk5 >> jk6;
-
-                    staubli->getDof(2)->setPosition(jk1);
-                    staubli->getDof(3)->setPosition(jk2);
-                    staubli->getDof(4)->setPosition(jk3);
-                    staubli->getDof(5)->setPosition(jk4);
-                    staubli->getDof(6)->setPosition(jk5);
-                    staubli->getDof(7)->setPosition(jk6);
-
-                    std::this_thread::sleep_for(std::chrono::milliseconds(5));
-                    while (!window.replay) {
-                    }
-                }
-                window.replay = false;
-            }
-        }
-    });
+    std::thread t(resultReplay, std::ref(window));
 
     glutMainLoop();
     t.join();
