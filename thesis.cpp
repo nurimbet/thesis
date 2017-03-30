@@ -29,14 +29,14 @@ namespace du = dart::utils;
 constexpr double jointMax[6] = { 3.1416, 2.5744, 2.5307, 4.7124, 2.4435, 4.7124 };
 constexpr double jointMin[6] = { -3.1416, -2.2689, -2.5307, -4.7124, -2.0071, -4.7124 };
 
-std::string resultFName = "result.txt";
-std::string endeffectorFName = "endeffector.txt";
-std::string edgesFName = "edges.txt";
-std::string feasibleLocFName = "feasibleLocation.txt";
-std::string plannableFName = "plannable.txt";
-std::string sequenceFName = "sequence.txt";
-std::string tightenerFName = "tightener.txt";
-std::string tendonFName = "tendon.txt";
+std::string resultFName = "data/result.txt";
+std::string endeffectorFName = "data/endeffector.txt";
+std::string edgesFName = "data/edges.txt";
+std::string feasibleLocFName = "data/feasibleLocation.txt";
+std::string plannableFName = "data/plannable.txt";
+std::string sequenceFName = "data/sequence.txt";
+std::string tightenerFName = "data/tightener.txt";
+std::string tendonFName = "data/tendon.txt";
 
 ds::WorldPtr world = std::make_shared<ds::World>();
 
@@ -1428,6 +1428,7 @@ void setUpStaubli()
     staubli->setName("staubli");
 
     world->addSkeleton(staubli);
+    staubli->enableSelfCollision();
 
     staubli->getBodyNode("gripper")->getVisualizationShape(0)->setColor(Eigen::Vector3d(0, 1.0, 0));
     staubli->getBodyNode("table")->getVisualizationShape(0)->setColor(Eigen::Vector3d(0.6, 0.6, 0.6));
@@ -1508,7 +1509,7 @@ int main(int argc, char* argv[])
         int kk = 4;
         planAttachDirect(kk);
     }
-    attachAllStrings();
+    //attachAllStrings();
 
     MyWindow window(world);
     glutInit(&argc, argv);

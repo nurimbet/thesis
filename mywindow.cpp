@@ -17,9 +17,9 @@ bool showAxes = false;
 bool showFloor = true;
 int idx = 0;
 
-std::string endeffectorFileName = "endeffector.txt";
-std::string jointsFileName = "joints.txt";
-std::string edgesFileName = "edges.txt";
+std::string endeffectorFileName = "data/endeffector.txt";
+std::string jointsFileName = "data/joints.txt";
+std::string edgesFileName = "data/edges.txt";
 
 MyWindow::MyWindow(const ds::WorldPtr& world)
 {
@@ -347,6 +347,13 @@ void MyWindow::drawSkels()
         rot_ten = tensegrityTransform.rotation();
         drawAxes(tenTrans, rot_ten);
 
+        if (idx < 6) {
+            tensegrityTransform = tensegrity->getBodyNode("mid" + std::to_string(idx + 1))->getTransform();
+            tenTrans = tensegrityTransform.translation();
+            rot_ten = tensegrityTransform.rotation();
+            drawAxes(tenTrans, rot_ten);
+        }
+
         tensegrityTransform = tensegrity->getBodyNode("tightener" + std::to_string(idx + 1))->getTransform();
         rot_ten = tensegrityTransform.rotation() * Eigen::AngleAxisd(90 * M_PI / 180.0, Eigen::Vector3d::UnitY()) * Eigen::AngleAxisd(90 * M_PI / 180.0, Eigen::Vector3d::UnitZ());
         tenTrans = tensegrityTransform.translation();
@@ -357,20 +364,19 @@ void MyWindow::drawSkels()
         tenTrans(0) += xs * rot_ten(0, 0) + ys * rot_ten(0, 1) + zs * rot_ten(0, 2);
         tenTrans(1) += xs * rot_ten(1, 0) + ys * rot_ten(1, 1) + zs * rot_ten(1, 2);
         tenTrans(2) += xs * rot_ten(2, 0) + ys * rot_ten(2, 1) + zs * rot_ten(2, 2);
-//        drawAxes(tenTrans, rot_ten);
+        //        drawAxes(tenTrans, rot_ten);
 
         tensegrityTransform = tensegrity->getBodyNode("pulley" + std::to_string(idx + 1))->getTransform();
         tenTrans = tensegrityTransform.translation();
         rot_ten = tensegrityTransform.rotation();
         drawAxes(tenTrans, rot_ten);
-        
-        
+
         Eigen::Isometry3d tensegrityTransform1 = tensegrity->getBodyNode("attach" + std::to_string(idx + 1))->getTransform();
         Eigen::Vector3d diff = tensegrityTransform1.translation() - tenTrans;
-        tenTrans = tenTrans + 0.2*diff/diff.squaredNorm(); 
-         
+        tenTrans = tenTrans + 0.2 * diff / diff.squaredNorm();
+
         tensegrityTransform = tensegrity->getBodyNode("tendon" + std::to_string(idx + 1))->getTransform();
-        rot_ten = tensegrityTransform.rotation() ;//* Eigen::AngleAxisd(-90 * M_PI / 180.0, Eigen::Vector3d::UnitX()) * Eigen::AngleAxisd(90 * M_PI / 180.0, Eigen::Vector3d::UnitY());
+        rot_ten = tensegrityTransform.rotation(); //* Eigen::AngleAxisd(-90 * M_PI / 180.0, Eigen::Vector3d::UnitX()) * Eigen::AngleAxisd(90 * M_PI / 180.0, Eigen::Vector3d::UnitY());
 
         drawAxes(tenTrans, rot_ten);
     }
