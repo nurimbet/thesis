@@ -3,6 +3,7 @@
 
 #include <ompl/base/spaces/RealVectorStateSpace.h>
 #include <ompl/base/StateSpace.h>
+#include <dart/dart.h>
 
 namespace ompl {
 namespace base {
@@ -19,10 +20,13 @@ namespace base {
 
     class WeightedRealVectorStateSpace : public RealVectorStateSpace {
     public:
+        void setSkeleton(const dart::dynamics::SkeletonPtr &skl);
         double distance(const State* state1, const State* state2) const;
         ompl::base::StateSamplerPtr allocDefaultStateSampler() const;
 
         std::function<double(const State* state1, const State* state2)> localCost;
+    private:
+       dart::dynamics::SkeletonPtr robot; 
     };
 }
 }

@@ -1,0 +1,66 @@
+Location: -600 -50 -40
+3
+Location: -600 0 -45
+3
+Location: -600 50 -50
+3
+Location: -600 100 -55
+3
+Location: -550 -200 -25
+3
+Location: -550 -200 -20
+3
+Location: -550 -150 -30
+3
+Location: -550 -150 -25
+3
+Location: -550 -150 -20
+3
+Location: -550 -100 -35
+3
+Location: -550 150 -55
+3
+Location: -550 200 -60
+3
+Location: -250 -550 20
+3
+Location: -200 -550 25
+3
+Location: -200 -550 30
+3
+Location: -150 -550 30
+3
+Location: -150 -550 35
+3
+Location: -100 -600 35
+3
+Location: -50 -600 40
+3
+Location: 0 -600 45
+3
+Location: 50 -600 50
+3
+Location: 150 -550 60
+3
+Location: 150 -550 65
+3
+Location: 150 -550 70
+3
+Location: 200 -550 65
+3
+Location: 200 -550 70
+3
+Location: 250 -550 70
+3
+Location: 550 -250 110
+3
+Location: 550 -200 115
+3
+Location: 550 -200 120
+3
+Location: 600 -100 125
+3
+Location: 600 -50 130
+3
+Location: 600 -50 130
+3

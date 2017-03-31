@@ -25,6 +25,9 @@ public:
     void translateTensegrity(int axis, bool positive);
     void rotateTensegrity(int axis, bool positive);
     bool replay;
+    bool stop;
+    int speed;
+    int fileSequence;
 private:
     //std::mutex readMutex;
 };

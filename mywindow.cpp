@@ -17,9 +17,11 @@ bool showAxes = false;
 bool showFloor = true;
 int idx = 0;
 
-std::string endeffectorFileName = "data/endeffector.txt";
-std::string jointsFileName = "data/joints.txt";
-std::string edgesFileName = "data/edges.txt";
+std::string endeffectorFileName = "data/results/endeffectors/endeffector";
+std::string jointsFileName = "data/results/joints.txt";
+std::string edgesFileName = "data/results/edges.txt";
+std::string robot_name = "staubli";
+std::string tensegrity_name = "tensegrity";
 
 MyWindow::MyWindow(const ds::WorldPtr& world)
 {
@@ -29,6 +31,9 @@ MyWindow::MyWindow(const ds::WorldPtr& world)
     mTrans = -Eigen::Vector3d(-0.301, -0.171, 1.3) * 1000;
     Eigen::Quaterniond quat(0.764165, -0.644268, -0.026487, -0.030964);
     replay = false;
+    speed = 5;
+    fileSequence = 0;
+    stop = false;
 
     mTrackBall.setQuaternion(quat);
 }
@@ -36,60 +41,109 @@ MyWindow::MyWindow(const ds::WorldPtr& world)
 void MyWindow::keyboard(unsigned char key, int x, int y)
 {
 
-    dd::SkeletonPtr staubli = mWorld->getSkeleton("staubli");
+    dd::SkeletonPtr robot = mWorld->getSkeleton(robot_name);
     double gojoint[6];
     static std::ifstream jointfile(jointsFileName);
-
+    static char prevKey = ' ';
     switch (key) {
     case '0':
-
-        for (int ii = 1; ii <= 6; ii++) {
-            staubli->getDof(ii + 1)->setPosition(0);
+        if (prevKey == 'b') {
+            fileSequence = 0;
+            stop = false;
+        } else {
+            for (int ii = 1; ii <= 6; ii++) {
+                robot->getDof(ii + 1)->setPosition(0);
+            }
         }
+
         break;
     case '9':
-        if (jointfile.eof()) {
-            jointfile.close();
-            jointfile.open(jointsFileName);
-        }
+        if (prevKey == 'b') {
+            fileSequence = 9;
+            stop = false;
+        } else {
+            if (jointfile.eof()) {
+                jointfile.close();
+                jointfile.open(jointsFileName);
+            }
 
-        jointfile >> gojoint[0] >> gojoint[1] >> gojoint[2] >> gojoint[3] >> gojoint[4] >> gojoint[5];
-        for (int ii = 1; ii <= 6; ii++) {
-            staubli->getDof(ii + 1)->setPosition(gojoint[ii - 1] * M_PI / 180.0);
+            jointfile >> gojoint[0] >> gojoint[1] >> gojoint[2] >> gojoint[3] >> gojoint[4] >> gojoint[5];
+            for (int ii = 1; ii <= 6; ii++) {
+                robot->getDof(ii + 1)->setPosition(gojoint[ii - 1] * M_PI / 180.0);
+            }
         }
-
         break;
     case '8':
-        idx = idx + 1;
-        if (idx > 8) {
-            idx = 0;
+        if (prevKey == 'b') {
+            fileSequence = 8;
+            stop = false;
+        } else {
+            idx = idx + 1;
+            if (idx > 8) {
+                idx = 0;
+            }
+            std::cout << idx + 1 << std::endl;
         }
-        std::cout << idx + 1 << std::endl;
         break;
     case '7':
-        idx = idx - 1;
-        if (idx < 0) {
-            idx = 8;
+        if (prevKey == 'b') {
+            fileSequence = 7;
+            stop = false;
+        } else {
+            idx = idx - 1;
+            if (idx < 0) {
+                idx = 8;
+            }
+            std::cout << idx + 1 << std::endl;
         }
-        std::cout << idx + 1 << std::endl;
         break;
     case '1':
-        moveJoint(1, true);
+        if (prevKey == 'b') {
+            fileSequence = 1;
+            stop = false;
+        } else {
+            moveJoint(1, true);
+        }
         break;
     case '2':
-        moveJoint(2, true);
+        if (prevKey == 'b') {
+            fileSequence = 2;
+            stop = false;
+        } else {
+            moveJoint(2, true);
+        }
         break;
     case '3':
-        moveJoint(3, true);
+        if (prevKey == 'b') {
+            fileSequence = 3;
+            stop = false;
+        } else {
+            moveJoint(3, true);
+        }
         break;
     case '4':
-        moveJoint(4, true);
+        if (prevKey == 'b') {
+            fileSequence = 4;
+            stop = false;
+        } else {
+            moveJoint(4, true);
+        }
         break;
     case '5':
-        moveJoint(5, true);
+        if (prevKey == 'b') {
+            fileSequence = 5;
+            stop = false;
+        } else {
+            moveJoint(5, true);
+        }
         break;
     case '6':
-        moveJoint(6, true);
+        if (prevKey == 'b') {
+            fileSequence = 6;
+            stop = false;
+        } else {
+            moveJoint(6, true);
+        }
         break;
     case '!':
         moveJoint(1, false);
@@ -158,11 +212,23 @@ void MyWindow::keyboard(unsigned char key, int x, int y)
     case '+':
         showAxes = !showAxes;
         break;
+    case '-':
+        speed += 1;
+        break;
+    case '=':
+        speed -= 1;
+        if (speed < 0) {
+            speed = 0;
+        }
+        break;
     case 'r':
         replay = !replay;
         break;
     case 'f':
         showFloor = !showFloor;
+        break;
+    case 'b':
+        stop = true;
         break;
     case ' ':
         break;
@@ -170,6 +236,7 @@ void MyWindow::keyboard(unsigned char key, int x, int y)
         SimWindow::keyboard(key, x, y);
     }
 
+    prevKey = key;
     /*
        std::cout << "\r" <<
        std::setw(8) << std::setfill(' ') << j1 << " " 
@@ -183,13 +250,13 @@ void MyWindow::keyboard(unsigned char key, int x, int y)
 
 void MyWindow::drawSkels()
 {
-    dd::SkeletonPtr staubli = mWorld->getSkeleton("staubli");
-    joint1 = staubli->getDof(2)->getPosition() * 180 / M_PI;
-    joint2 = staubli->getDof(3)->getPosition() * 180 / M_PI;
-    joint3 = staubli->getDof(4)->getPosition() * 180 / M_PI;
-    joint4 = staubli->getDof(5)->getPosition() * 180 / M_PI;
-    joint5 = staubli->getDof(6)->getPosition() * 180 / M_PI;
-    joint6 = staubli->getDof(7)->getPosition() * 180 / M_PI;
+    dd::SkeletonPtr robot = mWorld->getSkeleton(robot_name);
+    joint1 = robot->getDof(2)->getPosition() * 180 / M_PI;
+    joint2 = robot->getDof(3)->getPosition() * 180 / M_PI;
+    joint3 = robot->getDof(4)->getPosition() * 180 / M_PI;
+    joint4 = robot->getDof(5)->getPosition() * 180 / M_PI;
+    joint5 = robot->getDof(6)->getPosition() * 180 / M_PI;
+    joint6 = robot->getDof(7)->getPosition() * 180 / M_PI;
 
     //std::lock_guard<std::mutex> lock(readMutex);
     glColor3f(0.0, 0.0, 0.0);
@@ -210,7 +277,7 @@ void MyWindow::drawSkels()
     dg::drawStringOnScreen(0.9f, 0.55f, std::to_string(joint5));
     dg::drawStringOnScreen(0.9f, 0.525f, std::to_string(joint6));
 
-    Eigen::Isometry3d transform = staubli->getBodyNode("toolflange_link")->getTransform();
+    Eigen::Isometry3d transform = robot->getBodyNode("toolflange_link")->getTransform();
     Eigen::Vector3d tr = transform.translation();
     Eigen::Quaterniond quat1(transform.rotation());
 
@@ -273,7 +340,7 @@ void MyWindow::drawSkels()
         glLineWidth(3);
         glBegin(GL_LINES);
         glColor3f(0, 0, 0);
-        std::ifstream fin_to(endeffectorFileName);
+        std::ifstream fin_to(endeffectorFileName + std::to_string(fileSequence));
         fin_to >> x >> y >> z >> ign >> ign >> ign >> ign;
         glVertex3f(x, y, z);
         while (!fin_to.eof()) {
@@ -319,7 +386,7 @@ void MyWindow::drawSkels()
         double xs = 0.0 / 1000.0;
         double ys = 50.0 / 1000.0;
         double zs = 90.0 / 1000.0;
-        Eigen::Isometry3d transform1 = staubli->getBodyNode("gripper")->getTransform();
+        Eigen::Isometry3d transform1 = robot->getBodyNode("gripper")->getTransform();
         Eigen::Vector3d tr1 = transform1.translation();
 
         Eigen::Matrix3d rot_tr1 = transform1.rotation(); //*Eigen::AngleAxisd(90*M_PI/180.0, Eigen::Vector3d::UnitZ());
@@ -329,7 +396,7 @@ void MyWindow::drawSkels()
 
         drawAxes(tr1, rot_tr1);
 
-        dd::SkeletonPtr tensegrity = mWorld->getSkeleton("tensegrity");
+        dd::SkeletonPtr tensegrity = mWorld->getSkeleton(tensegrity_name);
 
         //Eigen::Isometry3d tensegrityTransform = tensegrity->getRootBodyNode()->getWorldTransform();
         Eigen::Isometry3d tensegrityTransform = tensegrity->getBodyNode("attach" + std::to_string(idx + 1))->getTransform();
@@ -417,8 +484,8 @@ void MyWindow::drawAxes(const Eigen::Vector3d& tr, const Eigen::Matrix3d& rot)
 void MyWindow::moveJoint(int numJoint, bool positive)
 {
 
-    dd::SkeletonPtr staubli = mWorld->getSkeleton("staubli");
-    double j = staubli->getDof(numJoint + 1)->getPosition();
+    dd::SkeletonPtr robot = mWorld->getSkeleton(robot_name);
+    double j = robot->getDof(numJoint + 1)->getPosition();
     double k = M_PI / 180.0;
     double l = 0.0;
     if (positive) {
@@ -427,18 +494,18 @@ void MyWindow::moveJoint(int numJoint, bool positive)
         l = j - k;
     }
     if (l <= jointMax[numJoint - 1]) {
-        staubli->getDof(numJoint + 1)->setPosition(l);
+        robot->getDof(numJoint + 1)->setPosition(l);
         if (mWorld->checkCollision()) {
-            staubli->getDof(numJoint + 1)->setPosition(j);
+            robot->getDof(numJoint + 1)->setPosition(j);
         }
     }
     if (!collisionEnabled)
-        staubli->getDof(numJoint + 1)->setPosition(l);
+        robot->getDof(numJoint + 1)->setPosition(l);
 }
 
 void MyWindow::translateTensegrity(int axis, bool positive)
 {
-    dd::SkeletonPtr tensegrity = mWorld->getSkeleton("tensegrity");
+    dd::SkeletonPtr tensegrity = mWorld->getSkeleton(tensegrity_name);
 
     Eigen::Isometry3d tensegrityTransform = tensegrity->getRootBodyNode()->getWorldTransform();
     Eigen::Vector3d tenTrans = tensegrityTransform.translation();
@@ -461,7 +528,7 @@ void MyWindow::translateTensegrity(int axis, bool positive)
 
 void MyWindow::rotateTensegrity(int axis, bool positive)
 {
-    dd::SkeletonPtr tensegrity = mWorld->getSkeleton("tensegrity");
+    dd::SkeletonPtr tensegrity = mWorld->getSkeleton(tensegrity_name);
 
     Eigen::Isometry3d tensegrityTransform = tensegrity->getRootBodyNode()->getWorldTransform();
     Eigen::Vector3d tenTrans = tensegrityTransform.translation();
