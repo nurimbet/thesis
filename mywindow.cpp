@@ -413,14 +413,14 @@ void MyWindow::drawSkels()
         tenTrans = tensegrityTransform.translation();
         rot_ten = tensegrityTransform.rotation();
         drawAxes(tenTrans, rot_ten);
-
+/*
         if (idx < 6) {
             tensegrityTransform = tensegrity->getBodyNode("mid" + std::to_string(idx + 1))->getTransform();
             tenTrans = tensegrityTransform.translation();
             rot_ten = tensegrityTransform.rotation();
             drawAxes(tenTrans, rot_ten);
         }
-
+*/
         tensegrityTransform = tensegrity->getBodyNode("tightener" + std::to_string(idx + 1))->getTransform();
         rot_ten = tensegrityTransform.rotation() * Eigen::AngleAxisd(90 * M_PI / 180.0, Eigen::Vector3d::UnitY()) * Eigen::AngleAxisd(90 * M_PI / 180.0, Eigen::Vector3d::UnitZ());
         tenTrans = tensegrityTransform.translation();

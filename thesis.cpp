@@ -57,14 +57,9 @@ public:
         static_cast<ob::WeightedRealVectorStateSpace*>(space)->setSkeleton(robot);
 */
         space = new ob::RealVectorStateSpace();
-        space->addDimension(jointMin[0], jointMax[0]);
-        space->addDimension(jointMin[1], jointMax[1]);
-        space->addDimension(jointMin[2], jointMax[2]);
 
-        if (jointNumber > 3) {
-            space->addDimension(jointMin[3], jointMax[3]);
-            space->addDimension(jointMin[4], jointMax[4]);
-            space->addDimension(jointMin[5], jointMax[5]);
+        for (size_t ii = 0; ii < jointNumber; ++ii) {
+            space->addDimension(jointMin[ii], jointMax[ii]);
         }
         ss_.reset(new og::SimpleSetup(ob::StateSpacePtr(space)));
 
@@ -127,37 +122,22 @@ public:
         endeffectorfile_sequence.open(endeffectorFName + std::to_string(fileSequence), std::ios::app);
 
         for (std::size_t i = 0; i < p.getStateCount(); ++i) {
-            const double j1 = (double)p.getState(i)
-                                  ->as<ob::RealVectorStateSpace::StateType>()
-                                  ->values[0];
-            const double j2 = (double)p.getState(i)
-                                  ->as<ob::RealVectorStateSpace::StateType>()
-                                  ->values[1];
-            const double j3 = (double)p.getState(i)
-                                  ->as<ob::RealVectorStateSpace::StateType>()
-                                  ->values[2];
-            double j4 = start[3] * M_PI / 180.0;
-            double j5 = start[4] * M_PI / 180.0;
-            double j6 = start[5] * M_PI / 180.0;
+            double j[6];
+
+            for (size_t ii = 0; ii < jointNumber; ++ii) {
+                j[ii] = (double)p.getState(i)
+                            ->as<ob::RealVectorStateSpace::StateType>()
+                            ->values[ii];
+            }
+            if (jointNumber == 3) {
+                for (size_t ii = 3; ii < 6; ++ii) {
+                    j[ii] = start[ii] * M_PI / 180.0;
+                }
+            }
             dd::SkeletonPtr robot = world_->getSkeleton(robotName);
 
-            robot->getDof(2)->setPosition(j1);
-            robot->getDof(3)->setPosition(j2);
-            robot->getDof(4)->setPosition(j3);
-
-            if (jointNumber > 3) {
-                j4 = (double)p.getState(i)
-                         ->as<ob::RealVectorStateSpace::StateType>()
-                         ->values[3];
-                j5 = (double)p.getState(i)
-                         ->as<ob::RealVectorStateSpace::StateType>()
-                         ->values[4];
-                j6 = (double)p.getState(i)
-                         ->as<ob::RealVectorStateSpace::StateType>()
-                         ->values[5];
-                robot->getDof(5)->setPosition(j4);
-                robot->getDof(6)->setPosition(j5);
-                robot->getDof(7)->setPosition(j6);
+            for (size_t ii = 0; ii < 6; ++ii) {
+                robot->getDof(ii + 2)->setPosition(j[ii]);
             }
 
             Eigen::Isometry3d gripperTransform = robot->getBodyNode("gripper")->getTransform();
@@ -173,17 +153,23 @@ public:
             gripperTrans(1) += xs * gripperRot(1, 0) + ys * gripperRot(1, 1) + zs * gripperRot(1, 2);
             gripperTrans(2) += xs * gripperRot(2, 0) + ys * gripperRot(2, 1) + zs * gripperRot(2, 2);
 
-            resultfile << j1 << " " << j2 << " " << j3 << " " << j4 << " " << j5
-                       << " " << j6 << std::endl;
-            resultfile_sequence << j1 << " " << j2 << " " << j3 << " " << j4 << " " << j5
-                       << " " << j6 << std::endl;
+            for (size_t ii = 0; ii < 6; ++ii) {
+                if (ii < 5) {
+                    resultfile << j[ii] << " ";
+                    resultfile_sequence << j[ii] << " ";
+                }
+                else { 
+                    resultfile << j[5] << std::endl;
+                    resultfile_sequence << j[5] << std::endl;
+                }
+            }
 
             endeffectorfile << gripperTrans(0) << " " << gripperTrans(1) << " " << gripperTrans(2) << " "
                             << quat.w() << " " << quat.x() << " " << quat.y()
                             << " " << quat.z() << std::endl;
             endeffectorfile_sequence << gripperTrans(0) << " " << gripperTrans(1) << " " << gripperTrans(2) << " "
-                            << quat.w() << " " << quat.x() << " " << quat.y()
-                            << " " << quat.z() << std::endl;
+                                     << quat.w() << " " << quat.x() << " " << quat.y()
+                                     << " " << quat.z() << std::endl;
         }
         resultfile.close();
         resultfile_sequence.close();
@@ -278,12 +264,9 @@ public:
                 dd::SkeletonPtr robot = world_->getSkeleton(robotName);
                 space->copyToReals(reals, s2);
 
-                robot->getDof(2)->setPosition(reals[0]);
-                robot->getDof(3)->setPosition(reals[1]);
-                robot->getDof(4)->setPosition(reals[2]);
-                robot->getDof(5)->setPosition(attach[3]);
-                robot->getDof(6)->setPosition(attach[4]);
-                robot->getDof(7)->setPosition(attach[5]);
+                for (size_t ii = 0; ii < 6; ++ii) {
+                    robot->getDof(ii + 2)->setPosition(reals[ii]);
+                }
 
                 Eigen::Isometry3d gripperTransform = robot->getBodyNode("gripper")->getTransform();
 
@@ -348,30 +331,13 @@ public:
 private:
     bool isStateValid(const ob::State* state) const
     {
-        double j1 = state->as<ompl::base::RealVectorStateSpace::StateType>()->values[0];
-        double j2 = state->as<ompl::base::RealVectorStateSpace::StateType>()->values[1];
-        double j3 = state->as<ompl::base::RealVectorStateSpace::StateType>()->values[2];
-        double j4 = 0;
-        double j5 = 0;
-        double j6 = 0;
-
+        double j[6];
+        
         dd::SkeletonPtr robot = world_->getSkeleton(robotName);
-
-        robot->getDof(2)->setPosition(j1);
-        robot->getDof(3)->setPosition(j2);
-        robot->getDof(4)->setPosition(j3);
-
-        if (jointNumber > 3) {
-            j4 = state->as<ompl::base::RealVectorStateSpace::StateType>()
-                     ->values[3];
-            j5 = state->as<ompl::base::RealVectorStateSpace::StateType>()
-                     ->values[4];
-            j6 = state->as<ompl::base::RealVectorStateSpace::StateType>()
-                     ->values[5];
-
-            robot->getDof(5)->setPosition(j4);
-            robot->getDof(6)->setPosition(j5);
-            robot->getDof(7)->setPosition(j6);
+        for (size_t ii = 0; ii < jointNumber; ++ii)
+        {
+            j[ii] = state->as<ompl::base::RealVectorStateSpace::StateType>()->values[ii];
+            robot->getDof(ii + 2)->setPosition(j[ii]);
         }
 
         if (withString) {
@@ -1599,21 +1565,19 @@ void resultReplay(MyWindow& window)
             std::ifstream fin(resultFName + std::to_string(window.fileSequence));
 
             while (!fin.eof()) {
-                for (int ii = 0; ii < 6; ii++)
-                {
+                for (int ii = 0; ii < 6; ii++) {
                     fin >> jk[ii];
-                    robot->getDof(ii+2)->setPosition(jk[ii]);
+                    robot->getDof(ii + 2)->setPosition(jk[ii]);
                 }
 
                 std::this_thread::sleep_for(std::chrono::milliseconds(window.speed));
-                if(window.stop)
-                {
+                if (window.stop) {
                     break;
                 }
                 while (!window.replay) {
                 }
             }
-            if(!window.stop)
+            if (!window.stop)
                 window.replay = false;
         }
     }
@@ -1622,7 +1586,7 @@ void resultReplay(MyWindow& window)
 
 void initFiles()
 {
-    
+
     std::ofstream resultfile;
     resultfile.open(resultFName + std::to_string(0), std::ios::trunc);
     resultfile << "0 0 0 0 0 0" << std::endl;
@@ -1632,7 +1596,6 @@ void initFiles()
     endeffectorfile.open(endeffectorFName + std::to_string(0), std::ios::trunc);
     endeffectorfile << "0.08 -0.01 2.773 1 0 0 0" << std::endl;
     endeffectorfile.close();
-    
 
     for (int ii = 0; ii < 9; ii++) {
 
@@ -1671,10 +1634,10 @@ int main(int argc, char* argv[])
         int kk = 8;
 
         initFiles();
-        planGoToDetach(kk,jj);
-        planAttachDirect(kk,jj);
-        planGoToDetach(0,jj+2);
-        planAttachDirect(0,jj+2);
+        planGoToDetach(kk, jj);
+        planAttachDirect(kk, jj);
+        planGoToDetach(0, jj + 2);
+        planAttachDirect(0, jj + 2);
         /*
         std::ifstream fin("data/tenSetUp.txt");
         double x, y, alpha;
