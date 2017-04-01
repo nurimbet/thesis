@@ -9,7 +9,7 @@ namespace dd = dart::dynamics;
 constexpr double jointMax[6] = { 3.1416, 2.5744, 2.5307, 4.7124, 2.4435, 4.7124 };
 constexpr double jointMin[6] = { -3.1416, -2.2689, -2.5307, -4.7124, -2.0071, -4.7124 };
 
-double joint1, joint2, joint3, joint4, joint5, joint6 = 0;
+double joint[6] = { 0, 0, 0, 0, 0, 0 };
 bool showPath = true;
 bool showTree = false;
 bool collisionEnabled = true;
@@ -17,11 +17,11 @@ bool showAxes = false;
 bool showFloor = true;
 int idx = 0;
 
-std::string endeffectorFileName = "data/results/endeffectors/endeffector";
-std::string jointsFileName = "data/results/joints.txt";
-std::string edgesFileName = "data/results/edges.txt";
-std::string robot_name = "staubli";
-std::string tensegrity_name = "tensegrity";
+const std::string endeffectorFileName = "data/results/endeffectors/endeffector";
+const std::string jointsFileName = "data/results/joints.txt";
+const std::string edgesFileName = "data/results/edges.txt";
+const std::string robot_name = "staubli";
+const std::string tensegrity_name = "tensegrity";
 
 MyWindow::MyWindow(const ds::WorldPtr& world)
 {
@@ -251,64 +251,51 @@ void MyWindow::keyboard(unsigned char key, int x, int y)
 void MyWindow::drawSkels()
 {
     dd::SkeletonPtr robot = mWorld->getSkeleton(robot_name);
-    joint1 = robot->getDof(2)->getPosition() * 180 / M_PI;
-    joint2 = robot->getDof(3)->getPosition() * 180 / M_PI;
-    joint3 = robot->getDof(4)->getPosition() * 180 / M_PI;
-    joint4 = robot->getDof(5)->getPosition() * 180 / M_PI;
-    joint5 = robot->getDof(6)->getPosition() * 180 / M_PI;
-    joint6 = robot->getDof(7)->getPosition() * 180 / M_PI;
+    for (size_t ii = 0; ii < 6; ii++) {
+        joint[ii] = robot->getDof(ii + 2)->getPosition() * 180 / M_PI;
+    }
 
     //std::lock_guard<std::mutex> lock(readMutex);
     glColor3f(0.0, 0.0, 0.0);
 
-    dg::drawStringOnScreen(0.85f, 0.65f, "J1: ");
-    dg::drawStringOnScreen(0.85f, 0.625f, "J2: ");
-    dg::drawStringOnScreen(0.85f, 0.6f, "J3: ");
-    dg::drawStringOnScreen(0.85f, 0.575f, "J4: ");
-    dg::drawStringOnScreen(0.85f, 0.55f, "J5: ");
-    dg::drawStringOnScreen(0.85f, 0.525f, "J6: ");
+    for (size_t ii = 0; ii < 6; ii++) {
+        dg::drawStringOnScreen(0.85f, 0.65f - 0.025 * ii, "J" + std::to_string(ii + 1) + ": ");
+    }
 
     glColor3f(0.0, 1.0, 0.0);
 
-    dg::drawStringOnScreen(0.9f, 0.65f, std::to_string(joint1));
-    dg::drawStringOnScreen(0.9f, 0.625f, std::to_string(joint2));
-    dg::drawStringOnScreen(0.9f, 0.6f, std::to_string(joint3));
-    dg::drawStringOnScreen(0.9f, 0.575f, std::to_string(joint4));
-    dg::drawStringOnScreen(0.9f, 0.55f, std::to_string(joint5));
-    dg::drawStringOnScreen(0.9f, 0.525f, std::to_string(joint6));
+    for (size_t ii = 0; ii < 6; ii++) {
+        dg::drawStringOnScreen(0.9f, 0.65f - 0.025 * ii, std::to_string(joint[ii]));
+    }
 
     Eigen::Isometry3d transform = robot->getBodyNode("toolflange_link")->getTransform();
     Eigen::Vector3d tr = transform.translation();
     Eigen::Quaterniond quat1(transform.rotation());
 
     glColor3f(0.0, 0.0, 0.0);
-    dg::drawStringOnScreen(0.85f, 0.475f, "X: ");
-    dg::drawStringOnScreen(0.85f, 0.45f, "Y: ");
-    dg::drawStringOnScreen(0.85f, 0.425f, "X: ");
-    dg::drawStringOnScreen(0.85f, 0.4f, "qw: ");
-    dg::drawStringOnScreen(0.85f, 0.375f, "qx: ");
-    dg::drawStringOnScreen(0.85f, 0.35f, "qy: ");
-    dg::drawStringOnScreen(0.85f, 0.325f, "qx: ");
+    std::string transXYZ[7] = { "X", "Y", "Z", "w", "x", "y", "z" };
+    for (size_t ii = 0; ii < 7; ++ii) {
+        if (ii < 3) {
+            dg::drawStringOnScreen(0.85f, 0.475f - 0.025 * ii, transXYZ[ii] + ": ");
+        } else {
+            dg::drawStringOnScreen(0.85f, 0.475f - 0.025 * ii, "q" + transXYZ[ii] + ": ");
+        }
+    }
 
     glColor3f(0.0, 1.0, 0.0);
-    dg::drawStringOnScreen(0.9f, 0.475f, std::to_string(tr(0)));
-    dg::drawStringOnScreen(0.9f, 0.45f, std::to_string(tr(1)));
-    dg::drawStringOnScreen(0.9f, 0.425f, std::to_string(tr(2)));
-    dg::drawStringOnScreen(0.9f, 0.4f, std::to_string(quat1.w()));
-    dg::drawStringOnScreen(0.9f, 0.375f, std::to_string(quat1.x()));
-    dg::drawStringOnScreen(0.9f, 0.35f, std::to_string(quat1.y()));
-    dg::drawStringOnScreen(0.9f, 0.325f, std::to_string(quat1.z()));
+    double endffPos[7] = { tr(0), tr(1), tr(2), quat1.w(), quat1.x(), quat1.y(), quat1.z() };
+
+    for (size_t ii = 0; ii < 7; ++ii) {
+        dg::drawStringOnScreen(0.9f, 0.475f - 0.025 * ii, std::to_string(endffPos[ii]));
+    }
 
     Eigen::Matrix3d rotTrackBall = mTrackBall.getRotationMatrix();
     Eigen::Quaterniond quatTrackBall(rotTrackBall);
 
-    dg::drawStringOnScreen(0.05f, 0.65f, std::to_string(-mTrans(0)));
-    dg::drawStringOnScreen(0.05f, 0.625f, std::to_string(-mTrans(1)));
-    dg::drawStringOnScreen(0.05f, 0.6f, std::to_string(-mTrans(2)));
-    dg::drawStringOnScreen(0.05f, 0.575f, std::to_string(quatTrackBall.w()));
-    dg::drawStringOnScreen(0.05f, 0.55f, std::to_string(quatTrackBall.x()));
-    dg::drawStringOnScreen(0.05f, 0.525f, std::to_string(quatTrackBall.y()));
-    dg::drawStringOnScreen(0.05f, 0.5f, std::to_string(quatTrackBall.z()));
+    double trackPos[7] = { -mTrans(0), -mTrans(1), -mTrans(2), quatTrackBall.w(), quatTrackBall.x(), quatTrackBall.y(), quatTrackBall.z() };
+    for (size_t ii = 0; ii < 7; ++ii) {
+        dg::drawStringOnScreen(0.05f, 0.65f - ii * 0.025, std::to_string(trackPos[ii]));
+    }
 
     glEnable(GL_LIGHTING);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -413,7 +400,7 @@ void MyWindow::drawSkels()
         tenTrans = tensegrityTransform.translation();
         rot_ten = tensegrityTransform.rotation();
         drawAxes(tenTrans, rot_ten);
-/*
+        /*
         if (idx < 6) {
             tensegrityTransform = tensegrity->getBodyNode("mid" + std::to_string(idx + 1))->getTransform();
             tenTrans = tensegrityTransform.translation();
@@ -454,12 +441,12 @@ void MyWindow::drawSkels()
 void MyWindow::setViewTrack(double j1, double j2, double j3, double j4, double j5, double j6)
 {
 
-    joint1 = j1 * 180 / M_PI;
-    joint2 = j2 * 180 / M_PI;
-    joint3 = j3 * 180 / M_PI;
-    joint4 = j4 * 180 / M_PI;
-    joint5 = j5 * 180 / M_PI;
-    joint6 = j6 * 180 / M_PI;
+    joint[0] = j1 * 180 / M_PI;
+    joint[1] = j2 * 180 / M_PI;
+    joint[2] = j3 * 180 / M_PI;
+    joint[3] = j4 * 180 / M_PI;
+    joint[4] = j5 * 180 / M_PI;
+    joint[5] = j6 * 180 / M_PI;
 }
 
 void MyWindow::drawAxes(const Eigen::Vector3d& tr, const Eigen::Matrix3d& rot)
