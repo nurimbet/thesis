@@ -1,0 +1,44 @@
+Location: -600 -450 -10
+kk = 0 minimum distance = 0.0383293
+kk = 1 minimum distance = 0.158881
+kk = 2 minimum distance = 0.508855
+kk = 3 minimum distance = 0.0222029
+kk = 4 minimum distance = 0.081516
+kk = 5 minimum distance = 0.0643323
+kk = 6 minimum distance = 0.205706
+kk = 7 minimum distance = 0.214836
+kk = 8 minimum distance = 0.036841
+count = 8
+********************
+Location: -600 -450 -5
+kk = 0 minimum distance = 0.162601
+kk = 1 minimum distance = 0.312205
+kk = 2 minimum distance = 0.274274
+kk = 3 minimum distance = 0.0794914
+kk = 4 minimum distance = 0.0843412
+kk = 5 minimum distance = 0.0421031
+kk = 6 minimum distance = 0.307264
+kk = 7 minimum distance = 0.148908
+kk = 8 minimum distance = 0.0594092
+count = 9
+********************
+Location: -600 -450 75
+kk = 0 minimum distance = 0.186994
+kk = 1 minimum distance = 0.0753233
+kk = 2 minimum distance = 0.131219
+kk = 3 minimum distance = 0.0636501
+kk = 4 minimum distance = 0.115977
+kk = 5 minimum distance = 0.338511
+kk = 6 minimum distance = 0.0425315
+kk = 7 minimum distance = 0.18456
+kk = 8 minimum distance = 0.104847
+count = 9
+********************
+Location: -600 -400 -20
+kk = 0 minimum distance = 0.284352
+kk = 1 minimum distance = 0.104857
+kk = 2 minimum distance = 0.114722
+kk = 3 minimum distance = 0.239677
+kk = 4 minimum distance = 0.0948963
+kk = 5 minimum distance = 0.0795654
+kk = 6 minimum distance = 0.774417

@@ -22,7 +22,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://tensegrity/meshes/tensegrity.STL" scale="1 1 1" />
+          filename="package://tensegrity/meshes/tensegrityNoPole.stl" scale="0.001 0.001 0.001" />
       </geometry>
       <material
         name="">
@@ -36,7 +36,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://tensegrity/meshes/tensegrity.STL" scale="1 1 1"/>
+          filename="package://tensegrity/meshes/tensegrityNoPole.stl" scale="0.001 0.001 0.001"/>
       </geometry>
     </collision>
   </link>
