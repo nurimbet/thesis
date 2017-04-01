@@ -39,6 +39,8 @@ std::string tightenerFName = "data/results/tightener.txt";
 std::string tendonFName = "data/results/tendon.txt";
 std::string robotName = "staubli";
 std::string tensegrityName = "tensegrity";
+constexpr int maxJoints = 6;
+constexpr int midPlanJoints = 3;
 
 ds::WorldPtr world = std::make_shared<ds::World>();
 
@@ -87,7 +89,7 @@ public:
 
         ss_->setStartAndGoalStates(start, goal, 0.05);
 
-        if (jointNumber > 3) {
+        if (jointNumber == maxJoints) {
             ss_->solve(60 * 1 * 1);
         } else {
             ss_->solve(60 * 1 * 1);
@@ -122,21 +124,21 @@ public:
         endeffectorfile_sequence.open(endeffectorFName + std::to_string(fileSequence), std::ios::app);
 
         for (std::size_t i = 0; i < p.getStateCount(); ++i) {
-            double j[6];
+            double j[maxJoints];
 
             for (size_t ii = 0; ii < jointNumber; ++ii) {
                 j[ii] = (double)p.getState(i)
                             ->as<ob::RealVectorStateSpace::StateType>()
                             ->values[ii];
             }
-            if (jointNumber == 3) {
-                for (size_t ii = 3; ii < 6; ++ii) {
+            if (jointNumber == midPlanJoints) {
+                for (size_t ii = midPlanJoints; ii < maxJoints; ++ii) {
                     j[ii] = start[ii] * M_PI / 180.0;
                 }
             }
             dd::SkeletonPtr robot = world_->getSkeleton(robotName);
 
-            for (size_t ii = 0; ii < 6; ++ii) {
+            for (size_t ii = 0; ii < maxJoints; ++ii) {
                 robot->getDof(ii + 2)->setPosition(j[ii]);
             }
 
@@ -153,7 +155,7 @@ public:
             gripperTrans(1) += xs * gripperRot(1, 0) + ys * gripperRot(1, 1) + zs * gripperRot(1, 2);
             gripperTrans(2) += xs * gripperRot(2, 0) + ys * gripperRot(2, 1) + zs * gripperRot(2, 2);
 
-            for (size_t ii = 0; ii < 6; ++ii) {
+            for (size_t ii = 0; ii < maxJoints; ++ii) {
                 if (ii < 5) {
                     resultfile << j[ii] << " ";
                     resultfile_sequence << j[ii] << " ";
@@ -175,7 +177,7 @@ public:
         endeffectorfile.close();
         endeffectorfile_sequence.close();
 
-        if (jointNumber == 3) {
+        if (jointNumber == midPlanJoints) {
             ob::PlannerData pdat(ss_->getSpaceInformation());
             ss_->getPlannerData(pdat);
             std::ofstream ofs_e(edgesFName);
@@ -198,7 +200,7 @@ public:
                     space->copyToReals(realsOld, s1);
                     dd::SkeletonPtr robot = world_->getSkeleton(robotName);
 
-                    for (size_t ii = 0; ii < 3; ii++) {
+                    for (size_t ii = 0; ii < midPlanJoints; ii++) {
                         robot->getDof(ii + 2)->setPosition(realsOld[ii]);
                     }
 
@@ -230,7 +232,7 @@ public:
 */
                     space->copyToReals(reals, s2);
 
-                    for (size_t ii = 0; ii < 3; ++ii) {
+                    for (size_t ii = 0; ii < midPlanJoints; ++ii) {
                         robot->getDof(ii + 2)->setPosition(reals[ii]);
                     }
 
@@ -263,7 +265,7 @@ public:
                 dd::SkeletonPtr robot = world_->getSkeleton(robotName);
                 space->copyToReals(reals, s2);
 
-                for (size_t ii = 0; ii < 6; ++ii) {
+                for (size_t ii = 0; ii < maxJoints; ++ii) {
                     robot->getDof(ii + 2)->setPosition(reals[ii]);
                 }
 
@@ -330,7 +332,7 @@ public:
 private:
     bool isStateValid(const ob::State* state) const
     {
-        double j[6];
+        double j[maxJoints];
 
         dd::SkeletonPtr robot = world_->getSkeleton(robotName);
         for (size_t ii = 0; ii < jointNumber; ++ii) {
@@ -387,7 +389,7 @@ std::string getWorkingDirectory()
 
 Eigen::VectorXd getLastLineAsVector()
 {
-    Eigen::VectorXd start(6);
+    Eigen::VectorXd start(maxJoints);
 
     std::ifstream file(resultFName + std::to_string(0));
     std::string line = getLastLine(file);
@@ -399,7 +401,7 @@ Eigen::VectorXd getLastLineAsVector()
     size_t pos = 0;
     std::string token;
     int i = 0;
-    int arsize = 6;
+    int arsize = maxJoints;
     float linear[arsize];
     while (i < arsize) {
         pos = line.find(delimiter);
@@ -408,7 +410,7 @@ Eigen::VectorXd getLastLineAsVector()
         line.erase(0, pos + delimiter.length());
         i++;
     }
-
+//TODO
     start << linear[0], linear[1], linear[2], linear[3], linear[4], linear[5];
     return start;
 }
@@ -421,7 +423,7 @@ std::vector<Eigen::VectorXd> getInverseKinematics(
     //std::cout << final_point.translation();
 
     vector<VectorXd> final_joints;
-    VectorXd final_joint(6);
+    VectorXd final_joint(maxJoints);
     final_joint << 0, 0, 0, 0, 0, 0;
     dd::SkeletonPtr robot = world->getSkeleton(robotName);
 
@@ -968,16 +970,16 @@ void printVector(Eigen::VectorXd final_joint)
 
 Eigen::VectorXd collisionlessFinal(const Eigen::VectorXd& start, const Eigen::VectorXd& finish)
 {
-    Eigen::VectorXd cFinal(6);
+    Eigen::VectorXd cFinal(maxJoints);
 
     dd::SkeletonPtr robot = world->getSkeleton(robotName);
 
-    for (size_t ii = 0; ii < 6; ++ii) {
+    for (size_t ii = 0; ii < maxJoints; ++ii) {
         robot->getDof(ii + 2)->setPosition(finish[ii] * M_PI / 180.0);
     }
 
     if (!world->checkCollision()) {
-        for (int ii = 0; ii < 6; ii++) {
+        for (int ii = 0; ii < maxJoints; ii++) {
             cFinal[ii] = robot->getDof(ii + 2)->getPosition() * 180 / M_PI;
         }
 
@@ -1006,7 +1008,7 @@ Eigen::VectorXd collisionlessFinal(const Eigen::VectorXd& start, const Eigen::Ve
         }
         i++;
     }
-    for (int ii = 0; ii < 6; ii++) {
+    for (int ii = 0; ii < maxJoints; ii++) {
         cFinal[ii] = robot->getDof(ii + 2)->getPosition() * 180 / M_PI;
     }
     return cFinal;
@@ -1068,7 +1070,7 @@ double isPlannable(int kk)
     tensegrityEnvironment env_t(3, kk, true);
     env_t.setWorld(world);
 
-    Eigen::VectorXd finish_trans(6);
+    Eigen::VectorXd finish_trans(maxJoints);
     finish_trans = collisionlessFinal(fullDetach[minDetIdx], fullAttach[minAttIdx]);
 
     if (env_t.plan(fullDetach[minDetIdx], finish_trans)) {
@@ -1295,15 +1297,15 @@ void planAttachDirect(int kk, int jj)
         }
     }
 
-    Eigen::VectorXd start(6);
-    Eigen::VectorXd finish(6);
+    Eigen::VectorXd start(maxJoints);
+    Eigen::VectorXd finish(maxJoints);
     start = fullDetach[minDetIdx];
     finish = fullAttach[minAttIdx];
 
-    tensegrityEnvironment env(3, kk, true);
+    tensegrityEnvironment env(midPlanJoints, kk, true);
     env.setWorld(world);
 
-    Eigen::VectorXd finish_trans(6);
+    Eigen::VectorXd finish_trans(maxJoints);
     finish_trans = collisionlessFinal(start, finish);
 
     std::cout << finish_trans << std::endl;
@@ -1313,7 +1315,7 @@ void planAttachDirect(int kk, int jj)
     }
 
     start = getLastLineAsVector();
-    tensegrityEnvironment env1(6, kk, true);
+    tensegrityEnvironment env1(maxJoints, kk, true);
     env1.setWorld(world);
     if (env1.plan(start * 180.0 / M_PI, finish)) {
         env1.recordSolution(start * 180.0 / M_PI, jj);
@@ -1371,16 +1373,16 @@ void planGoToDetach(int kk, int jj)
         }
     }
 
-    Eigen::VectorXd start(6);
+    Eigen::VectorXd start(maxJoints);
     start = getLastLineAsVector() * 180.0 / M_PI;
 
-    Eigen::VectorXd finish(6);
+    Eigen::VectorXd finish(maxJoints);
     finish = fullDetach[minDetIdx];
 
-    tensegrityEnvironment env(3, kk, false);
+    tensegrityEnvironment env(midPlanJoints, kk, false);
     env.setWorld(world);
 
-    Eigen::VectorXd finish_trans(6);
+    Eigen::VectorXd finish_trans(maxJoints);
     finish_trans = collisionlessFinal(start, finish);
 
     std::cout << finish_trans << std::endl;
@@ -1390,7 +1392,7 @@ void planGoToDetach(int kk, int jj)
     }
 
     start = getLastLineAsVector();
-    tensegrityEnvironment env1(6, kk, false);
+    tensegrityEnvironment env1(maxJoints, kk, false);
     env1.setWorld(world);
     if (env1.plan(start * 180.0 / M_PI, finish)) {
         env1.recordSolution(start * 180.0 / M_PI, jj);
@@ -1431,7 +1433,7 @@ void planAttachMidPoint(int kk)
 
     detachStringAt(kk);
 
-    for (int mm = 0; mm < 6; mm++) {
+    for (int mm = 0; mm < maxJoints; mm++) {
         tf = getMidPosition(mm, false);
         part1 = getInverseKinematics(tf);
 
@@ -1468,8 +1470,8 @@ void planAttachMidPoint(int kk)
         }
     }
 
-    Eigen::VectorXd start(6);
-    Eigen::VectorXd finish(6);
+    Eigen::VectorXd start(maxJoints);
+    Eigen::VectorXd finish(maxJoints);
     start = fullDetach[minDetIdx];
     finish = fullAttach[minAttIdx];
 
@@ -1481,10 +1483,10 @@ void planAttachMidPoint(int kk)
     endeffectorfile.open(endeffectorFName + std::to_string(0), std::ios::trunc);
     endeffectorfile.close();
 
-    tensegrityEnvironment env(3, kk, true);
+    tensegrityEnvironment env(midPlanJoints, kk, true);
     env.setWorld(world);
 
-    Eigen::VectorXd finish_trans(6);
+    Eigen::VectorXd finish_trans(maxJoints);
     finish_trans = collisionlessFinal(start, finish);
 
     std::cout << finish_trans << std::endl;
@@ -1494,7 +1496,7 @@ void planAttachMidPoint(int kk)
     }
 
     start = getLastLineAsVector();
-    tensegrityEnvironment env1(6, kk, true);
+    tensegrityEnvironment env1(maxJoints, kk, true);
     env1.setWorld(world);
     if (env1.plan(start * 180.0 / M_PI, finish)) {
         env1.recordSolution(start * 180.0 / M_PI);
@@ -1551,13 +1553,13 @@ void resultReplay(MyWindow& window)
     for (int jj = 2; jj <= 7; jj++) {
         robot->getDof(jj)->setPosition(0);
     }
-    double jk[6];
+    double jk[maxJoints];
     while (true) {
         if (window.replay & !window.stop) {
             std::ifstream fin(resultFName + std::to_string(window.fileSequence));
 
             while (!fin.eof()) {
-                for (int ii = 0; ii < 6; ii++) {
+                for (int ii = 0; ii < maxJoints; ii++) {
                     fin >> jk[ii];
                     robot->getDof(ii + 2)->setPosition(jk[ii]);
                 }
