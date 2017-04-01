@@ -157,8 +157,7 @@ public:
                 if (ii < 5) {
                     resultfile << j[ii] << " ";
                     resultfile_sequence << j[ii] << " ";
-                }
-                else { 
+                } else {
                     resultfile << j[5] << std::endl;
                     resultfile_sequence << j[5] << std::endl;
                 }
@@ -199,9 +198,9 @@ public:
                     space->copyToReals(realsOld, s1);
                     dd::SkeletonPtr robot = world_->getSkeleton(robotName);
 
-                    robot->getDof(2)->setPosition(realsOld[0]);
-                    robot->getDof(3)->setPosition(realsOld[1]);
-                    robot->getDof(4)->setPosition(realsOld[2]);
+                    for (size_t ii = 0; ii < 3; ii++) {
+                        robot->getDof(ii + 2)->setPosition(realsOld[ii]);
+                    }
 
                     Eigen::Isometry3d gripperTransform = robot->getBodyNode("gripper")->getTransform();
                     Eigen::Vector3d tr = gripperTransform.translation();
@@ -231,9 +230,9 @@ public:
 */
                     space->copyToReals(reals, s2);
 
-                    robot->getDof(2)->setPosition(reals[0]);
-                    robot->getDof(3)->setPosition(reals[1]);
-                    robot->getDof(4)->setPosition(reals[2]);
+                    for (size_t ii = 0; ii < 3; ++ii) {
+                        robot->getDof(ii + 2)->setPosition(reals[ii]);
+                    }
 
                     gripperTransform = robot->getBodyNode("gripper")->getTransform();
                     tr = gripperTransform.translation();
@@ -332,10 +331,9 @@ private:
     bool isStateValid(const ob::State* state) const
     {
         double j[6];
-        
+
         dd::SkeletonPtr robot = world_->getSkeleton(robotName);
-        for (size_t ii = 0; ii < jointNumber; ++ii)
-        {
+        for (size_t ii = 0; ii < jointNumber; ++ii) {
             j[ii] = state->as<ompl::base::RealVectorStateSpace::StateType>()->values[ii];
             robot->getDof(ii + 2)->setPosition(j[ii]);
         }
@@ -490,12 +488,9 @@ std::vector<Eigen::VectorXd> getInverseKinematics(
 
         if (!(std::isnan(theta[1])) && !(std::isnan(theta[2])) && !(std::isnan(theta[3])) && !(std::isnan(theta[4])) && !(std::isnan(theta[5])) && !(std::isnan(theta[6]))) {
 
-            robot->getDof(2)->setPosition(theta[1]);
-            robot->getDof(3)->setPosition(theta[2]);
-            robot->getDof(4)->setPosition(theta[3]);
-            robot->getDof(5)->setPosition(theta[4]);
-            robot->getDof(6)->setPosition(theta[5]);
-            robot->getDof(7)->setPosition(theta[6]);
+            for (size_t ii = 0; ii < 6; ++ii) {
+                robot->getDof(ii + 2)->setPosition(theta[ii + 1]);
+            }
 
             if (withinJointRange && !world->checkCollision()) {
                 //std::cout << std::endl;
@@ -977,12 +972,9 @@ Eigen::VectorXd collisionlessFinal(const Eigen::VectorXd& start, const Eigen::Ve
 
     dd::SkeletonPtr robot = world->getSkeleton(robotName);
 
-    robot->getDof(2)->setPosition(finish[0] * M_PI / 180.0);
-    robot->getDof(3)->setPosition(finish[1] * M_PI / 180.0);
-    robot->getDof(4)->setPosition(finish[2] * M_PI / 180.0);
-    robot->getDof(5)->setPosition(start[3] * M_PI / 180.0);
-    robot->getDof(6)->setPosition(start[4] * M_PI / 180.0);
-    robot->getDof(7)->setPosition(start[5] * M_PI / 180.0);
+    for (size_t ii = 0; ii < 6; ++ii) {
+        robot->getDof(ii + 2)->setPosition(finish[ii] * M_PI / 180.0);
+    }
 
     if (!world->checkCollision()) {
         for (int ii = 0; ii < 6; ii++) {
