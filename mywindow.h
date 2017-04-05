@@ -28,6 +28,7 @@ public:
     bool stop;
     int speed;
     int fileSequence;
+    int glob_jj;
 private:
     //std::mutex readMutex;
 };

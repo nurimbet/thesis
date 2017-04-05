@@ -10,11 +10,12 @@ constexpr double jointMax[6] = { 3.1416, 2.5744, 2.5307, 4.7124, 2.4435, 4.7124 
 constexpr double jointMin[6] = { -3.1416, -2.2689, -2.5307, -4.7124, -2.0071, -4.7124 };
 
 double joint[6] = { 0, 0, 0, 0, 0, 0 };
-bool showPath = true;
+bool showPath = false;
 bool showTree = false;
 bool collisionEnabled = true;
 bool showAxes = false;
 bool showFloor = true;
+bool showString = false;
 int idx = 0;
 
 const std::string endeffectorFileName = "data/results/endeffectors/endeffector";
@@ -34,6 +35,7 @@ MyWindow::MyWindow(const ds::WorldPtr& world)
     speed = 5;
     fileSequence = 0;
     stop = false;
+    glob_jj = 0;
 
     mTrackBall.setQuaternion(quat);
 }
@@ -230,6 +232,9 @@ void MyWindow::keyboard(unsigned char key, int x, int y)
     case 'b':
         stop = true;
         break;
+    case '/':
+        showString = !showString;
+        break;
     case ' ':
         break;
     default:
@@ -324,20 +329,40 @@ void MyWindow::drawSkels()
     }
     if (showPath) {
         double x, y, z, ign;
-        glLineWidth(3);
-        glBegin(GL_LINES);
-        glColor3f(0, 0, 0);
-        std::ifstream fin_to(endeffectorFileName + std::to_string(fileSequence));
-        fin_to >> x >> y >> z >> ign >> ign >> ign >> ign;
-        glVertex3f(x, y, z);
-        while (!fin_to.eof()) {
+        if (fileSequence > 0) {
+            glLineWidth(3);
+            glBegin(GL_LINES);
+            glColor3f(0, 0, 0);
+            std::ifstream fin_to(endeffectorFileName + "_" + std::to_string(glob_jj) + "_" + std::to_string(fileSequence));
             fin_to >> x >> y >> z >> ign >> ign >> ign >> ign;
+            glVertex3f(x, y, z);
+            while (!fin_to.eof()) {
+                fin_to >> x >> y >> z >> ign >> ign >> ign >> ign;
 
+                glVertex3f(x, y, z);
+                glVertex3f(x, y, z);
+            }
             glVertex3f(x, y, z);
-            glVertex3f(x, y, z);
+            glEnd();
+        } else {
+            double colors[9][3] = { { 0, 0, 0 }, { 0, 0, 1 }, { 0, 1, 0 }, { 0, 1, 1 }, { 1, 0, 0 }, { 1, 0, 1 }, { 1, 1, 0 }, { 0, 0, 0 }, { 0, 0, 1 } };
+            for (size_t ii = 1; ii <= 9; ii++) {
+                glLineWidth(3);
+                glBegin(GL_LINES);
+                glColor3f(colors[ii - 1][0], colors[ii - 1][1], colors[ii - 1][2]);
+                std::ifstream fin_to(endeffectorFileName +"_"+std::to_string(glob_jj)+"_" + std::to_string(ii));
+                fin_to >> x >> y >> z >> ign >> ign >> ign >> ign;
+                glVertex3f(x, y, z);
+                while (!fin_to.eof()) {
+                    fin_to >> x >> y >> z >> ign >> ign >> ign >> ign;
+
+                    glVertex3f(x, y, z);
+                    glVertex3f(x, y, z);
+                }
+                glVertex3f(x, y, z);
+                glEnd();
+            }
         }
-        glVertex3f(x, y, z);
-        glEnd();
     }
     if (showTree) {
 
@@ -365,6 +390,26 @@ void MyWindow::drawSkels()
         glEnd();
     }
 
+    dd::SkeletonPtr tensegrity = mWorld->getSkeleton(tensegrity_name);
+/*
+    if (showString ) {
+        for (int ii = 1; ii <= 9; ii++) {
+            tensegrity->getBodyNode("tendon" + std::to_string(ii))
+                ->getVisualizationShape(0)
+                ->setHidden(false);
+            tensegrity->getBodyNode("tendon" + std::to_string(ii))
+                ->setCollidable(true);
+        }
+    } else {
+        for (int ii = 1; ii <= 9; ii++) {
+            tensegrity->getBodyNode("tendon" + std::to_string(ii))
+                ->getVisualizationShape(0)
+                ->setHidden(true);
+            tensegrity->getBodyNode("tendon" + std::to_string(ii))
+                ->setCollidable(false);
+        }
+    }
+*/
     if (showAxes) {
 
         Eigen::Matrix3d rot_tr = transform.rotation();
@@ -383,8 +428,6 @@ void MyWindow::drawSkels()
 
         drawAxes(tr1, rot_tr1);
 
-        dd::SkeletonPtr tensegrity = mWorld->getSkeleton(tensegrity_name);
-
         //Eigen::Isometry3d tensegrityTransform = tensegrity->getRootBodyNode()->getWorldTransform();
         Eigen::Isometry3d tensegrityTransform = tensegrity->getBodyNode("attach" + std::to_string(idx + 1))->getTransform();
         Eigen::Vector3d tenTrans = tensegrityTransform.translation();
@@ -399,7 +442,7 @@ void MyWindow::drawSkels()
         tensegrityTransform = tensegrity->getBodyNode("tightener" + std::to_string(idx + 1))->getTransform();
         tenTrans = tensegrityTransform.translation();
         rot_ten = tensegrityTransform.rotation();
-        drawAxes(tenTrans, rot_ten);
+        //drawAxes(tenTrans, rot_ten);
         /*
         if (idx < 6) {
             tensegrityTransform = tensegrity->getBodyNode("mid" + std::to_string(idx + 1))->getTransform();
@@ -432,7 +475,7 @@ void MyWindow::drawSkels()
         tensegrityTransform = tensegrity->getBodyNode("tendon" + std::to_string(idx + 1))->getTransform();
         rot_ten = tensegrityTransform.rotation(); //* Eigen::AngleAxisd(-90 * M_PI / 180.0, Eigen::Vector3d::UnitX()) * Eigen::AngleAxisd(90 * M_PI / 180.0, Eigen::Vector3d::UnitY());
 
-        drawAxes(tenTrans, rot_ten);
+        //drawAxes(tenTrans, rot_ten);
     }
 
     SimWindow::drawSkels();

@@ -32,13 +32,15 @@ constexpr double jointMin[6] = { -3.1416, -2.2689, -2.5307, -4.7124, -2.0071, -4
 std::string resultFName = "data/results/paths/path";
 std::string endeffectorFName = "data/results/endeffectors/endeffector";
 std::string edgesFName = "data/results/edges.txt";
-std::string feasibleLocFName = "data/results/feasibleLocation_alt.txt";
-std::string plannableFName = "data/results/plannable_alt.txt";
+std::string feasibleLocFName = "data/results/feasibleLocation";
+std::string plannableFName = "data/results/plannable";
 std::string sequenceFName = "data/results/sequence.txt";
 std::string tightenerFName = "data/results/tightener.txt";
 std::string tendonFName = "data/results/tendon.txt";
 std::string robotName = "staubli";
 std::string tensegrityName = "tensegrity";
+int seqArray[9] = { 5, 9, 3, 4, 6, 1, 2, 8, 7 };
+int glob_ii = 0;
 
 ds::WorldPtr world = std::make_shared<ds::World>();
 
@@ -88,9 +90,9 @@ public:
         ss_->setStartAndGoalStates(start, goal, 0.05);
 
         if (jointNumber > 3) {
-            ss_->solve(60 * 1 * 1);
+            ss_->solve(60 * 1 * 10);
         } else {
-            ss_->solve(60 * 1 * 1);
+            ss_->solve(60 * 1 * 10);
         }
 
         const std::size_t ns = ss_->getProblemDefinition()->getSolutionCount();
@@ -112,14 +114,14 @@ public:
         og::PathGeometric& p = ss_->getSolutionPath();
         p.interpolate(1000);
         std::ofstream resultfile;
-        resultfile.open(resultFName + std::to_string(0), std::ios::app);
+        resultfile.open(resultFName + "_" + std::to_string(glob_ii) + "_" + std::to_string(0), std::ios::app);
         std::ofstream resultfile_sequence;
-        resultfile_sequence.open(resultFName + std::to_string(fileSequence), std::ios::app);
+        resultfile_sequence.open(resultFName + "_" + std::to_string(glob_ii) + "_" + std::to_string(fileSequence), std::ios::app);
 
         std::ofstream endeffectorfile;
         std::ofstream endeffectorfile_sequence;
-        endeffectorfile.open(endeffectorFName + std::to_string(0), std::ios::app);
-        endeffectorfile_sequence.open(endeffectorFName + std::to_string(fileSequence), std::ios::app);
+        endeffectorfile.open(endeffectorFName + "_" + std::to_string(glob_ii) + "_" + std::to_string(0), std::ios::app);
+        endeffectorfile_sequence.open(endeffectorFName + "_" + std::to_string(glob_ii) + "_" + std::to_string(fileSequence), std::ios::app);
 
         for (std::size_t i = 0; i < p.getStateCount(); ++i) {
             double j[6];
@@ -157,8 +159,7 @@ public:
                 if (ii < 5) {
                     resultfile << j[ii] << " ";
                     resultfile_sequence << j[ii] << " ";
-                }
-                else { 
+                } else {
                     resultfile << j[5] << std::endl;
                     resultfile_sequence << j[5] << std::endl;
                 }
@@ -332,10 +333,9 @@ private:
     bool isStateValid(const ob::State* state) const
     {
         double j[6];
-        
+
         dd::SkeletonPtr robot = world_->getSkeleton(robotName);
-        for (size_t ii = 0; ii < jointNumber; ++ii)
-        {
+        for (size_t ii = 0; ii < jointNumber; ++ii) {
             j[ii] = state->as<ompl::base::RealVectorStateSpace::StateType>()->values[ii];
             robot->getDof(ii + 2)->setPosition(j[ii]);
         }
@@ -391,7 +391,7 @@ Eigen::VectorXd getLastLineAsVector()
 {
     Eigen::VectorXd start(6);
 
-    std::ifstream file(resultFName + std::to_string(0));
+    std::ifstream file(resultFName + "_" + std::to_string(glob_ii) + "_" + std::to_string(0));
     std::string line = getLastLine(file);
 
     file.close();
@@ -635,8 +635,10 @@ Eigen::Isometry3d getDetachPosition(int detNum,
     Eigen::Matrix3d rot_ten;
     if (wristUp) {
         rot_ten = tensegrityTransform.rotation();
+        //rot_ten = tensegrityTransform.rotation() * Eigen::AngleAxisd(90 * M_PI / 180.0, Eigen::Vector3d::UnitX());
     } else {
         rot_ten = tensegrityTransform.rotation() * Eigen::AngleAxisd(180 * M_PI / 180.0, Eigen::Vector3d::UnitY());
+        //rot_ten = tensegrityTransform.rotation() * Eigen::AngleAxisd(90 * M_PI / 180.0, Eigen::Vector3d::UnitX()) * Eigen::AngleAxisd(180 * M_PI / 180.0, Eigen::Vector3d::UnitY());
         xs = -(25);
     }
     tenTrans *= 1000;
@@ -787,7 +789,7 @@ bool isReachable(int i, Eigen::VectorXd strings)
 void printFeasibleTensegrityLocation()
 {
     std::ofstream feasibleLocation;
-    feasibleLocation.open(feasibleLocFName, std::ios::trunc);
+    feasibleLocation.open(feasibleLocFName + std::to_string(glob_ii), std::ios::trunc);
     //std::ofstream nonFeasIdx;
     //nonFeasIdx.open("nonFeas.txt", std::ios::trunc);
 
@@ -800,11 +802,11 @@ void printFeasibleTensegrityLocation()
     dd::SkeletonPtr robot = world->getSkeleton(robotName);
 
     Eigen::Matrix3d rot_ten;
-    for (int xx = -600; xx <= 600; xx += 50) {
-        for (int yy = -600; yy <= 600; yy += 50) {
-            if ((xx >= -400 && xx <= 400) && (yy >= -350 && yy <= 350)) {
-                continue;
-            }
+    for (int xx = -2200 + glob_ii * 440; xx <= -2200 + (glob_ii + 1) * 440; xx += 50) {
+        for (int yy = -2200; yy <= 2200; yy += 50) {
+            //if ((xx >= -400 && xx <= 400) && (yy >= -350 && yy <= 350)) {
+            //    continue;
+            //}
             for (int aa_zz = -180; aa_zz < 180; aa_zz += 5) {
                 //    for (int zz = -500; zz <= 500; zz += 10) {
                 int ii = 0;
@@ -830,6 +832,7 @@ void printFeasibleTensegrityLocation()
                         break;
                     }
                     ii++;
+                    //std::cout << ii << std::endl;
                 }
                 if (ii == 9) {
                     //feasibleLocation << xx << " " << yy << " " << zz << " " << aa_zz
@@ -845,6 +848,7 @@ void printFeasibleTensegrityLocation()
 
                 //}
             }
+            std::cout << xx << " " << yy << std::endl;
         }
     }
     feasibleLocation.close();
@@ -856,6 +860,7 @@ void printAttachmentSequence()
     std::ofstream sequenceFile;
     sequenceFile.open(sequenceFName, std::ios::trunc);
     Eigen::VectorXd strings(9);
+    //int attDistSorted[9];
     strings << 1, 1, 1, 1, 1, 1, 1, 1, 1;
 
     for (int st1 = 0; st1 < 9; st1++) {
@@ -1196,14 +1201,14 @@ void printPlannable()
     std::vector<Eigen::VectorXd> fullAttach;
 
     std::ofstream plannable;
-    plannable.open(plannableFName, std::ios::trunc);
+    plannable.open(plannableFName + std::to_string(glob_ii), std::ios::trunc);
 
-    std::ifstream feas(feasibleLocFName);
+    std::ifstream feas(feasibleLocFName + std::to_string(glob_ii));
     double xx, yy, aa_zz;
     double minDist;
     while (!feas.eof()) {
         feas >> xx >> yy >> aa_zz;
-        plannable << "Location: " << xx << " " << yy << " " << aa_zz << std::endl;
+        std::cout << "Location: " << xx << " " << yy << " " << aa_zz << std::endl;
 
         tenRot = Eigen::AngleAxisd(aa_zz * M_PI / 180.0, Eigen::Vector3d::UnitZ());
         tenMove.linear() = tenRot;
@@ -1212,17 +1217,21 @@ void printPlannable()
 
         detachAllStrings();
 
-        int count = 9;
+        int count = 0;
         for (kk = 0; kk < 9; kk++) {
             minDist = isPlannable(kk);
-            plannable << "kk = " << kk << " minimum distance = " << minDist << std::endl;
-            if (minDist > 0.4) {
-                //break;
-                count -= 1;
+            //plannable << "kk = " << kk << " minimum distance = " << minDist << std::endl;
+            if (minDist > 0.25) {
+                break;
+                //count -= 1;
             }
+            count += 1;
         }
-        plannable << "count = " << count << std::endl;
-        plannable << "********************" << std::endl;
+        //plannable << "count = " << count << std::endl;
+        if (count == 9) {
+            plannable << xx << " " << yy << " " << aa_zz << std::endl;
+        }
+        //plannable << "********************" << std::endl;
     }
 
     plannable.close();
@@ -1540,8 +1549,14 @@ void setUpTensegrity()
 
     std::ifstream fin("data/results/tenSetUp.txt");
     double x, y, alpha;
-    fin >> x >> y >> alpha;
+    int i = -1;
+    while (!fin.eof() && glob_ii > i) {
+        fin >> x >> y >> alpha;
+        i++;
+        std::cout << i << std::endl;
+    }
     fin.close();
+    std::cout << x << " " << y << " " << alpha << std::endl;
 
     tenRot = Eigen::AngleAxisd(alpha * M_PI / 180.0, Eigen::Vector3d::UnitZ());
 
@@ -1550,6 +1565,25 @@ void setUpTensegrity()
     moveSkeleton(tensegrity, tenMove);
 
     world->addSkeleton(tensegrity);
+}
+
+void tendonColor(int ii, bool tenRed, bool atDetRed)
+{
+    Eigen::Vector3d tenColor;
+    Eigen::Vector3d atDetColor;
+    tenColor << 0.792156862745098, 0.819607843137255, 0.933333333333333;
+    atDetColor << 0.792156862745098, 0.819607843137255, 0.933333333333333;
+    if (tenRed) {
+        tenColor << 1, 0, 0;
+    }
+    if (atDetRed) {
+        atDetColor << 1, 0, 0;
+    }
+
+    dd::SkeletonPtr tensegrity = world->getSkeleton(tensegrityName);
+    tensegrity->getBodyNode("tendon" + std::to_string(ii + 1))->getVisualizationShape(0)->setColor(tenColor);
+    tensegrity->getBodyNode("attach" + std::to_string(ii + 1))->getVisualizationShape(0)->setColor(atDetColor);
+    tensegrity->getBodyNode("detach" + std::to_string(ii + 1))->getVisualizationShape(0)->setColor(atDetColor);
 }
 
 void resultReplay(MyWindow& window)
@@ -1561,24 +1595,48 @@ void resultReplay(MyWindow& window)
     }
     double jk[6];
     while (true) {
-        if (window.replay & !window.stop) {
-            std::ifstream fin(resultFName + std::to_string(window.fileSequence));
+        if (window.replay && !window.stop) {
+            int startLoop = window.fileSequence;
+            int endLoop = window.fileSequence;
+            if (window.fileSequence == 0) {
+                startLoop = 1;
+                endLoop = 9;
+            }
 
-            while (!fin.eof()) {
-                for (int ii = 0; ii < 6; ii++) {
-                    fin >> jk[ii];
-                    robot->getDof(ii + 2)->setPosition(jk[ii]);
+            for (int kk = startLoop; kk <= endLoop; kk++) {
+                std::ifstream fin(resultFName + "_" + std::to_string(glob_ii) + "_" + std::to_string(kk));
+                tendonColor(seqArray[kk - 1] - 1, false, true);
+
+                std::cout << kk << std::endl;
+
+                while (!fin.eof()) {
+                    for (int ii = 0; ii < 6; ii++) {
+                        fin >> jk[ii];
+                        robot->getDof(ii + 2)->setPosition(jk[ii]);
+                    }
+
+                    std::this_thread::sleep_for(std::chrono::milliseconds(window.speed));
+                    if (window.stop) {
+                        break;
+                    }
+                    while (!window.replay) {
+                    }
                 }
+                fin.close();
+                if (kk > 1) {
+                    tendonColor(seqArray[kk - 2] - 1, false, false);
+                }
+                tendonColor(seqArray[kk - 1] - 1, true, false);
+                attachStringAt(seqArray[kk - 1] - 1);
 
-                std::this_thread::sleep_for(std::chrono::milliseconds(window.speed));
-                if (window.stop) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+                if (window.fileSequence == 0 && window.stop) {
                     break;
                 }
-                while (!window.replay) {
-                }
             }
-            if (!window.stop)
+            if (!window.stop) {
                 window.replay = false;
+            }
         }
     }
     std::cout << "dafaq?" << std::endl;
@@ -1588,23 +1646,23 @@ void initFiles()
 {
 
     std::ofstream resultfile;
-    resultfile.open(resultFName + std::to_string(0), std::ios::trunc);
+    resultfile.open(resultFName + "_" + std::to_string(glob_ii) + "_" + std::to_string(0), std::ios::trunc);
     resultfile << "0 0 0 0 0 0" << std::endl;
     resultfile.close();
 
     std::ofstream endeffectorfile;
-    endeffectorfile.open(endeffectorFName + std::to_string(0), std::ios::trunc);
+    endeffectorfile.open(endeffectorFName + "_" + std::to_string(glob_ii) + "_" + std::to_string(0), std::ios::trunc);
     endeffectorfile << "0.08 -0.01 2.773 1 0 0 0" << std::endl;
     endeffectorfile.close();
 
     for (int ii = 0; ii < 9; ii++) {
 
         std::ofstream resultfile;
-        resultfile.open(resultFName + std::to_string(ii + 1), std::ios::trunc);
+        resultfile.open(resultFName + "_" + std::to_string(glob_ii) + "_" + std::to_string(ii + 1), std::ios::trunc);
         resultfile.close();
 
         std::ofstream endeffectorfile;
-        endeffectorfile.open(endeffectorFName + std::to_string(ii + 1), std::ios::trunc);
+        endeffectorfile.open(endeffectorFName + "_" + std::to_string(glob_ii) + "_" + std::to_string(ii + 1), std::ios::trunc);
         endeffectorfile.close();
     }
 }
@@ -1613,6 +1671,11 @@ int main(int argc, char* argv[])
 {
     world->getConstraintSolver()->setCollisionDetector(
         new dc::FCLCollisionDetector());
+
+    if (argc >= 2) {
+        glob_ii = std::atoi(argv[1]);
+        std::cout << glob_ii << std::endl;
+    }
 
     setUpRobot();
     setUpTensegrity();
@@ -1628,40 +1691,26 @@ int main(int argc, char* argv[])
 
     //dd::SkeletonPtr tensegrity = world->getSkeleton(tensegrityName);
 
-    if (argc < 2) {
+    if (argc < 3) {
 
-        int jj = 1;
-        int kk = 8;
-
+        //int jj = 1;
+        //int kk = 8;
         initFiles();
-        planGoToDetach(kk, jj);
-        planAttachDirect(kk, jj);
-        planGoToDetach(0, jj + 2);
-        planAttachDirect(0, jj + 2);
-        /*
-        std::ifstream fin("data/tenSetUp.txt");
-        double x, y, alpha;
-        while (!fin.eof()) {
-            fin >> x >> y >> alpha;
-            Eigen::Isometry3d tenMove;
+        for (size_t kk = 0; kk < 9; ++kk) {
+            planGoToDetach(seqArray[kk] - 1, kk + 1);
+            //planAttachDirect(kk, kk + 1);
 
-            tenMove = Eigen::Isometry3d::Identity();
-            Eigen::Matrix3d tenRot;
-
-            tenRot = Eigen::AngleAxisd(alpha * M_PI / 180.0, Eigen::Vector3d::UnitZ());
-
-            tenMove.translation() << x / 1000.0, y / 1000.0, 0.0;
-            tenMove.rotate(tenRot);
-            moveSkeleton(tensegrity, tenMove);
-
+            planAttachDirect(seqArray[kk] - 1, kk + 1);
+            attachStringAt(seqArray[kk] - 1);
         }
-*/
     }
-    //attachAllStrings();
+    detachAllStrings();
+    //attachStringAt(seqArray[0] - 1);
 
     MyWindow window(world);
     glutInit(&argc, argv);
     window.initWindow(600 * 2, 500 * 2, "SDF");
+    window.glob_jj = glob_ii;
 
     std::thread t(resultReplay, std::ref(window));
 
