@@ -91,9 +91,9 @@ public:
         ss_->setStartAndGoalStates(start, goal, 0.05);
 
         if (jointNumber > 3) {
-            ss_->solve(1 * 1 * 1);
+            ss_->solve(60 * 1 * 10);
         } else {
-            ss_->solve(1 * 1 * 1);
+            ss_->solve(60 * 1 * 10);
         }
 
         const std::size_t ns = ss_->getProblemDefinition()->getSolutionCount();
@@ -1010,7 +1010,7 @@ bool isWithinReach(int tendonNumber)
     return true;
 }
 
-std::vector<int> moveAround(Eigen::VectorXd& initPos, int kk)
+std::vector<int> moveAround(Eigen::VectorXd& initPos, int kk, bool isTransition)
 {
     dd::SkeletonPtr robot = world->getSkeleton(robotName);
 
@@ -1037,14 +1037,14 @@ std::vector<int> moveAround(Eigen::VectorXd& initPos, int kk)
                             if (initPos[2] + inc2 * M_PI / 180.0 > jointMin[2] && initPos[2] + inc2 * M_PI / 180.0 < jointMax[2]) {
                                 robot->getDof(4)->setPosition((initPos[2] + inc2) * M_PI / 180.0);
                             }
-                            if (!world->checkCollision() && isWithinReach(kk)) {
+                            if (!world->checkCollision() && (isTransition || isWithinReach(kk))) {
                                 if (distMin > (inc0 * inc0 + inc1 * inc1 + inc2 * inc2)) {
                                     distMin = (inc0 * inc0 + inc1 * inc1 + inc2 * inc2);
                                     saveInds[0] = inc0;
                                     saveInds[1] = inc1;
                                     saveInds[2] = inc2;
                                 }
-                                if (distMin <= 25 || jj >=10) {
+                                if (distMin <= 25 || jj >= 10) {
                                     return saveInds;
                                 }
                                 //std::cout << inc0 << " " << inc1 << " " << inc2 << std::endl;
@@ -1058,7 +1058,7 @@ std::vector<int> moveAround(Eigen::VectorXd& initPos, int kk)
     return saveInds;
 }
 
-Eigen::VectorXd collisionlessFinal(const Eigen::VectorXd& start, const Eigen::VectorXd& finish, int kk)
+Eigen::VectorXd collisionlessFinal(const Eigen::VectorXd& start, const Eigen::VectorXd& finish, int kk, bool isTransition)
 {
     Eigen::VectorXd cFinal(6);
 
@@ -1075,7 +1075,7 @@ Eigen::VectorXd collisionlessFinal(const Eigen::VectorXd& start, const Eigen::Ve
         robot->getDof(jj + 2)->setPosition(initPos[jj] * M_PI / 180.0);
     }
 
-    if (!world->checkCollision() && isWithinReach(kk)) {
+    if (!world->checkCollision() && (isTransition || isWithinReach(kk))) {
         for (int ii = 0; ii < 6; ii++) {
             cFinal[ii] = robot->getDof(ii + 2)->getPosition() * 180 / M_PI;
         }
@@ -1083,7 +1083,7 @@ Eigen::VectorXd collisionlessFinal(const Eigen::VectorXd& start, const Eigen::Ve
         return cFinal;
     }
 
-    std::vector<int> saveInds = moveAround(initPos, kk);
+    std::vector<int> saveInds = moveAround(initPos, kk, isTransition);
     std::cout << saveInds[0] << " " << saveInds[1] << " " << saveInds[2] << std::endl;
     robot->getDof(2)->setPosition((initPos[0] + saveInds[0]) * M_PI / 180.0);
     robot->getDof(3)->setPosition((initPos[1] + saveInds[1]) * M_PI / 180.0);
@@ -1152,7 +1152,7 @@ double isPlannable(int kk)
     env_t.setWorld(world);
 
     Eigen::VectorXd finish_trans(6);
-    finish_trans = collisionlessFinal(fullDetach[minDetIdx], fullAttach[minAttIdx], kk);
+    finish_trans = collisionlessFinal(fullDetach[minDetIdx], fullAttach[minAttIdx], kk, false);
 
     if (env_t.plan(fullDetach[minDetIdx], finish_trans)) {
         Eigen::VectorXd attachLoc = tf.translation();
@@ -1346,10 +1346,11 @@ void planAttachDirect(int kk, int jj)
     fullDetach.reserve(part1.size() + part2.size());
     fullDetach.insert(fullDetach.end(), part1.begin(), part1.end());
     fullDetach.insert(fullDetach.end(), part2.begin(), part2.end());
+    /*
     for (size_t j = 0; j < fullDetach.size(); j++) {
         printVector(fullDetach[j]);
     }
-
+*/
     attachStringAt(kk);
 
     tf = getAttachPosition(kk, false);
@@ -1361,10 +1362,11 @@ void planAttachDirect(int kk, int jj)
     fullAttach.reserve(part1.size() + part2.size());
     fullAttach.insert(fullAttach.end(), part1.begin(), part1.end());
     fullAttach.insert(fullAttach.end(), part2.begin(), part2.end());
+    /*
     for (size_t j = 0; j < fullAttach.size(); j++) {
         printVector(fullAttach[j]);
     }
-
+*/
     detachStringAt(kk);
 
     int minDetIdx = 0;
@@ -1391,16 +1393,22 @@ void planAttachDirect(int kk, int jj)
     env.setWorld(world);
 
     Eigen::VectorXd finish_trans(6);
-    finish_trans = collisionlessFinal(start, finish, kk);
+    finish_trans = collisionlessFinal(start, finish, kk, false);
 
-    std::cout << finish_trans << std::endl;
+    std::cout << "Attach 3dof start: ";
+    printVector(start);
+    std::cout << "Attach 3dof finish: ";
+    printVector(finish_trans);
 
     if (env.plan(start, finish_trans)) {
         env.recordSolution(start, jj);
     }
 
-    std::cout << finish_trans << std::endl;
     start = finish_trans;
+    std::cout << "Attach 6dof start: ";
+    printVector(start);
+    std::cout << "Attach 6dof finish: ";
+    printVector(finish);
     tensegrityEnvironment env1(6, kk, true);
     env1.setWorld(world);
     if (env1.plan(start, finish)) {
@@ -1408,7 +1416,7 @@ void planAttachDirect(int kk, int jj)
     }
 }
 
-void planGoToDetach(int kk, int jj)
+void planTransition(int kk, int jj)
 {
     std::vector<Eigen::VectorXd> part1;
     std::vector<Eigen::VectorXd> part2;
@@ -1426,10 +1434,11 @@ void planGoToDetach(int kk, int jj)
     fullDetach.reserve(part1.size() + part2.size());
     fullDetach.insert(fullDetach.end(), part1.begin(), part1.end());
     fullDetach.insert(fullDetach.end(), part2.begin(), part2.end());
+    /*
     for (size_t j = 0; j < fullDetach.size(); j++) {
         printVector(fullDetach[j]);
     }
-
+*/
     attachStringAt(kk);
 
     tf = getAttachPosition(kk, false);
@@ -1441,10 +1450,11 @@ void planGoToDetach(int kk, int jj)
     fullAttach.reserve(part1.size() + part2.size());
     fullAttach.insert(fullAttach.end(), part1.begin(), part1.end());
     fullAttach.insert(fullAttach.end(), part2.begin(), part2.end());
+    /*
     for (size_t j = 0; j < fullAttach.size(); j++) {
         printVector(fullAttach[j]);
     }
-
+*/
     detachStringAt(kk);
 
     int minDetIdx = 0;
@@ -1469,15 +1479,21 @@ void planGoToDetach(int kk, int jj)
     env.setWorld(world);
 
     Eigen::VectorXd finish_trans(6);
-    finish_trans = collisionlessFinal(start, finish, kk);
+    finish_trans = collisionlessFinal(start, finish, kk, true);
 
-    std::cout << finish_trans << std::endl;
-
+    std::cout << "Transition 3dof start: ";
+    printVector(start);
+    std::cout << "Transition 3dof finish: ";
+    printVector(finish_trans);
     if (env.plan(start, finish_trans)) {
         env.recordSolution(start, jj);
     }
 
     start = finish_trans;
+    std::cout << "Transition 6dof start: ";
+    printVector(start);
+    std::cout << "Transition 6dof finish: ";
+    printVector(finish);
     tensegrityEnvironment env1(6, kk, false);
     env1.setWorld(world);
     if (env1.plan(start, finish)) {
@@ -1573,9 +1589,9 @@ void planAttachMidPoint(int kk)
     env.setWorld(world);
 
     Eigen::VectorXd finish_trans(6);
-    finish_trans = collisionlessFinal(start, finish,kk);
+    finish_trans = collisionlessFinal(start, finish,kk, false);
 
-    std::cout << finish_trans << std::endl;
+   
 
     if (env.plan(start, finish_trans)) {
         env.recordSolution(start);
@@ -1642,7 +1658,7 @@ void tendonColor(int ii, bool tenRed, bool atDetRed)
 {
     Eigen::Vector3d tenColor;
     Eigen::Vector3d atDetColor;
-    tenColor << 0.792156862745098, 0.819607843137255, 0.933333333333333;
+    tenColor << 0.492156862745098, 0.519607843137255, 0.633333333333333;
     atDetColor << 0.792156862745098, 0.819607843137255, 0.933333333333333;
     if (tenRed) {
         tenColor << 1, 0, 0;
@@ -1676,6 +1692,7 @@ void resultReplay(MyWindow& window)
 
             for (int kk = startLoop; kk <= endLoop; kk++) {
                 std::ifstream fin(resultFName + "_" + std::to_string(glob_ii) + "_" + std::to_string(kk));
+                window.currPath = kk;
                 tendonColor(seqArray[kk - 1] - 1, false, true);
 
                 std::cout << kk << std::endl;
@@ -1771,7 +1788,8 @@ int main(int argc, char* argv[])
 
         initFiles();
         for (size_t kk = 0; kk < 9; ++kk) {
-            planGoToDetach(seqArray[kk] - 1, kk + 1);
+            std::cout << "plan number " << kk + 1 << std::endl;
+            planTransition(seqArray[kk] - 1, kk + 1);
 
             planAttachDirect(seqArray[kk] - 1, kk + 1);
             attachStringAt(seqArray[kk] - 1);
