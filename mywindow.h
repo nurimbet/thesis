@@ -29,6 +29,7 @@ public:
     int speed;
     int fileSequence;
     int glob_jj;
+    int currPath;
 private:
     //std::mutex readMutex;
 };

@@ -41,6 +41,7 @@ std::string robotName = "staubli";
 std::string tensegrityName = "tensegrity";
 int seqArray[9] = { 5, 9, 3, 4, 6, 1, 2, 8, 7 };
 int glob_ii = 0;
+Eigen::VectorXd lastFinish(6);
 
 ds::WorldPtr world = std::make_shared<ds::World>();
 
@@ -90,9 +91,9 @@ public:
         ss_->setStartAndGoalStates(start, goal, 0.05);
 
         if (jointNumber > 3) {
-            ss_->solve(60 * 1 * 10);
+            ss_->solve(1 * 1 * 1);
         } else {
-            ss_->solve(60 * 1 * 10);
+            ss_->solve(1 * 1 * 1);
         }
 
         const std::size_t ns = ss_->getProblemDefinition()->getSolutionCount();
@@ -256,7 +257,7 @@ public:
         std::vector<double> reals;
         std::vector<double> realsOld;
 
-        double distMin = std::numeric_limits<float>::max();
+        double distMin = std::numeric_limits<double>::max();
         for (unsigned int i(0); i < pdat.numVertices(); ++i) {
             unsigned int n_edge = pdat.getEdges(i, edge_list);
             for (unsigned int i2(0); i2 < n_edge; ++i2) {
@@ -402,7 +403,7 @@ Eigen::VectorXd getLastLineAsVector()
     std::string token;
     int i = 0;
     int arsize = 6;
-    float linear[arsize];
+    double linear[arsize];
     while (i < arsize) {
         pos = line.find(delimiter);
         token = line.substr(0, pos);
@@ -560,9 +561,9 @@ void detachAttachStrings(Eigen::VectorXd strings)
 
 void detachStringAt(int ii)
 {
-    dd::SkeletonPtr robot = world->getSkeleton(robotName);
-    robot->getBodyNode("claws")
-        ->setCollidable(true);
+    // dd::SkeletonPtr robot = world->getSkeleton(robotName);
+    // robot->getBodyNode("claws")
+    //     ->setCollidable(true);
     dd::SkeletonPtr tensegrity = world->getSkeleton(tensegrityName);
     tensegrity->getBodyNode("tendon" + std::to_string(ii + 1))
         ->getVisualizationShape(0)
@@ -573,9 +574,9 @@ void detachStringAt(int ii)
 
 void attachStringAt(int ii)
 {
-    dd::SkeletonPtr robot = world->getSkeleton(robotName);
-    robot->getBodyNode("claws")
-        ->setCollidable(false);
+    //dd::SkeletonPtr robot = world->getSkeleton(robotName);
+    //robot->getBodyNode("claws")
+    //    ->setCollidable(false);
 
     dd::SkeletonPtr tensegrity = world->getSkeleton(tensegrityName);
     tensegrity->getBodyNode("tendon" + std::to_string(ii + 1))
@@ -975,50 +976,119 @@ void printVector(Eigen::VectorXd final_joint)
         Eigen::DontAlignCols, " ", " ", "", "", "", "");
     std::cout << final_joint.format(CommaInitFmt) << std::endl;
 }
+bool isWithinReach(int tendonNumber)
+{
 
-Eigen::VectorXd collisionlessFinal(const Eigen::VectorXd& start, const Eigen::VectorXd& finish)
+    dd::SkeletonPtr robot = world->getSkeleton(robotName);
+    dd::SkeletonPtr tensegrity = world->getSkeleton(tensegrityName);
+
+    Eigen::Isometry3d attachTransform = tensegrity->getBodyNode("attach" + std::to_string(tendonNumber + 1))->getTransform();
+    Eigen::Vector3d attachTrans = attachTransform.translation();
+
+    Eigen::Isometry3d pulleyTransform = tensegrity->getBodyNode("pulley" + std::to_string(tendonNumber + 1))->getTransform();
+    Eigen::Vector3d pulleyTrans = pulleyTransform.translation();
+
+    Eigen::Isometry3d gripperTransform = robot->getBodyNode("gripper")->getTransform();
+    Eigen::Vector3d gripperTrans = gripperTransform.translation();
+    Eigen::Matrix3d gripperRot = gripperTransform.rotation();
+
+    double xs = 30.0 / 1000.0;
+    double ys = -60.0 / 1000.0;
+    double zs = 95.0 / 1000.0;
+
+    gripperTrans(0) += xs * gripperRot(0, 0) + ys * gripperRot(0, 1) + zs * gripperRot(0, 2);
+    gripperTrans(1) += xs * gripperRot(1, 0) + ys * gripperRot(1, 1) + zs * gripperRot(1, 2);
+    gripperTrans(2) += xs * gripperRot(2, 0) + ys * gripperRot(2, 1) + zs * gripperRot(2, 2);
+
+    //std::cout << (gripperTrans - pulleyTrans).squaredNorm() << std::endl;
+    //std::cout << ((pulleyTrans - attachTrans).squaredNorm() + 0.05)<< std::endl;
+    if ((gripperTrans - pulleyTrans).squaredNorm() > ((pulleyTrans - attachTrans).squaredNorm())) {
+        //   std::cout << "dafaq?" << std::endl;
+        return false;
+    }
+
+    return true;
+}
+
+std::vector<int> moveAround(Eigen::VectorXd& initPos, int kk)
+{
+    dd::SkeletonPtr robot = world->getSkeleton(robotName);
+
+    int distMin = std::numeric_limits<int>::max();
+    std::vector<int> saveInds;
+    saveInds.push_back(-20);
+    saveInds.push_back(-2);
+    saveInds.push_back(5);
+    int inc0 = 0;
+    int inc1 = 0;
+    int inc2 = 0;
+    for (int ii = 0; ii < 8; ii++) {
+        int sign[3] = { (int)((ii & 4) >> 2) * 2 - 1, (int)((ii & 2) >> 1) * 2 - 1, (int)(ii & 1) * 2 - 1 };
+        for (int jj = 0; jj < 30; jj++) {
+            inc0 = sign[0] * jj;
+            if ((initPos[0] + inc0) * M_PI / 180.0 > jointMin[0] && (initPos[0] + inc0) * M_PI / 180.0 < jointMax[0]) {
+                robot->getDof(2)->setPosition((initPos[0] + inc0) * M_PI / 180.0);
+                for (int mm = 0; mm < 10; mm++) {
+                    inc1 = sign[1] * mm;
+                    if ((initPos[1] + inc1) * M_PI / 180.0 > jointMin[1] && (initPos[1] + inc1) * M_PI / 180.0 < jointMax[1]) {
+                        robot->getDof(3)->setPosition((initPos[1] + inc1) * M_PI / 180.0);
+                        for (int ll = 0; ll < 10; ll++) {
+                            inc2 = sign[2] * ll;
+                            if (initPos[2] + inc2 * M_PI / 180.0 > jointMin[2] && initPos[2] + inc2 * M_PI / 180.0 < jointMax[2]) {
+                                robot->getDof(4)->setPosition((initPos[2] + inc2) * M_PI / 180.0);
+                            }
+                            if (!world->checkCollision() && isWithinReach(kk)) {
+                                if (distMin > (inc0 * inc0 + inc1 * inc1 + inc2 * inc2)) {
+                                    distMin = (inc0 * inc0 + inc1 * inc1 + inc2 * inc2);
+                                    saveInds[0] = inc0;
+                                    saveInds[1] = inc1;
+                                    saveInds[2] = inc2;
+                                }
+                                if (distMin <= 25 || jj >=10) {
+                                    return saveInds;
+                                }
+                                //std::cout << inc0 << " " << inc1 << " " << inc2 << std::endl;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return saveInds;
+}
+
+Eigen::VectorXd collisionlessFinal(const Eigen::VectorXd& start, const Eigen::VectorXd& finish, int kk)
 {
     Eigen::VectorXd cFinal(6);
 
     dd::SkeletonPtr robot = world->getSkeleton(robotName);
+    Eigen::VectorXd initPos(6);
+    initPos << finish[0],
+        finish[1],
+        finish[2],
+        start[3],
+        start[4],
+        start[5];
 
-    robot->getDof(2)->setPosition(finish[0] * M_PI / 180.0);
-    robot->getDof(3)->setPosition(finish[1] * M_PI / 180.0);
-    robot->getDof(4)->setPosition(finish[2] * M_PI / 180.0);
-    robot->getDof(5)->setPosition(start[3] * M_PI / 180.0);
-    robot->getDof(6)->setPosition(start[4] * M_PI / 180.0);
-    robot->getDof(7)->setPosition(start[5] * M_PI / 180.0);
+    for (int jj = 0; jj < 6; jj++) {
+        robot->getDof(jj + 2)->setPosition(initPos[jj] * M_PI / 180.0);
+    }
 
-    if (!world->checkCollision()) {
+    if (!world->checkCollision() && isWithinReach(kk)) {
         for (int ii = 0; ii < 6; ii++) {
             cFinal[ii] = robot->getDof(ii + 2)->getPosition() * 180 / M_PI;
         }
 
         return cFinal;
     }
-    int i = 2;
-    while (true) {
-        int inc = 0;
-        if (i % 2 == 0) {
-            inc = i / 2;
-        } else {
-            inc = -i / 2;
-        }
 
-        robot->getDof(4)->setPosition((finish[2] + inc) * M_PI / 180.0);
-        if (!world->checkCollision()) {
-            break;
-        }
-        robot->getDof(3)->setPosition((finish[1] + inc) * M_PI / 180.0);
-        if (!world->checkCollision()) {
-            break;
-        }
-        robot->getDof(2)->setPosition((finish[0] + inc) * M_PI / 180.0);
-        if (!world->checkCollision()) {
-            break;
-        }
-        i++;
-    }
+    std::vector<int> saveInds = moveAround(initPos, kk);
+    std::cout << saveInds[0] << " " << saveInds[1] << " " << saveInds[2] << std::endl;
+    robot->getDof(2)->setPosition((initPos[0] + saveInds[0]) * M_PI / 180.0);
+    robot->getDof(3)->setPosition((initPos[1] + saveInds[1]) * M_PI / 180.0);
+    robot->getDof(4)->setPosition((initPos[2] + saveInds[2]) * M_PI / 180.0);
+
     for (int ii = 0; ii < 6; ii++) {
         cFinal[ii] = robot->getDof(ii + 2)->getPosition() * 180 / M_PI;
     }
@@ -1066,7 +1136,7 @@ double isPlannable(int kk)
 
     int minDetIdx = 0;
     int minAttIdx = 0;
-    double minJointDist = std::numeric_limits<float>::max();
+    double minJointDist = std::numeric_limits<double>::max();
     for (size_t dd = 0; dd < fullDetach.size(); dd++) {
         for (size_t aa = 0; aa < fullAttach.size(); aa++) {
             double jointDist = (fullDetach[dd] - fullAttach[aa]).squaredNorm();
@@ -1082,7 +1152,7 @@ double isPlannable(int kk)
     env_t.setWorld(world);
 
     Eigen::VectorXd finish_trans(6);
-    finish_trans = collisionlessFinal(fullDetach[minDetIdx], fullAttach[minAttIdx]);
+    finish_trans = collisionlessFinal(fullDetach[minDetIdx], fullAttach[minAttIdx], kk);
 
     if (env_t.plan(fullDetach[minDetIdx], finish_trans)) {
         Eigen::VectorXd attachLoc = tf.translation();
@@ -1294,13 +1364,12 @@ void planAttachDirect(int kk, int jj)
     for (size_t j = 0; j < fullAttach.size(); j++) {
         printVector(fullAttach[j]);
     }
-    std::cout << "0 0 0 0 0 0" << std::endl;
 
     detachStringAt(kk);
 
     int minDetIdx = 0;
     int minAttIdx = 0;
-    double minJointDist = std::numeric_limits<float>::max();
+    double minJointDist = std::numeric_limits<double>::max();
     for (size_t dd = 0; dd < fullDetach.size(); dd++) {
         for (size_t aa = 0; aa < fullAttach.size(); aa++) {
             double jointDist = getWeightedJointDist(fullDetach[dd], fullAttach[aa]);
@@ -1316,12 +1385,13 @@ void planAttachDirect(int kk, int jj)
     Eigen::VectorXd finish(6);
     start = fullDetach[minDetIdx];
     finish = fullAttach[minAttIdx];
+    lastFinish = finish;
 
     tensegrityEnvironment env(3, kk, true);
     env.setWorld(world);
 
     Eigen::VectorXd finish_trans(6);
-    finish_trans = collisionlessFinal(start, finish);
+    finish_trans = collisionlessFinal(start, finish, kk);
 
     std::cout << finish_trans << std::endl;
 
@@ -1329,11 +1399,12 @@ void planAttachDirect(int kk, int jj)
         env.recordSolution(start, jj);
     }
 
-    start = getLastLineAsVector();
+    std::cout << finish_trans << std::endl;
+    start = finish_trans;
     tensegrityEnvironment env1(6, kk, true);
     env1.setWorld(world);
-    if (env1.plan(start * 180.0 / M_PI, finish)) {
-        env1.recordSolution(start * 180.0 / M_PI, jj);
+    if (env1.plan(start, finish)) {
+        env1.recordSolution(start, jj);
     }
 }
 
@@ -1377,7 +1448,7 @@ void planGoToDetach(int kk, int jj)
     detachStringAt(kk);
 
     int minDetIdx = 0;
-    double minJointDist = std::numeric_limits<float>::max();
+    double minJointDist = std::numeric_limits<double>::max();
     for (size_t dd = 0; dd < fullDetach.size(); dd++) {
         for (size_t aa = 0; aa < fullAttach.size(); aa++) {
             double jointDist = getWeightedJointDist(fullDetach[dd], fullAttach[aa]);
@@ -1389,7 +1460,7 @@ void planGoToDetach(int kk, int jj)
     }
 
     Eigen::VectorXd start(6);
-    start = getLastLineAsVector() * 180.0 / M_PI;
+    start = lastFinish;
 
     Eigen::VectorXd finish(6);
     finish = fullDetach[minDetIdx];
@@ -1398,7 +1469,7 @@ void planGoToDetach(int kk, int jj)
     env.setWorld(world);
 
     Eigen::VectorXd finish_trans(6);
-    finish_trans = collisionlessFinal(start, finish);
+    finish_trans = collisionlessFinal(start, finish, kk);
 
     std::cout << finish_trans << std::endl;
 
@@ -1406,11 +1477,11 @@ void planGoToDetach(int kk, int jj)
         env.recordSolution(start, jj);
     }
 
-    start = getLastLineAsVector();
+    start = finish_trans;
     tensegrityEnvironment env1(6, kk, false);
     env1.setWorld(world);
-    if (env1.plan(start * 180.0 / M_PI, finish)) {
-        env1.recordSolution(start * 180.0 / M_PI, jj);
+    if (env1.plan(start, finish)) {
+        env1.recordSolution(start, jj);
     }
 }
 
@@ -1502,7 +1573,7 @@ void planAttachMidPoint(int kk)
     env.setWorld(world);
 
     Eigen::VectorXd finish_trans(6);
-    finish_trans = collisionlessFinal(start, finish);
+    finish_trans = collisionlessFinal(start, finish,kk);
 
     std::cout << finish_trans << std::endl;
 
@@ -1692,20 +1763,21 @@ int main(int argc, char* argv[])
     //dd::SkeletonPtr tensegrity = world->getSkeleton(tensegrityName);
 
     if (argc < 3) {
+        lastFinish << -100, 90, -90, 0, 0, 0;
 
-        //int jj = 1;
-        //int kk = 8;
+        dd::SkeletonPtr robot = world->getSkeleton(robotName);
+        robot->getBodyNode("claws")
+            ->setCollidable(false);
+
         initFiles();
         for (size_t kk = 0; kk < 9; ++kk) {
             planGoToDetach(seqArray[kk] - 1, kk + 1);
-            //planAttachDirect(kk, kk + 1);
 
             planAttachDirect(seqArray[kk] - 1, kk + 1);
             attachStringAt(seqArray[kk] - 1);
         }
     }
     detachAllStrings();
-    //attachStringAt(seqArray[0] - 1);
 
     MyWindow window(world);
     glutInit(&argc, argv);

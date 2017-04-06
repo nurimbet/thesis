@@ -36,6 +36,7 @@ MyWindow::MyWindow(const ds::WorldPtr& world)
     fileSequence = 0;
     stop = false;
     glob_jj = 0;
+    currPath = 1;
 
     mTrackBall.setQuaternion(quat);
 }
@@ -346,11 +347,11 @@ void MyWindow::drawSkels()
             glEnd();
         } else {
             double colors[9][3] = { { 0, 0, 0 }, { 0, 0, 1 }, { 0, 1, 0 }, { 0, 1, 1 }, { 1, 0, 0 }, { 1, 0, 1 }, { 1, 1, 0 }, { 0, 0, 0 }, { 0, 0, 1 } };
-            for (size_t ii = 1; ii <= 9; ii++) {
+            //for (size_t ii = 1; ii <= 9; ii++) {
                 glLineWidth(3);
                 glBegin(GL_LINES);
-                glColor3f(colors[ii - 1][0], colors[ii - 1][1], colors[ii - 1][2]);
-                std::ifstream fin_to(endeffectorFileName +"_"+std::to_string(glob_jj)+"_" + std::to_string(ii));
+                glColor3f(colors[currPath - 1][0], colors[currPath - 1][1], colors[currPath - 1][2]);
+                std::ifstream fin_to(endeffectorFileName +"_"+std::to_string(glob_jj)+"_" + std::to_string(currPath));
                 fin_to >> x >> y >> z >> ign >> ign >> ign >> ign;
                 glVertex3f(x, y, z);
                 while (!fin_to.eof()) {
@@ -361,7 +362,7 @@ void MyWindow::drawSkels()
                 }
                 glVertex3f(x, y, z);
                 glEnd();
-            }
+            //}
         }
     }
     if (showTree) {
