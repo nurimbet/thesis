@@ -332,35 +332,70 @@ void MyWindow::drawSkels()
         double x, y, z, ign;
         if (fileSequence > 0) {
             glLineWidth(3);
+
             glBegin(GL_LINES);
             glColor3f(0, 0, 0);
-            std::ifstream fin_to(endeffectorFileName + "_" + std::to_string(glob_jj) + "_" + std::to_string(fileSequence));
-            fin_to >> x >> y >> z >> ign >> ign >> ign >> ign;
+            std::ifstream fin_tr(endeffectorFileName + "_" + std::to_string(glob_jj) + "_" + std::to_string(fileSequence)+"tr");
+            fin_tr >> x >> y >> z >> ign >> ign >> ign >> ign;
             glVertex3f(x, y, z);
-            while (!fin_to.eof()) {
-                fin_to >> x >> y >> z >> ign >> ign >> ign >> ign;
+            while (!fin_tr.eof()) {
+                fin_tr >> x >> y >> z >> ign >> ign >> ign >> ign;
 
                 glVertex3f(x, y, z);
                 glVertex3f(x, y, z);
             }
             glVertex3f(x, y, z);
+            fin_tr.close();
+            glEnd();
+
+            glBegin(GL_LINES);
+            glColor3f(0, 0, 0);
+            std::ifstream fin_at(endeffectorFileName + "_" + std::to_string(glob_jj) + "_" + std::to_string(fileSequence)+"at");
+            fin_at >> x >> y >> z >> ign >> ign >> ign >> ign;
+            glVertex3f(x, y, z);
+            while (!fin_at.eof()) {
+                fin_at >> x >> y >> z >> ign >> ign >> ign >> ign;
+
+                glVertex3f(x, y, z);
+                glVertex3f(x, y, z);
+            }
+            glVertex3f(x, y, z);
+            fin_at.close();
             glEnd();
         } else {
-            double colors[9][3] = { { 0, 0, 0 }, { 0, 0, 1 }, { 0, 1, 0 }, { 0, 1, 1 }, { 1, 0, 0 }, { 1, 0, 1 }, { 1, 1, 0 }, { 0, 0, 0 }, { 0, 0, 1 } };
+            //double colors[9][3] = { { 0, 0, 0 }, { 0, 0, 1 }, { 0, 1, 0 }, { 0, 1, 1 }, { 1, 0, 0 }, { 1, 0, 1 }, { 1, 1, 0 }, { 0, 0, 0 }, { 0, 0, 1 } };
             //for (size_t ii = 1; ii <= 9; ii++) {
                 glLineWidth(3);
+
                 glBegin(GL_LINES);
-                glColor3f(colors[currPath - 1][0], colors[currPath - 1][1], colors[currPath - 1][2]);
-                std::ifstream fin_to(endeffectorFileName +"_"+std::to_string(glob_jj)+"_" + std::to_string(currPath));
-                fin_to >> x >> y >> z >> ign >> ign >> ign >> ign;
+                glColor3f(1,0,1);
+                std::ifstream fin_tr(endeffectorFileName +"_"+std::to_string(glob_jj)+"_" + std::to_string(currPath)+"tr");
+                fin_tr >> x >> y >> z >> ign >> ign >> ign >> ign;
                 glVertex3f(x, y, z);
-                while (!fin_to.eof()) {
-                    fin_to >> x >> y >> z >> ign >> ign >> ign >> ign;
+                while (!fin_tr.eof()) {
+                    fin_tr >> x >> y >> z >> ign >> ign >> ign >> ign;
 
                     glVertex3f(x, y, z);
                     glVertex3f(x, y, z);
                 }
                 glVertex3f(x, y, z);
+                fin_tr.close();
+                glEnd();
+
+
+                glBegin(GL_LINES);
+                glColor3f(0,1,1);
+                std::ifstream fin_at(endeffectorFileName +"_"+std::to_string(glob_jj)+"_" + std::to_string(currPath)+"at");
+                fin_at >> x >> y >> z >> ign >> ign >> ign >> ign;
+                glVertex3f(x, y, z);
+                while (!fin_at.eof()) {
+                    fin_at >> x >> y >> z >> ign >> ign >> ign >> ign;
+
+                    glVertex3f(x, y, z);
+                    glVertex3f(x, y, z);
+                }
+                glVertex3f(x, y, z);
+                fin_at.close();
                 glEnd();
             //}
         }
