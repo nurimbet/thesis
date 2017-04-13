@@ -92,9 +92,9 @@ public:
         ss_->setStartAndGoalStates(start, goal, 0.05);
 
         if (jointNumber > 3) {
-            ss_->solve(1 * 1 * 1);
+            ss_->solve(60 * 1 * 10);
         } else {
-            ss_->solve(1 * 1 * 1);
+            ss_->solve(60 * 1 * 10);
         }
 
         const std::size_t ns = ss_->getProblemDefinition()->getSolutionCount();
@@ -159,7 +159,7 @@ public:
 
             double xs = 30.0 / 1000.0;
             double ys = -60.0 / 1000.0;
-            double zs = 87.5 / 1000.0;
+            double zs = 95.0 / 1000.0;
 
             gripperTrans(0) += xs * gripperRot(0, 0) + ys * gripperRot(0, 1) + zs * gripperRot(0, 2);
             gripperTrans(1) += xs * gripperRot(1, 0) + ys * gripperRot(1, 1) + zs * gripperRot(1, 2);
@@ -287,7 +287,7 @@ public:
 
                 double xs = 30.0 / 1000.0;
                 double ys = -60.0 / 1000.0;
-                double zs = 85.5 / 1000.0;
+                double zs = 95.0 / 1000.0;
 
                 tr(0) += xs * gripperRot(0, 0) + ys * gripperRot(0, 1) + zs * gripperRot(0, 2);
                 tr(1) += xs * gripperRot(1, 0) + ys * gripperRot(1, 1) + zs * gripperRot(1, 2);
@@ -323,7 +323,7 @@ public:
 
         double xs = 30.0 / 1000.0;
         double ys = -60.0 / 1000.0;
-        double zs = 87.5 / 1000.0;
+        double zs = 95.0 / 1000.0;
 
         gripperTrans(0) += xs * gripperRot(0, 0) + ys * gripperRot(0, 1) + zs * gripperRot(0, 2);
         gripperTrans(1) += xs * gripperRot(1, 0) + ys * gripperRot(1, 1) + zs * gripperRot(1, 2);
@@ -570,9 +570,9 @@ void detachAttachStrings(Eigen::VectorXd strings)
 
 void detachStringAt(int ii)
 {
-    // dd::SkeletonPtr robot = world->getSkeleton(robotName);
-    // robot->getBodyNode("claws")
-    //     ->setCollidable(true);
+     dd::SkeletonPtr robot = world->getSkeleton(robotName);
+     robot->getBodyNode("claws")
+         ->setCollidable(true);
     dd::SkeletonPtr tensegrity = world->getSkeleton(tensegrityName);
     tensegrity->getBodyNode("tendon" + std::to_string(ii + 1))
         ->getVisualizationShape(0)
@@ -583,9 +583,9 @@ void detachStringAt(int ii)
 
 void attachStringAt(int ii)
 {
-    //dd::SkeletonPtr robot = world->getSkeleton(robotName);
-    //robot->getBodyNode("claws")
-    //    ->setCollidable(false);
+    dd::SkeletonPtr robot = world->getSkeleton(robotName);
+    robot->getBodyNode("claws")
+        ->setCollidable(false);
 
     dd::SkeletonPtr tensegrity = world->getSkeleton(tensegrityName);
     tensegrity->getBodyNode("tendon" + std::to_string(ii + 1))
@@ -608,13 +608,13 @@ Eigen::Isometry3d getAttachPosition(int attNum,
     double xs = -50;
     double ys = 70;
     //double zs = -80;
-    double zs = -87.5;
+    double zs = -95;
     Eigen::Matrix3d rot_ten;
     if (wristUp) {
         rot_ten = tensegrityTransform.rotation() * Eigen::AngleAxisd(-90 * M_PI / 180.0, Eigen::Vector3d::UnitX());
     } else {
         rot_ten = tensegrityTransform.rotation() * Eigen::AngleAxisd(-90 * M_PI / 180.0, Eigen::Vector3d::UnitX()) * Eigen::AngleAxisd(180 * M_PI / 180.0, Eigen::Vector3d::UnitY());
-        zs = -92.5;
+        zs = -100;
         xs = -5;
     }
     tenTrans *= 1000;
@@ -641,7 +641,7 @@ Eigen::Isometry3d getDetachPosition(int detNum,
     double xs = 0;
     double ys = 80;
 
-    double zs = -87.5;
+    double zs = -95;
     Eigen::Matrix3d rot_ten;
     if (wristUp) {
         rot_ten = tensegrityTransform.rotation();
@@ -669,23 +669,23 @@ Eigen::Isometry3d getTightenerPoint(int detNum)
     Eigen::Isometry3d tf(Eigen::Isometry3d::Identity());
 
     dd::SkeletonPtr tensegrity = world->getSkeleton(tensegrityName);
-    Eigen::Isometry3d tensegrityTransform = tensegrity->getBodyNode("tensegrity")->getTransform();
+    Eigen::Isometry3d tensegrityTransform = tensegrity->getBodyNode("tightener" + std::to_string(detNum + 1))->getTransform();
     Eigen::Vector3d tenTrans = tensegrityTransform.translation();
 
     double xs = -9;
     double ys = 4.5;
-    double zs = -182.5;
+    double zs = -190;
 
     Eigen::Matrix3d rot_ten;
 
-    rot_ten = tensegrityTransform.rotation() * Eigen::AngleAxisd(180.0 * M_PI / 180.0, Eigen::Vector3d::UnitY()); 
+    rot_ten = tensegrityTransform.rotation() * Eigen::AngleAxisd(90 * M_PI / 180.0, Eigen::Vector3d::UnitY()) * Eigen::AngleAxisd(90 * M_PI / 180.0, Eigen::Vector3d::UnitZ());
 
     tenTrans *= 1000;
 
     tenTrans(0) += xs * rot_ten(0, 0) + ys * rot_ten(0, 1) + zs * rot_ten(0, 2);
     tenTrans(1) += xs * rot_ten(1, 0) + ys * rot_ten(1, 1) + zs * rot_ten(1, 2);
     tenTrans(2) += xs * rot_ten(2, 0) + ys * rot_ten(2, 1) + zs * rot_ten(2, 2);
-    tenTrans(2) -= 1258;
+    tenTrans(2) -= 1278;
 
     tf.linear() = rot_ten;
     tf.translation() = tenTrans;
@@ -710,7 +710,7 @@ Eigen::Isometry3d getTendonPoint(int detNum)
 
     double xs = 0.0;
     double ys = -50.0;
-    double zs = -67.5;
+    double zs = -75.0;
 
     tenTrans *= 1000;
 
@@ -780,8 +780,8 @@ void printFeasibleTensegrityLocation()
     dd::SkeletonPtr robot = world->getSkeleton(robotName);
 
     Eigen::Matrix3d rot_ten;
-    for (int xx = -2200 + glob_ii * 440; xx <= -2200 + (glob_ii + 1) * 440; xx += 50) {
-        for (int yy = -2200; yy <= 2200; yy += 50) {
+    for (int xx = -1000 + glob_ii * 200; xx <= -1000 + (glob_ii + 1) * 200; xx += 50) {
+        for (int yy = -1000; yy <= 1000; yy += 50) {
             //if ((xx >= -400 && xx <= 400) && (yy >= -350 && yy <= 350)) {
             //    continue;
             //}
@@ -971,7 +971,7 @@ bool isWithinReach(int tendonNumber)
 
     double xs = 30.0 / 1000.0;
     double ys = -60.0 / 1000.0;
-    double zs = 87.5 / 1000.0;
+    double zs = 95.0 / 1000.0;
 
     gripperTrans(0) += xs * gripperRot(0, 0) + ys * gripperRot(0, 1) + zs * gripperRot(0, 2);
     gripperTrans(1) += xs * gripperRot(1, 0) + ys * gripperRot(1, 1) + zs * gripperRot(1, 2);
@@ -1358,9 +1358,6 @@ void planAttachDirect(int kk, int jj)
             }
         }
     }
-    dd::SkeletonPtr robot = world->getSkeleton(robotName);
-    robot->getBodyNode("claws")
-        ->setCollidable(true);
 
     Eigen::VectorXd start(6);
     Eigen::VectorXd finish(6);
@@ -1383,9 +1380,6 @@ void planAttachDirect(int kk, int jj)
         env.recordSolution(start, jj);
     }
 
-    robot->getBodyNode("claws")
-        ->setCollidable(true);
-
     start = finish_trans;
     std::cout << "Attach 6dof start: ";
     printVector(start);
@@ -1396,8 +1390,6 @@ void planAttachDirect(int kk, int jj)
     if (env1.plan(start, finish)) {
         env1.recordSolution(start, jj);
     }
-    robot->getBodyNode("claws")
-        ->setCollidable(false);
 }
 
 void planTransition(int kk, int jj)
@@ -1441,6 +1433,10 @@ void planTransition(int kk, int jj)
 */
     detachStringAt(kk);
 
+    dd::SkeletonPtr robot = world->getSkeleton(robotName);
+    robot->getBodyNode("claws")
+        ->setCollidable(false);
+
     int minDetIdx = 0;
     double minJointDist = std::numeric_limits<double>::max();
     for (size_t dd = 0; dd < fullDetach.size(); dd++) {
@@ -1452,9 +1448,6 @@ void planTransition(int kk, int jj)
             }
         }
     }
-    dd::SkeletonPtr robot = world->getSkeleton(robotName);
-    robot->getBodyNode("claws")
-        ->setCollidable(false);
 
     Eigen::VectorXd start(6);
     start = lastFinish;
@@ -1488,8 +1481,6 @@ void planTransition(int kk, int jj)
     if (env1.plan(start, finish)) {
         env1.recordSolution(start, jj);
     }
-    robot->getBodyNode("claws")
-        ->setCollidable(false);
 }
 
 
@@ -1589,7 +1580,7 @@ void resultReplay(MyWindow& window)
                         robot->getDof(ii + 2)->setPosition(jk[ii]);
                     }
 
-                    std::this_thread::sleep_for(std::chrono::milliseconds(window.speed));
+                    std::this_thread::sleep_for(std::chrono::microseconds(window.speed));
                     if (window.stop) {
                         break;
                     }
@@ -1598,7 +1589,7 @@ void resultReplay(MyWindow& window)
                 }
                 fin_tr.close();
 
-                std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+                std::this_thread::sleep_for(std::chrono::milliseconds(2500));
 
                 std::ifstream fin_at(resultFName + "_" + std::to_string(glob_ii) + "_" + std::to_string(kk)+"at");
                 while (!fin_at.eof()) {
@@ -1607,7 +1598,7 @@ void resultReplay(MyWindow& window)
                         robot->getDof(ii + 2)->setPosition(jk[ii]);
                     }
 
-                    std::this_thread::sleep_for(std::chrono::milliseconds(window.speed));
+                    std::this_thread::sleep_for(std::chrono::microseconds(window.speed));
                     if (window.stop) {
                         break;
                     }
@@ -1650,21 +1641,25 @@ void initFiles(int ii)
 
     //for (int ii = 0; ii < 9; ii++) {
 
+
         std::ofstream resultfile_tr;
         resultfile_tr.open(resultFName + "_" + std::to_string(glob_ii) + "_" + std::to_string(ii + 1)+"tr", std::ios::trunc);
         resultfile_tr.close();
-
+/*
         std::ofstream resultfile_at;
         resultfile_at.open(resultFName + "_" + std::to_string(glob_ii) + "_" + std::to_string(ii + 1)+"at", std::ios::trunc);
         resultfile_at.close();
+*/
 
         std::ofstream endeffectorfile_tr;
         endeffectorfile_tr.open(endeffectorFName + "_" + std::to_string(glob_ii) + "_" + std::to_string(ii + 1)+"tr", std::ios::trunc);
         endeffectorfile_tr.close();
-
+/*
         std::ofstream endeffectorfile_at;
         endeffectorfile_at.open(endeffectorFName + "_" + std::to_string(glob_ii) + "_" + std::to_string(ii + 1)+"at", std::ios::trunc);
         endeffectorfile_at.close();
+*/
+
     //}
 }
 
@@ -1673,8 +1668,10 @@ int main(int argc, char* argv[])
     world->getConstraintSolver()->setCollisionDetector(
         new dc::FCLCollisionDetector());
 
-    if (argc >= 2) {
+    int fileNum = 0; 
+    if (argc >= 3) {
         glob_ii = std::atoi(argv[1]);
+        fileNum = std::atoi(argv[2]);
         std::cout << glob_ii << std::endl;
     }
 
@@ -1683,18 +1680,7 @@ int main(int argc, char* argv[])
 
     detachAllStrings();
 
-    dd::SkeletonPtr tensegrity = world->getSkeleton(tensegrityName);
-    //tensegrity->getBodyNode("tensegrity")
-    //    ->setCollidable(false);
 
-    std::vector<Eigen::VectorXd> part1;
-    Eigen::Isometry3d tf(Eigen::Isometry3d::Identity());
-    tf = getTightenerPoint(0);
-    part1 = getInverseKinematics(tf);
-
-    for (size_t mm = 0; mm < part1.size(); mm++) {
-                printVector(part1[mm]);
-    }
 
     //printFeasibleTensegrityLocation();
     //printAttachmentSequence();
@@ -1702,27 +1688,34 @@ int main(int argc, char* argv[])
     //printTendonFeasibility();
     //printPlannable();
     //planAttachMidPoint(0);
-
-    //dd::SkeletonPtr tensegrity = world->getSkeleton(tensegrityName);
-
-    if (argc < 3) {
+/*
+    dd::SkeletonPtr tensegrity = world->getSkeleton(tensegrityName);
+    Eigen::Isometry3d tensegrityTransform = tensegrity->getBodyNode("attach" + std::to_string(9))->getTransform();
+    
+    dd::SkeletonPtr ball1 = dd::Skeleton::create("ball1");
+    createBall(ball1, Eigen::Vector3d(0.25, 0.25, 0.25), tensegrityTransform) ;
+    world->addSkeleton(ball1);
+*/
+    
+    if (argc < 4) {
         lastFinish << -100, 90, -90, 0, 0, 0;
 
+        //lastFinish << 41.85513989,  43.03932906,  98.35966469,   1.39322709,
+        //98.58884781, -34.2607562 ;
+        //lastFinish << 24.52918265,  -33.65284798,  111.5984275 ,   61.46863114,
+        //-53.65153875,   61.94246723;
         //lastFinish << 33.70258072,  -13.58832437,  106.06079041,   56.45496395,
         //-69.01276642, -109.3123259;
 
-        dd::SkeletonPtr robot = world->getSkeleton(robotName);
-        robot->getBodyNode("claws")
-            ->setCollidable(false);
 
         for (size_t kk = 0; kk < 9; ++kk) {
             std::cout << "plan number " << kk + 1 << std::endl;
-    //        if (kk + 1 == 5) {
+            if (kk + 1 == fileNum) {
                 initFiles(kk);
                 planTransition(seqArray[kk] - 1, kk + 1);
 
-                planAttachDirect(seqArray[kk] - 1, kk + 1);
-    //        }
+                //planAttachDirect(seqArray[kk] - 1, kk + 1);
+            }
             attachStringAt(seqArray[kk] - 1);
         }
     }

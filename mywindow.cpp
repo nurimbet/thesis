@@ -32,7 +32,7 @@ MyWindow::MyWindow(const ds::WorldPtr& world)
     mTrans = -Eigen::Vector3d(-0.301, -0.171, 1.3) * 1000;
     Eigen::Quaterniond quat(0.764165, -0.644268, -0.026487, -0.030964);
     replay = false;
-    speed = 5;
+    speed = 5000;
     fileSequence = 0;
     stop = false;
     glob_jj = 0;
@@ -216,10 +216,10 @@ void MyWindow::keyboard(unsigned char key, int x, int y)
         showAxes = !showAxes;
         break;
     case '-':
-        speed += 1;
+        speed += 333;
         break;
     case '=':
-        speed -= 1;
+        speed -= 333;
         if (speed < 0) {
             speed = 0;
         }

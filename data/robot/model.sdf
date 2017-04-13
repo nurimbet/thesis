@@ -468,7 +468,7 @@
       </axis>
     </joint>
     <link name='gripper'>
-      <pose>0.05 0.05 2.6705 0 -0 0</pose>
+      <pose>0.05 0.05 2.678 0 -0 0</pose>
       <collision name='gripper_link_collision'>
         <pose>0 0 0 0 -0 0</pose>
         <geometry>
@@ -512,7 +512,7 @@
     </joint>
 
     <link name='claws'>
-      <pose>0.05 0.05 2.6705 0 -0 0</pose>
+      <pose>0.05 0.05 2.678 0 -0 0</pose>
       <collision name='claws_link_collision'>
         <pose>0 0 0 0 -0 0</pose>
         <geometry>
