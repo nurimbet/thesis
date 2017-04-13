@@ -13,14 +13,11 @@ namespace dg = dart::gui;
  */
 class MyWindow : public dart::gui::SimWindow {
 public:
-    /// ctor
     MyWindow(const ds::WorldPtr& world);
 
-    /// fixes rendering
     void keyboard(unsigned char key, int x, int y) override;
     void drawAxes(const Eigen::Vector3d& tr, const Eigen::Matrix3d& rot);
     void drawSkels() override;
-    void setViewTrack(double j1, double j2, double j3, double j4, double j5, double j6);
     void moveJoint(int jointNum, bool positive);
     void translateTensegrity(int axis, bool positive);
     void rotateTensegrity(int axis, bool positive);
@@ -31,7 +28,6 @@ public:
     int glob_jj;
     int currPath;
 private:
-    //std::mutex readMutex;
 };
 
 #endif // MYWINDOW_H

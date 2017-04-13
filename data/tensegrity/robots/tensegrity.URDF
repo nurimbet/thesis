@@ -1418,6 +1418,7 @@
     <axis
       xyz="0 0 0" />
   </joint>
+<!--
   <link
     name="ball1">
     <inertial>
@@ -1469,6 +1470,7 @@
     <axis
       xyz="0 0 0" />
   </joint>
+-->
   <link
     name="pulley1">
     <inertial>

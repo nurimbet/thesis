@@ -40,7 +40,6 @@ std::string tendonFName = "data/results/tendon.txt";
 std::string robotName = "staubli";
 std::string tensegrityName = "tensegrity";
 int seqArray[9] = { 5, 9, 3, 4, 6, 2, 8, 1, 7 }; // kinda works except for 8th
-//int seqArray[9] = { 5, 9, 3, 4, 6, 1, 2, 8, 7 }; // kinda works except for 8th
 int glob_ii = 0;
 Eigen::VectorXd lastFinish(6);
 
@@ -53,13 +52,7 @@ public:
         jointNumber = jointNum;
         tendonNumber = tendonNum;
         withString = withStringConstraint;
-        /*
-        dd::SkeletonPtr robot = world->getSkeleton(robotName);
 
-        space = new ob::WeightedRealVectorStateSpace();
-
-        static_cast<ob::WeightedRealVectorStateSpace*>(space)->setSkeleton(robot);
-*/
         space = new ob::RealVectorStateSpace();
 
         for (size_t ii = 0; ii < jointNumber; ++ii) {
@@ -115,22 +108,20 @@ public:
             return;
         og::PathGeometric& p = ss_->getSolutionPath();
         p.interpolate(1000);
-        //std::ofstream resultfile;
-        //resultfile.open(resultFName + "_" + std::to_string(glob_ii) + "_" + std::to_string(0), std::ios::app);
+
         std::ofstream resultfile_sequence;
-        if(withString) {
-            resultfile_sequence.open(resultFName + "_" + std::to_string(glob_ii) + "_" + std::to_string(fileSequence)+"at", std::ios::app);
-        }else{
-            resultfile_sequence.open(resultFName + "_" + std::to_string(glob_ii) + "_" + std::to_string(fileSequence)+"tr", std::ios::app);
+        if (withString) {
+            resultfile_sequence.open(resultFName + "_" + std::to_string(glob_ii) + "_" + std::to_string(fileSequence) + "at", std::ios::app);
+        } else {
+            resultfile_sequence.open(resultFName + "_" + std::to_string(glob_ii) + "_" + std::to_string(fileSequence) + "tr", std::ios::app);
         }
 
-        //std::ofstream endeffectorfile;
         std::ofstream endeffectorfile_sequence;
-        //endeffectorfile.open(endeffectorFName + "_" + std::to_string(glob_ii) + "_" + std::to_string(0), std::ios::app);
-        if(withString) {
-            endeffectorfile_sequence.open(endeffectorFName + "_" + std::to_string(glob_ii) + "_" + std::to_string(fileSequence)+"at", std::ios::app);
-        }else{
-            endeffectorfile_sequence.open(endeffectorFName + "_" + std::to_string(glob_ii) + "_" + std::to_string(fileSequence)+"tr", std::ios::app);
+
+        if (withString) {
+            endeffectorfile_sequence.open(endeffectorFName + "_" + std::to_string(glob_ii) + "_" + std::to_string(fileSequence) + "at", std::ios::app);
+        } else {
+            endeffectorfile_sequence.open(endeffectorFName + "_" + std::to_string(glob_ii) + "_" + std::to_string(fileSequence) + "tr", std::ios::app);
         }
 
         for (std::size_t i = 0; i < p.getStateCount(); ++i) {
@@ -167,24 +158,17 @@ public:
 
             for (size_t ii = 0; ii < 6; ++ii) {
                 if (ii < 5) {
-                    //resultfile << j[ii] << " ";
                     resultfile_sequence << j[ii] << " ";
                 } else {
-                    //resultfile << j[5] << std::endl;
                     resultfile_sequence << j[5] << std::endl;
                 }
             }
 
-            //endeffectorfile << gripperTrans(0) << " " << gripperTrans(1) << " " << gripperTrans(2) << " "
-            //                << quat.w() << " " << quat.x() << " " << quat.y()
-            //                << " " << quat.z() << std::endl;
             endeffectorfile_sequence << gripperTrans(0) << " " << gripperTrans(1) << " " << gripperTrans(2) << " "
                                      << quat.w() << " " << quat.x() << " " << quat.y()
                                      << " " << quat.z() << std::endl;
         }
-        //resultfile.close();
         resultfile_sequence.close();
-        //endeffectorfile.close();
         endeffectorfile_sequence.close();
 
         if (jointNumber == 3) {
@@ -194,19 +178,11 @@ public:
             std::vector<unsigned int> edge_list;
             std::vector<double> reals;
             std::vector<double> realsOld;
-            //ob::State* s3 = space->allocState();
             for (unsigned int i(0); i < pdat.numVertices(); ++i) {
                 unsigned int n_edge = pdat.getEdges(i, edge_list);
                 const ob::State* s1 = pdat.getVertex(i).getState();
-                //isMajorTree = pdat.getVertex(i).getTag();
                 for (unsigned int i2(0); i2 < n_edge; ++i2) {
                     const ob::State* s2 = pdat.getVertex(edge_list[i2]).getState();
-                    /*
-                double step = 0.05;
-                if (space->distance(s1, s2) < 0.03) {
-                    step = 0.2;
-                }
-                */
                     space->copyToReals(realsOld, s1);
                     dd::SkeletonPtr robot = world_->getSkeleton(robotName);
 
@@ -218,28 +194,7 @@ public:
                     Eigen::Vector3d tr = gripperTransform.translation();
 
                     ofs_e << tr(0) << " " << tr(1) << " " << tr(2) << std::endl;
-                    /*
-                for (double t = step; t <= 1.01; t += step) {
-                    space->interpolate(s1, s2, t, s3);
-                    space->copyToReals(reals, s3);
 
-                    //for (const auto& r : realsOld)
-
-                    //    ofs_e << r << " ";
-                    //
-
-                    robot->getDof(2)->setPosition(reals[0]);
-                    robot->getDof(3)->setPosition(reals[1]);
-                    robot->getDof(4)->setPosition(reals[2]);
-
-                    transform = robot->getBodyNode("toolflange_link")->getTransform();
-                    tr = transform.translation();
-
-                    ofs_e << tr(0) << " " << tr(1) << " " << tr(2) << std::endl;
-                    ofs_e << tr(0) << " " << tr(1) << " " << tr(2) << std::endl;
-
-                }
-*/
                     space->copyToReals(reals, s2);
 
                     robot->getDof(2)->setPosition(reals[0]);
@@ -329,10 +284,7 @@ public:
         gripperTrans(1) += xs * gripperRot(1, 0) + ys * gripperRot(1, 1) + zs * gripperRot(1, 2);
         gripperTrans(2) += xs * gripperRot(2, 0) + ys * gripperRot(2, 1) + zs * gripperRot(2, 2);
 
-        //std::cout << (gripperTrans - pulleyTrans).squaredNorm() << std::endl;
-        //std::cout << ((pulleyTrans - attachTrans).squaredNorm() + 0.05)<< std::endl;
         if ((gripperTrans - pulleyTrans).squaredNorm() > ((pulleyTrans - attachTrans).squaredNorm() + 0.05)) {
-            //   std::cout << "dafaq?" << std::endl;
             return false;
         }
 
@@ -352,7 +304,6 @@ private:
 
         if (withString) {
             return isWithinReach() && !world_->checkCollision();
-            //return !world_->checkCollision();
         } else {
             return !world_->checkCollision();
         }
@@ -401,7 +352,7 @@ Eigen::VectorXd getLastLineAsVector(int kk)
 {
     Eigen::VectorXd start(6);
 
-    std::ifstream file(resultFName + "_" + std::to_string(glob_ii) + "_" + std::to_string(kk)+"tr");
+    std::ifstream file(resultFName + "_" + std::to_string(glob_ii) + "_" + std::to_string(kk) + "tr");
     std::string line = getLastLine(file);
 
     file.close();
@@ -430,7 +381,6 @@ std::vector<Eigen::VectorXd> getInverseKinematics(
 {
     using Eigen::VectorXd;
     using std::vector;
-    //std::cout << final_point.translation();
 
     vector<VectorXd> final_joints;
     VectorXd final_joint(6);
@@ -459,11 +409,11 @@ std::vector<Eigen::VectorXd> getInverseKinematics(
         double t_1 = (pow(p_ax * cos(theta[1]) + p_ay * sin(theta[1]) - a[1], 2) + a[2] * a[2] + p_az * p_az - d[4] * d[4]) / (2 * a[2]);
         theta[2] = atan2((p_ax * cos(theta[1]) + p_ay * sin(theta[1]) - a[1]), p_az) - atan2(t_1, pow(-1, (i & 4) >> 2) * sqrt(pow(p_ax * cos(theta[1]) + p_ay * sin(theta[1]) - a[1],
                                                                                                                                    2)
-                                                                                                                              + p_az * p_az - t_1 * t_1)); // + M_PI / 2;
+                                                                                                                              + p_az * p_az - t_1 * t_1)); 
 
         theta[3] = atan2(p_ax * cos(theta[1]) + p_ay * sin(theta[1]) - a[1] - a[2] * cos(theta[2]),
                        p_az + a[2] * sin(theta[2]))
-            - theta[2]; // - M_PI / 2;
+            - theta[2]; 
 
         Eigen::Matrix3d rot_R3_0;
         rot_R3_0 = Eigen::Quaterniond(
@@ -496,7 +446,6 @@ std::vector<Eigen::VectorXd> getInverseKinematics(
                 withinJointRange = false;
             }
         }
-        //std::cout << theta[1]*180/M_PI <<" " << theta[2]*180/M_PI <<" " <<theta[3]*180/M_PI <<" " <<theta[4]*180/M_PI <<" " <<theta[5]*180/M_PI <<" " <<theta[6]*180/M_PI  << std::endl;
 
         if (!(std::isnan(theta[1])) && !(std::isnan(theta[2])) && !(std::isnan(theta[3])) && !(std::isnan(theta[4])) && !(std::isnan(theta[5])) && !(std::isnan(theta[6]))) {
 
@@ -508,7 +457,6 @@ std::vector<Eigen::VectorXd> getInverseKinematics(
             robot->getDof(7)->setPosition(theta[6]);
 
             if (withinJointRange && !world->checkCollision()) {
-                //std::cout << std::endl;
                 final_joint << theta[1], theta[2], theta[3], theta[4], theta[5],
                     theta[6];
                 final_joint = final_joint * 180.0 / M_PI;
@@ -570,9 +518,9 @@ void detachAttachStrings(Eigen::VectorXd strings)
 
 void detachStringAt(int ii)
 {
-     dd::SkeletonPtr robot = world->getSkeleton(robotName);
-     robot->getBodyNode("claws")
-         ->setCollidable(true);
+    dd::SkeletonPtr robot = world->getSkeleton(robotName);
+    robot->getBodyNode("claws")
+        ->setCollidable(true);
     dd::SkeletonPtr tensegrity = world->getSkeleton(tensegrityName);
     tensegrity->getBodyNode("tendon" + std::to_string(ii + 1))
         ->getVisualizationShape(0)
@@ -607,7 +555,6 @@ Eigen::Isometry3d getAttachPosition(int attNum,
 
     double xs = -50;
     double ys = 70;
-    //double zs = -80;
     double zs = -95;
     Eigen::Matrix3d rot_ten;
     if (wristUp) {
@@ -645,10 +592,8 @@ Eigen::Isometry3d getDetachPosition(int detNum,
     Eigen::Matrix3d rot_ten;
     if (wristUp) {
         rot_ten = tensegrityTransform.rotation();
-        //rot_ten = tensegrityTransform.rotation() * Eigen::AngleAxisd(90 * M_PI / 180.0, Eigen::Vector3d::UnitX());
     } else {
         rot_ten = tensegrityTransform.rotation() * Eigen::AngleAxisd(180 * M_PI / 180.0, Eigen::Vector3d::UnitY());
-        //rot_ten = tensegrityTransform.rotation() * Eigen::AngleAxisd(90 * M_PI / 180.0, Eigen::Vector3d::UnitX()) * Eigen::AngleAxisd(180 * M_PI / 180.0, Eigen::Vector3d::UnitY());
         xs = -(25);
     }
     tenTrans *= 1000;
@@ -662,7 +607,6 @@ Eigen::Isometry3d getDetachPosition(int detNum,
     tf.translation() = tenTrans;
     return tf;
 }
-
 
 Eigen::Isometry3d getTightenerPoint(int detNum)
 {
@@ -768,8 +712,6 @@ void printFeasibleTensegrityLocation()
 {
     std::ofstream feasibleLocation;
     feasibleLocation.open(feasibleLocFName + std::to_string(glob_ii), std::ios::trunc);
-    //std::ofstream nonFeasIdx;
-    //nonFeasIdx.open("nonFeas.txt", std::ios::trunc);
 
     Eigen::VectorXd strings(9);
     strings << 0, 0, 0, 0, 0, 0, 0, 0, 0;
@@ -782,11 +724,7 @@ void printFeasibleTensegrityLocation()
     Eigen::Matrix3d rot_ten;
     for (int xx = -1000 + glob_ii * 200; xx <= -1000 + (glob_ii + 1) * 200; xx += 50) {
         for (int yy = -1000; yy <= 1000; yy += 50) {
-            //if ((xx >= -400 && xx <= 400) && (yy >= -350 && yy <= 350)) {
-            //    continue;
-            //}
             for (int aa_zz = -180; aa_zz < 180; aa_zz += 5) {
-                //    for (int zz = -500; zz <= 500; zz += 10) {
                 int ii = 0;
                 rot_ten = Eigen::AngleAxisd((double)aa_zz * M_PI / 180.0,
                     Eigen::Vector3d::UnitZ());
@@ -810,27 +748,16 @@ void printFeasibleTensegrityLocation()
                         break;
                     }
                     ii++;
-                    //std::cout << ii << std::endl;
                 }
                 if (ii == 9) {
-                    //feasibleLocation << xx << " " << yy << " " << zz << " " << aa_zz
                     feasibleLocation << xx << " " << yy << " " << aa_zz
                                      << std::endl;
                 }
-                /*
-                    else
-                    {
-                        nonFeasIdx << ii << std::endl;
-                    }
-*/
-
-                //}
             }
             std::cout << xx << " " << yy << std::endl;
         }
     }
     feasibleLocation.close();
-    //    nonFeasIdx.close();
 }
 
 void printAttachmentSequence()
@@ -977,10 +904,7 @@ bool isWithinReach(int tendonNumber)
     gripperTrans(1) += xs * gripperRot(1, 0) + ys * gripperRot(1, 1) + zs * gripperRot(1, 2);
     gripperTrans(2) += xs * gripperRot(2, 0) + ys * gripperRot(2, 1) + zs * gripperRot(2, 2);
 
-    //std::cout << (gripperTrans - pulleyTrans).squaredNorm() << std::endl;
-    //std::cout << ((pulleyTrans - attachTrans).squaredNorm() + 0.05)<< std::endl;
     if ((gripperTrans - pulleyTrans).squaredNorm() > ((pulleyTrans - attachTrans).squaredNorm())) {
-        //   std::cout << "dafaq?" << std::endl;
         return false;
     }
 
@@ -1024,7 +948,6 @@ std::vector<int> moveAround(Eigen::VectorXd& initPos, int kk, bool isTransition)
                                 if (distMin <= 25 || jj >= 10) {
                                     return saveInds;
                                 }
-                                //std::cout << inc0 << " " << inc1 << " " << inc2 << std::endl;
                             }
                         }
                     }
@@ -1074,12 +997,6 @@ Eigen::VectorXd collisionlessFinal(const Eigen::VectorXd& start, const Eigen::Ve
 
 double isPlannable(int kk)
 {
-    /*
-    int kkk = kk;
-    if (kk == 2) {
-        kkk = 3;
-    }
-*/
     std::vector<Eigen::VectorXd> part1;
     std::vector<Eigen::VectorXd> part2;
     std::vector<Eigen::VectorXd> fullDetach;
@@ -1196,12 +1113,9 @@ void printTendonFeasibility()
     detachAllStrings();
     Eigen::Isometry3d tf(Eigen::Isometry3d::Identity());
 
-    //std::ifstream feas(feasibleLocFName);
     double xx, yy, aa_zz;
     std::ofstream tendon;
     tendon.open(tendonFName, std::ios::trunc);
-    //while (!feas.eof()) {
-    //    feas >> xx >> yy >> aa_zz;
     xx = 0.0;
     yy = -600.0;
     aa_zz = 45.0;
@@ -1226,9 +1140,7 @@ void printTendonFeasibility()
         }
     }
     tendon << count << std::endl;
-    //}
     tendon.close();
-    //feas.close();
 }
 
 void printPlannable()
@@ -1266,10 +1178,8 @@ void printPlannable()
         int count = 0;
         for (kk = 0; kk < 9; kk++) {
             minDist = isPlannable(kk);
-            //plannable << "kk = " << kk << " minimum distance = " << minDist << std::endl;
             if (minDist > 0.25) {
                 break;
-                //count -= 1;
             }
             count += 1;
         }
@@ -1483,7 +1393,6 @@ void planTransition(int kk, int jj)
     }
 }
 
-
 void setUpRobot()
 {
     std::string prefix = getWorkingDirectory();
@@ -1573,7 +1482,7 @@ void resultReplay(MyWindow& window)
                 window.currPath = kk;
                 tendonColor(seqArray[kk - 1] - 1, false, true);
 
-                std::ifstream fin_tr(resultFName + "_" + std::to_string(glob_ii) + "_" + std::to_string(kk)+"tr");
+                std::ifstream fin_tr(resultFName + "_" + std::to_string(glob_ii) + "_" + std::to_string(kk) + "tr");
                 while (!fin_tr.eof()) {
                     for (int ii = 0; ii < 6; ii++) {
                         fin_tr >> jk[ii];
@@ -1589,9 +1498,9 @@ void resultReplay(MyWindow& window)
                 }
                 fin_tr.close();
 
-                std::this_thread::sleep_for(std::chrono::milliseconds(2500));
+                std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
-                std::ifstream fin_at(resultFName + "_" + std::to_string(glob_ii) + "_" + std::to_string(kk)+"at");
+                std::ifstream fin_at(resultFName + "_" + std::to_string(glob_ii) + "_" + std::to_string(kk) + "at");
                 while (!fin_at.eof()) {
                     for (int ii = 0; ii < 6; ii++) {
                         fin_at >> jk[ii];
@@ -1623,44 +1532,28 @@ void resultReplay(MyWindow& window)
             }
         }
     }
-    std::cout << "dafaq?" << std::endl;
 }
 
 void initFiles(int ii)
 {
 
-    //std::ofstream resultfile;
-    //resultfile.open(resultFName + "_" + std::to_string(glob_ii) + "_" + std::to_string(0), std::ios::trunc);
-    //resultfile << "0 0 0 0 0 0" << std::endl;
-    //resultfile.close();
-
-    //std::ofstream endeffectorfile;
-    //endeffectorfile.open(endeffectorFName + "_" + std::to_string(glob_ii) + "_" + std::to_string(0), std::ios::trunc);
-    //endeffectorfile << "0.08 -0.01 2.773 1 0 0 0" << std::endl;
-    //endeffectorfile.close();
-
-    //for (int ii = 0; ii < 9; ii++) {
-
-
-        std::ofstream resultfile_tr;
-        resultfile_tr.open(resultFName + "_" + std::to_string(glob_ii) + "_" + std::to_string(ii + 1)+"tr", std::ios::trunc);
-        resultfile_tr.close();
-/*
+    std::ofstream resultfile_tr;
+    resultfile_tr.open(resultFName + "_" + std::to_string(glob_ii) + "_" + std::to_string(ii + 1) + "tr", std::ios::trunc);
+    resultfile_tr.close();
+    /*
         std::ofstream resultfile_at;
         resultfile_at.open(resultFName + "_" + std::to_string(glob_ii) + "_" + std::to_string(ii + 1)+"at", std::ios::trunc);
         resultfile_at.close();
 */
 
-        std::ofstream endeffectorfile_tr;
-        endeffectorfile_tr.open(endeffectorFName + "_" + std::to_string(glob_ii) + "_" + std::to_string(ii + 1)+"tr", std::ios::trunc);
-        endeffectorfile_tr.close();
-/*
+    std::ofstream endeffectorfile_tr;
+    endeffectorfile_tr.open(endeffectorFName + "_" + std::to_string(glob_ii) + "_" + std::to_string(ii + 1) + "tr", std::ios::trunc);
+    endeffectorfile_tr.close();
+    /*
         std::ofstream endeffectorfile_at;
         endeffectorfile_at.open(endeffectorFName + "_" + std::to_string(glob_ii) + "_" + std::to_string(ii + 1)+"at", std::ios::trunc);
         endeffectorfile_at.close();
 */
-
-    //}
 }
 
 int main(int argc, char* argv[])
@@ -1668,7 +1561,7 @@ int main(int argc, char* argv[])
     world->getConstraintSolver()->setCollisionDetector(
         new dc::FCLCollisionDetector());
 
-    int fileNum = 0; 
+    size_t fileNum = 0;
     if (argc >= 3) {
         glob_ii = std::atoi(argv[1]);
         fileNum = std::atoi(argv[2]);
@@ -1680,33 +1573,12 @@ int main(int argc, char* argv[])
 
     detachAllStrings();
 
-
-
     //printFeasibleTensegrityLocation();
-    //printAttachmentSequence();
-    //printTightenerFeasibility();
-    //printTendonFeasibility();
     //printPlannable();
-    //planAttachMidPoint(0);
-/*
-    dd::SkeletonPtr tensegrity = world->getSkeleton(tensegrityName);
-    Eigen::Isometry3d tensegrityTransform = tensegrity->getBodyNode("attach" + std::to_string(9))->getTransform();
-    
-    dd::SkeletonPtr ball1 = dd::Skeleton::create("ball1");
-    createBall(ball1, Eigen::Vector3d(0.25, 0.25, 0.25), tensegrityTransform) ;
-    world->addSkeleton(ball1);
-*/
-    
+    //printAttachmentSequence();
+
     if (argc < 4) {
         lastFinish << -100, 90, -90, 0, 0, 0;
-
-        //lastFinish << 41.85513989,  43.03932906,  98.35966469,   1.39322709,
-        //98.58884781, -34.2607562 ;
-        //lastFinish << 24.52918265,  -33.65284798,  111.5984275 ,   61.46863114,
-        //-53.65153875,   61.94246723;
-        //lastFinish << 33.70258072,  -13.58832437,  106.06079041,   56.45496395,
-        //-69.01276642, -109.3123259;
-
 
         for (size_t kk = 0; kk < 9; ++kk) {
             std::cout << "plan number " << kk + 1 << std::endl;

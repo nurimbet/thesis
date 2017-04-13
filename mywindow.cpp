@@ -261,7 +261,6 @@ void MyWindow::drawSkels()
         joint[ii] = robot->getDof(ii + 2)->getPosition() * 180 / M_PI;
     }
 
-    //std::lock_guard<std::mutex> lock(readMutex);
     glColor3f(0.0, 0.0, 0.0);
 
     for (size_t ii = 0; ii < 6; ii++) {
@@ -363,8 +362,6 @@ void MyWindow::drawSkels()
             fin_at.close();
             glEnd();
         } else {
-            //double colors[9][3] = { { 0, 0, 0 }, { 0, 0, 1 }, { 0, 1, 0 }, { 0, 1, 1 }, { 1, 0, 0 }, { 1, 0, 1 }, { 1, 1, 0 }, { 0, 0, 0 }, { 0, 0, 1 } };
-            //for (size_t ii = 1; ii <= 9; ii++) {
                 glLineWidth(3);
 
                 glBegin(GL_LINES);
@@ -397,7 +394,6 @@ void MyWindow::drawSkels()
                 glVertex3f(x, y, z);
                 fin_at.close();
                 glEnd();
-            //}
         }
     }
     if (showTree) {
@@ -457,14 +453,13 @@ void MyWindow::drawSkels()
         Eigen::Isometry3d transform1 = robot->getBodyNode("gripper")->getTransform();
         Eigen::Vector3d tr1 = transform1.translation();
 
-        Eigen::Matrix3d rot_tr1 = transform1.rotation(); //*Eigen::AngleAxisd(90*M_PI/180.0, Eigen::Vector3d::UnitZ());
+        Eigen::Matrix3d rot_tr1 = transform1.rotation(); 
         tr1(0) += xs * rot_tr1(0, 0) + ys * rot_tr1(0, 1) + zs * rot_tr1(0, 2);
         tr1(1) += xs * rot_tr1(1, 0) + ys * rot_tr1(1, 1) + zs * rot_tr1(1, 2);
         tr1(2) += xs * rot_tr1(2, 0) + ys * rot_tr1(2, 1) + zs * rot_tr1(2, 2);
 
         drawAxes(tr1, rot_tr1);
 
-        //Eigen::Isometry3d tensegrityTransform = tensegrity->getRootBodyNode()->getWorldTransform();
         Eigen::Isometry3d tensegrityTransform = tensegrity->getBodyNode("attach" + std::to_string(idx + 1))->getTransform();
         Eigen::Vector3d tenTrans = tensegrityTransform.translation();
         Eigen::Matrix3d rot_ten = tensegrityTransform.rotation();
@@ -478,15 +473,7 @@ void MyWindow::drawSkels()
         tensegrityTransform = tensegrity->getBodyNode("tightener" + std::to_string(idx + 1))->getTransform();
         tenTrans = tensegrityTransform.translation();
         rot_ten = tensegrityTransform.rotation();
-        //drawAxes(tenTrans, rot_ten);
-        /*
-        if (idx < 6) {
-            tensegrityTransform = tensegrity->getBodyNode("mid" + std::to_string(idx + 1))->getTransform();
-            tenTrans = tensegrityTransform.translation();
-            rot_ten = tensegrityTransform.rotation();
-            drawAxes(tenTrans, rot_ten);
-        }
-*/
+
         tensegrityTransform = tensegrity->getBodyNode("tightener" + std::to_string(idx + 1))->getTransform();
         rot_ten = tensegrityTransform.rotation() * Eigen::AngleAxisd(90 * M_PI / 180.0, Eigen::Vector3d::UnitY()) * Eigen::AngleAxisd(90 * M_PI / 180.0, Eigen::Vector3d::UnitZ());
         tenTrans = tensegrityTransform.translation();
@@ -509,23 +496,12 @@ void MyWindow::drawSkels()
         tenTrans = tenTrans + 0.2 * diff / diff.squaredNorm();
 
         tensegrityTransform = tensegrity->getBodyNode("tendon" + std::to_string(idx + 1))->getTransform();
-        rot_ten = tensegrityTransform.rotation(); //* Eigen::AngleAxisd(-90 * M_PI / 180.0, Eigen::Vector3d::UnitX()) * Eigen::AngleAxisd(90 * M_PI / 180.0, Eigen::Vector3d::UnitY());
+        rot_ten = tensegrityTransform.rotation(); 
 
         //drawAxes(tenTrans, rot_ten);
     }
 
     SimWindow::drawSkels();
-}
-
-void MyWindow::setViewTrack(double j1, double j2, double j3, double j4, double j5, double j6)
-{
-
-    joint[0] = j1 * 180 / M_PI;
-    joint[1] = j2 * 180 / M_PI;
-    joint[2] = j3 * 180 / M_PI;
-    joint[3] = j4 * 180 / M_PI;
-    joint[4] = j5 * 180 / M_PI;
-    joint[5] = j6 * 180 / M_PI;
 }
 
 void MyWindow::drawAxes(const Eigen::Vector3d& tr, const Eigen::Matrix3d& rot)
