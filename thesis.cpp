@@ -39,7 +39,8 @@ std::string tightenerFName = "data/results/tightener.txt";
 std::string tendonFName = "data/results/tendon.txt";
 std::string robotName = "staubli";
 std::string tensegrityName = "tensegrity";
-int seqArray[9] = { 5, 9, 3, 4, 6, 2, 8, 1, 7 }; // kinda works except for 8th
+//int seqArray[9] = { 5, 9, 3, 4, 6, 2, 8, 1, 7 }; // kinda works except for 8th
+int seqArray[9] = { 5, 6, 9, 3, 4, 1, 2, 8, 7 };
 int glob_ii = 0;
 Eigen::VectorXd lastFinish(6);
 
@@ -67,6 +68,7 @@ public:
         ss_->getSpaceInformation()->setStateValidityCheckingResolution(0.01);
         ss_->setPlanner(
             ob::PlannerPtr(new og::RRTstar(ss_->getSpaceInformation())));
+        ss_->getPlanner()->as<og::RRTstar>()->setRange(40.0 / 180.0 * M_PI);
     }
 
     bool plan(const Eigen::VectorXd& init, const Eigen::VectorXd& final)
@@ -84,10 +86,10 @@ public:
 
         ss_->setStartAndGoalStates(start, goal, 0.05);
 
-        if (jointNumber > 3) {
-            ss_->solve(60 * 1 * 10);
+        if (withString) {
+            ss_->solve(60 * 60 * 6);
         } else {
-            ss_->solve(60 * 1 * 10);
+            ss_->solve(60 * 60 * 6);
         }
 
         const std::size_t ns = ss_->getProblemDefinition()->getSolutionCount();
@@ -209,6 +211,44 @@ public:
             }
         }
     }
+
+    void recordTree(int fileNum)
+    {
+        ob::PlannerData pdat(ss_->getSpaceInformation());
+        ss_->getPlannerData(pdat);
+        std::ofstream ofs_e(edgesFName + std::to_string(fileNum));
+        std::vector<unsigned int> edge_list;
+        std::vector<double> reals;
+        std::vector<double> realsOld;
+        for (unsigned int i(0); i < pdat.numVertices(); ++i) {
+            unsigned int n_edge = pdat.getEdges(i, edge_list);
+            const ob::State* s1 = pdat.getVertex(i).getState();
+            for (unsigned int i2(0); i2 < n_edge; ++i2) {
+                const ob::State* s2 = pdat.getVertex(edge_list[i2]).getState();
+                space->copyToReals(realsOld, s1);
+                dd::SkeletonPtr robot = world_->getSkeleton(robotName);
+
+                robot->getDof(2)->setPosition(realsOld[0]);
+                robot->getDof(3)->setPosition(realsOld[1]);
+                robot->getDof(4)->setPosition(realsOld[2]);
+                Eigen::Isometry3d gripperTransform = robot->getBodyNode("gripper")->getTransform();
+                Eigen::Vector3d tr = gripperTransform.translation();
+
+                ofs_e << tr(0) << " " << tr(1) << " " << tr(2) << std::endl;
+
+                space->copyToReals(reals, s2);
+
+                robot->getDof(2)->setPosition(reals[0]);
+                robot->getDof(3)->setPosition(reals[1]);
+                robot->getDof(4)->setPosition(reals[2]);
+                gripperTransform = robot->getBodyNode("gripper")->getTransform();
+                tr = gripperTransform.translation();
+
+                ofs_e << tr(0) << " " << tr(1) << " " << tr(2) << std::endl;
+            }
+        }
+    }
+
     double getMinDistTreeAttach(const Eigen::Vector3d& finish, const Eigen::VectorXd& attach)
     {
         if (!ss_ || !ss_->haveSolutionPath())
@@ -409,11 +449,11 @@ std::vector<Eigen::VectorXd> getInverseKinematics(
         double t_1 = (pow(p_ax * cos(theta[1]) + p_ay * sin(theta[1]) - a[1], 2) + a[2] * a[2] + p_az * p_az - d[4] * d[4]) / (2 * a[2]);
         theta[2] = atan2((p_ax * cos(theta[1]) + p_ay * sin(theta[1]) - a[1]), p_az) - atan2(t_1, pow(-1, (i & 4) >> 2) * sqrt(pow(p_ax * cos(theta[1]) + p_ay * sin(theta[1]) - a[1],
                                                                                                                                    2)
-                                                                                                                              + p_az * p_az - t_1 * t_1)); 
+                                                                                                                              + p_az * p_az - t_1 * t_1));
 
         theta[3] = atan2(p_ax * cos(theta[1]) + p_ay * sin(theta[1]) - a[1] - a[2] * cos(theta[2]),
                        p_az + a[2] * sin(theta[2]))
-            - theta[2]; 
+            - theta[2];
 
         Eigen::Matrix3d rot_R3_0;
         rot_R3_0 = Eigen::Quaterniond(
@@ -554,7 +594,8 @@ Eigen::Isometry3d getAttachPosition(int attNum,
     Eigen::Vector3d tenTrans = tensegrityTransform.translation();
 
     double xs = -50;
-    double ys = 70;
+    //double ys = 70;
+    double ys = 100;
     double zs = -95;
     Eigen::Matrix3d rot_ten;
     if (wristUp) {
@@ -586,7 +627,8 @@ Eigen::Isometry3d getDetachPosition(int detNum,
     Eigen::Vector3d tenTrans = tensegrityTransform.translation();
 
     double xs = 0;
-    double ys = 80;
+    //double ys = 80;
+    double ys = 100;
 
     double zs = -95;
     Eigen::Matrix3d rot_ten;
@@ -1214,7 +1256,7 @@ double getWeightedJointDist(const Eigen::VectorXd& detach, const Eigen::VectorXd
     return jointDist;
 }
 
-void planAttachDirect(int kk, int jj)
+void planAttachDirect(int kk, int jj, bool countAttach)
 {
     std::vector<Eigen::VectorXd> part1;
     std::vector<Eigen::VectorXd> part2;
@@ -1275,6 +1317,7 @@ void planAttachDirect(int kk, int jj)
     finish = fullAttach[minAttIdx];
     lastFinish = finish;
 
+    /*
     tensegrityEnvironment env(3, kk, true);
     env.setWorld(world);
 
@@ -1289,19 +1332,20 @@ void planAttachDirect(int kk, int jj)
     if (env.plan(start, finish_trans)) {
         env.recordSolution(start, jj);
     }
-
     start = finish_trans;
-    std::cout << "Attach 6dof start: ";
-    printVector(start);
-    std::cout << "Attach 6dof finish: ";
-    printVector(finish);
-    tensegrityEnvironment env1(6, kk, true);
-    env1.setWorld(world);
-    if (env1.plan(start, finish)) {
-        env1.recordSolution(start, jj);
+*/
+    if (countAttach) {
+        std::cout << "Attach 6dof start: ";
+        printVector(start);
+        std::cout << "Attach 6dof finish: ";
+        printVector(finish);
+        tensegrityEnvironment env1(6, kk, true);
+        env1.setWorld(world);
+        if (env1.plan(start, finish)) {
+            env1.recordSolution(start, jj);
+        }
     }
 }
-
 void planTransition(int kk, int jj)
 {
     std::vector<Eigen::VectorXd> part1;
@@ -1345,6 +1389,7 @@ void planTransition(int kk, int jj)
 
     dd::SkeletonPtr robot = world->getSkeleton(robotName);
     robot->getBodyNode("claws")
+        //    ->setCollidable(true);
         ->setCollidable(false);
 
     int minDetIdx = 0;
@@ -1364,7 +1409,7 @@ void planTransition(int kk, int jj)
 
     Eigen::VectorXd finish(6);
     finish = fullDetach[minDetIdx];
-
+    /*
     tensegrityEnvironment env(3, kk, false);
     env.setWorld(world);
 
@@ -1378,10 +1423,9 @@ void planTransition(int kk, int jj)
     if (env.plan(start, finish_trans)) {
         env.recordSolution(start, jj);
     }
-    robot->getBodyNode("claws")
-        ->setCollidable(true);
 
     start = finish_trans;
+*/
     std::cout << "Transition 6dof start: ";
     printVector(start);
     std::cout << "Transition 6dof finish: ";
@@ -1391,8 +1435,9 @@ void planTransition(int kk, int jj)
     if (env1.plan(start, finish)) {
         env1.recordSolution(start, jj);
     }
+    robot->getBodyNode("claws")
+        ->setCollidable(true);
 }
-
 void setUpRobot()
 {
     std::string prefix = getWorkingDirectory();
@@ -1445,7 +1490,7 @@ void tendonColor(int ii, bool tenRed, bool atDetRed)
 {
     Eigen::Vector3d tenColor;
     Eigen::Vector3d atDetColor;
-    tenColor << 0.492156862745098, 0.519607843137255, 0.633333333333333;
+    tenColor << 0, 0, 1;
     atDetColor << 0.792156862745098, 0.819607843137255, 0.933333333333333;
     if (tenRed) {
         tenColor << 1, 0, 0;
@@ -1534,26 +1579,49 @@ void resultReplay(MyWindow& window)
     }
 }
 
-void initFiles(int ii)
+void initFiles(int ii, size_t opt)
 {
 
-    std::ofstream resultfile_tr;
-    resultfile_tr.open(resultFName + "_" + std::to_string(glob_ii) + "_" + std::to_string(ii + 1) + "tr", std::ios::trunc);
-    resultfile_tr.close();
-    /*
-        std::ofstream resultfile_at;
-        resultfile_at.open(resultFName + "_" + std::to_string(glob_ii) + "_" + std::to_string(ii + 1)+"at", std::ios::trunc);
-        resultfile_at.close();
-*/
+    if (opt == 0 || opt == 2) {
+        std::ofstream resultfile_tr;
+        resultfile_tr.open(resultFName + "_" + std::to_string(glob_ii) + "_" + std::to_string(ii + 1) + "tr", std::ios::trunc);
+        resultfile_tr.close();
 
-    std::ofstream endeffectorfile_tr;
-    endeffectorfile_tr.open(endeffectorFName + "_" + std::to_string(glob_ii) + "_" + std::to_string(ii + 1) + "tr", std::ios::trunc);
-    endeffectorfile_tr.close();
-    /*
+        std::ofstream endeffectorfile_tr;
+        endeffectorfile_tr.open(endeffectorFName + "_" + std::to_string(glob_ii) + "_" + std::to_string(ii + 1) + "tr", std::ios::trunc);
+        endeffectorfile_tr.close();
+    }
+
+    if (opt > 0) {
+
+        std::ofstream resultfile_at;
+        resultfile_at.open(resultFName + "_" + std::to_string(glob_ii) + "_" + std::to_string(ii + 1) + "at", std::ios::trunc);
+        resultfile_at.close();
+
         std::ofstream endeffectorfile_at;
-        endeffectorfile_at.open(endeffectorFName + "_" + std::to_string(glob_ii) + "_" + std::to_string(ii + 1)+"at", std::ios::trunc);
+        endeffectorfile_at.open(endeffectorFName + "_" + std::to_string(glob_ii) + "_" + std::to_string(ii + 1) + "at", std::ios::trunc);
         endeffectorfile_at.close();
-*/
+    }
+}
+
+void hideSleeves()
+{
+    dd::SkeletonPtr tensegrity = world->getSkeleton(tensegrityName);
+    for (int ii = 1; ii <= 3; ii++) {
+        tensegrity->getBodyNode("tube" + std::to_string(ii))
+            ->getVisualizationShape(0)
+            ->setHidden(true);
+        tensegrity->getBodyNode("tube" + std::to_string(ii))
+            ->setCollidable(false);
+        for (int jj = 1; jj <= 2; jj++) {
+            //if(jj!=1 || ii!=1)
+            tensegrity->getBodyNode("sphere" + std::to_string(ii) + std::to_string(jj))
+                ->getVisualizationShape(0)
+                ->setHidden(true);
+            tensegrity->getBodyNode("sphere" + std::to_string(ii) + std::to_string(jj))
+                ->setCollidable(false);
+        }
+    }
 }
 
 int main(int argc, char* argv[])
@@ -1562,10 +1630,14 @@ int main(int argc, char* argv[])
         new dc::FCLCollisionDetector());
 
     size_t fileNum = 0;
+    size_t opt = 0;
     if (argc >= 3) {
         glob_ii = std::atoi(argv[1]);
         fileNum = std::atoi(argv[2]);
         std::cout << glob_ii << std::endl;
+    }
+    if (argc >= 4) {
+        opt = std::atoi(argv[3]);
     }
 
     setUpRobot();
@@ -1577,21 +1649,34 @@ int main(int argc, char* argv[])
     //printPlannable();
     //printAttachmentSequence();
 
-    if (argc < 4) {
+    dd::SkeletonPtr tensegrity = world->getSkeleton(tensegrityName);
+    if (argc < 5) {
         lastFinish << -100, 90, -90, 0, 0, 0;
-
         for (size_t kk = 0; kk < 9; ++kk) {
             std::cout << "plan number " << kk + 1 << std::endl;
-            if (kk + 1 == fileNum) {
-                initFiles(kk);
-                planTransition(seqArray[kk] - 1, kk + 1);
+            tensegrity->getBodyNode("sphere11")
+                ->setCollidable(true);
+            if (kk + 1 == 9 || kk + 1 == 4 || kk + 1 == 5) {
+                tensegrity->getBodyNode("sphere11")
+                    ->setCollidable(false);
+            }
 
-                //planAttachDirect(seqArray[kk] - 1, kk + 1);
+            if (kk + 1 == fileNum - 1 && (opt == 0 || opt > 1)) {
+                planAttachDirect(seqArray[kk] - 1, kk + 1, false);
+            } else if (kk + 1 == fileNum) {
+                initFiles(kk, opt);
+                if (opt == 0 || opt > 1) {
+                    planTransition(seqArray[kk] - 1, kk + 1);
+                }
+                if (opt > 0) {
+                    planAttachDirect(seqArray[kk] - 1, kk + 1, true);
+                }
             }
             attachStringAt(seqArray[kk] - 1);
         }
     }
     detachAllStrings();
+    hideSleeves();
 
     MyWindow window(world);
     glutInit(&argc, argv);

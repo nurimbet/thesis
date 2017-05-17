@@ -14,7 +14,7 @@ bool showPath = false;
 bool showTree = false;
 bool collisionEnabled = true;
 bool showAxes = false;
-bool showFloor = true;
+bool showFloor = false;
 bool showString = false;
 int idx = 0;
 
@@ -29,14 +29,15 @@ MyWindow::MyWindow(const ds::WorldPtr& world)
     setWorld(world);
     mZoom = 0.28;
     mTranslate = true;
-    mTrans = -Eigen::Vector3d(-0.301, -0.171, 1.3) * 1000;
-    Eigen::Quaterniond quat(0.764165, -0.644268, -0.026487, -0.030964);
+    mTrans = -Eigen::Vector3d(0.173, -0.153, 0.975) * 1000;
+    Eigen::Quaterniond quat(0.773, -0.408, -0.256, -0.413);
     replay = false;
     speed = 5000;
     fileSequence = 0;
     stop = false;
     glob_jj = 0;
     currPath = 1;
+    currTree = 0;
 
     mTrackBall.setQuaternion(quat);
 }
@@ -404,6 +405,50 @@ void MyWindow::drawSkels()
         using std::ifstream;
         double x1, y1, z1;
 
+        /*static vector<vector<double> > solution_path;
+        static int treeNum;
+        if (solution_path.size() == 0) {
+            std::cout << "pre\n";
+            ifstream fin(edgesFileName+std::to_string(currTree));
+            std::cout << "post\n";
+            while (fin >> x1 >> y1 >> z1) {
+                solution_path.push_back(vector<double>{ x1, y1, z1 });
+            }
+        }
+        
+        if(treeNum < currTree)
+        {
+            solution_path.clear();
+            treeNum = currTree; 
+        }
+
+        glLineWidth(1);
+        glBegin(GL_LINES);
+        glColor3f(0, 1, 0);
+        for (size_t i = 0; i < solution_path.size() - 1; i += 2) {
+            glVertex3d(solution_path[i][0], solution_path[i][1], solution_path[i][2]);
+            glVertex3d(solution_path[i + 1][0], solution_path[i + 1][1], solution_path[i + 1][2]);
+        }
+*/
+        glLineWidth(1);
+        glBegin(GL_LINES);
+        glColor3f(0, 1, 0);
+        ifstream fin(edgesFileName+std::to_string(currTree));
+
+        while (fin >> x1 >> y1 >> z1) {
+            glVertex3d(x1,y1,z1);
+        }
+
+        glEnd();
+    }
+/*    if (showTree) {
+
+        using std::vector;
+        using std::string;
+        using std::size_t;
+        using std::ifstream;
+        double x1, y1, z1;
+
         static vector<vector<double> > solution_path;
         if (solution_path.size() == 0) {
             ifstream fin(edgesFileName);
@@ -421,7 +466,7 @@ void MyWindow::drawSkels()
         }
         glEnd();
     }
-
+*/
     dd::SkeletonPtr tensegrity = mWorld->getSkeleton(tensegrity_name);
 /*
     if (showString ) {

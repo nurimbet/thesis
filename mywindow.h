@@ -24,6 +24,7 @@ public:
     bool replay;
     bool stop;
     int speed;
+    int currTree;
     int fileSequence;
     int glob_jj;
     int currPath;
