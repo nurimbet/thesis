@@ -29,18 +29,27 @@ namespace du = dart::utils;
 constexpr double jointMax[6] = { 3.1416, 2.5744, 2.5307, 4.7124, 2.4435, 4.7124 };
 constexpr double jointMin[6] = { -3.1416, -2.2689, -2.5307, -4.7124, -2.0071, -4.7124 };
 
+// file name for the path in join space
 std::string resultFName = "data/results/paths/path";
+// file name for end effector location in Cartesian
 std::string endeffectorFName = "data/results/endeffectors/endeffector";
+// file name for edges for the tree
 std::string edgesFName = "data/results/edges.txt";
+// file name for all the feasible locations for the tensegrity structure
 std::string feasibleLocFName = "data/results/feasibleLocation";
+// file name for all the plannable location for the tenserity structure
 std::string plannableFName = "data/results/plannable";
+// file name for the feasible sequences
 std::string sequenceFName = "data/results/sequence.txt";
 std::string tightenerFName = "data/results/tightener.txt";
 std::string tendonFName = "data/results/tendon.txt";
+
 std::string robotName = "staubli";
 std::string tensegrityName = "tensegrity";
+
 //int seqArray[9] = { 5, 9, 3, 4, 6, 2, 8, 1, 7 }; // kinda works except for 8th
-int seqArray[9] = { 5, 6, 9, 3, 4, 1, 2, 8, 7 };
+//int seqArray[9] = { 5, 6, 9, 3, 4, 1, 2, 8, 7 };
+int seqArray[9] = { 5, 6, 9, 3, 4, 2, 8, 1, 7 };
 int glob_ii = 0;
 Eigen::VectorXd lastFinish(6);
 
@@ -87,14 +96,35 @@ public:
         ss_->setStartAndGoalStates(start, goal, 0.05);
 
         if (withString) {
-            ss_->solve(60 * 60 * 6);
+            ss_->solve(60 * 60 * 4);
         } else {
-            ss_->solve(60 * 60 * 6);
+            ss_->solve(60 * 60 * 4);
         }
 
         const std::size_t ns = ss_->getProblemDefinition()->getSolutionCount();
         OMPL_INFORM("Found %d solutions", (int)ns);
-        if (ss_->haveSolutionPath()) {
+        if (ss_->haveExactSolutionPath()) {
+            ss_->simplifySolution();
+            og::PathGeometric& p = ss_->getSolutionPath();
+            ss_->getPathSimplifier()->simplifyMax(p);
+            ss_->getPathSimplifier()->smoothBSpline(p);
+            return true;
+        } else
+            return false;
+    }
+
+    bool solve_again()
+    {
+
+        if (withString) {
+            ss_->solve(60 * 60 * 4);
+        } else {
+            ss_->solve(60 * 60 * 4);
+        }
+
+        const std::size_t ns = ss_->getProblemDefinition()->getSolutionCount();
+        OMPL_INFORM("Found %d solutions", (int)ns);
+        if (ss_->haveExactSolutionPath()) {
             ss_->simplifySolution();
             og::PathGeometric& p = ss_->getSolutionPath();
             ss_->getPathSimplifier()->simplifyMax(p);
@@ -173,50 +203,50 @@ public:
         resultfile_sequence.close();
         endeffectorfile_sequence.close();
 
-        if (jointNumber == 3) {
-            ob::PlannerData pdat(ss_->getSpaceInformation());
-            ss_->getPlannerData(pdat);
-            std::ofstream ofs_e(edgesFName);
-            std::vector<unsigned int> edge_list;
-            std::vector<double> reals;
-            std::vector<double> realsOld;
-            for (unsigned int i(0); i < pdat.numVertices(); ++i) {
-                unsigned int n_edge = pdat.getEdges(i, edge_list);
-                const ob::State* s1 = pdat.getVertex(i).getState();
-                for (unsigned int i2(0); i2 < n_edge; ++i2) {
-                    const ob::State* s2 = pdat.getVertex(edge_list[i2]).getState();
-                    space->copyToReals(realsOld, s1);
-                    dd::SkeletonPtr robot = world_->getSkeleton(robotName);
+        //if (jointNumber == 3) {
+        ob::PlannerData pdat(ss_->getSpaceInformation());
+        ss_->getPlannerData(pdat);
+        std::ofstream ofs_e(edgesFName);
+        std::vector<unsigned int> edge_list;
+        std::vector<double> reals;
+        std::vector<double> realsOld;
+        for (unsigned int i(0); i < pdat.numVertices(); ++i) {
+            unsigned int n_edge = pdat.getEdges(i, edge_list);
+            const ob::State* s1 = pdat.getVertex(i).getState();
+            for (unsigned int i2(0); i2 < n_edge; ++i2) {
+                const ob::State* s2 = pdat.getVertex(edge_list[i2]).getState();
+                space->copyToReals(realsOld, s1);
+                dd::SkeletonPtr robot = world_->getSkeleton(robotName);
 
-                    robot->getDof(2)->setPosition(realsOld[0]);
-                    robot->getDof(3)->setPosition(realsOld[1]);
-                    robot->getDof(4)->setPosition(realsOld[2]);
+                robot->getDof(2)->setPosition(realsOld[0]);
+                robot->getDof(3)->setPosition(realsOld[1]);
+                robot->getDof(4)->setPosition(realsOld[2]);
 
-                    Eigen::Isometry3d gripperTransform = robot->getBodyNode("gripper")->getTransform();
-                    Eigen::Vector3d tr = gripperTransform.translation();
+                Eigen::Isometry3d gripperTransform = robot->getBodyNode("gripper")->getTransform();
+                Eigen::Vector3d tr = gripperTransform.translation();
 
-                    ofs_e << tr(0) << " " << tr(1) << " " << tr(2) << std::endl;
+                ofs_e << tr(0) << " " << tr(1) << " " << tr(2) << std::endl;
 
-                    space->copyToReals(reals, s2);
+                space->copyToReals(reals, s2);
 
-                    robot->getDof(2)->setPosition(reals[0]);
-                    robot->getDof(3)->setPosition(reals[1]);
-                    robot->getDof(4)->setPosition(reals[2]);
+                robot->getDof(2)->setPosition(reals[0]);
+                robot->getDof(3)->setPosition(reals[1]);
+                robot->getDof(4)->setPosition(reals[2]);
 
-                    gripperTransform = robot->getBodyNode("gripper")->getTransform();
-                    tr = gripperTransform.translation();
+                gripperTransform = robot->getBodyNode("gripper")->getTransform();
+                tr = gripperTransform.translation();
 
-                    ofs_e << tr(0) << " " << tr(1) << " " << tr(2) << std::endl;
-                }
+                ofs_e << tr(0) << " " << tr(1) << " " << tr(2) << std::endl;
             }
         }
+        //}
     }
 
-    void recordTree(int fileNum)
+    void recordTree()
     {
         ob::PlannerData pdat(ss_->getSpaceInformation());
         ss_->getPlannerData(pdat);
-        std::ofstream ofs_e(edgesFName + std::to_string(fileNum));
+        std::ofstream ofs_e(edgesFName + std::to_string(0));
         std::vector<unsigned int> edge_list;
         std::vector<double> reals;
         std::vector<double> realsOld;
@@ -628,7 +658,7 @@ Eigen::Isometry3d getDetachPosition(int detNum,
 
     double xs = 0;
     //double ys = 80;
-    double ys = 100;
+    double ys = 90;
 
     double zs = -95;
     Eigen::Matrix3d rot_ten;
@@ -637,6 +667,38 @@ Eigen::Isometry3d getDetachPosition(int detNum,
     } else {
         rot_ten = tensegrityTransform.rotation() * Eigen::AngleAxisd(180 * M_PI / 180.0, Eigen::Vector3d::UnitY());
         xs = -(25);
+    }
+    tenTrans *= 1000;
+
+    tenTrans(0) += xs * rot_ten(0, 0) + ys * rot_ten(0, 1) + zs * rot_ten(0, 2);
+    tenTrans(1) += xs * rot_ten(1, 0) + ys * rot_ten(1, 1) + zs * rot_ten(1, 2);
+    tenTrans(2) += xs * rot_ten(2, 0) + ys * rot_ten(2, 1) + zs * rot_ten(2, 2);
+    tenTrans(2) -= 1278;
+
+    tf.linear() = rot_ten;
+    tf.translation() = tenTrans;
+    return tf;
+}
+Eigen::Isometry3d getDetachPositionMove(int detNum,
+    bool wristUp, int move)
+{
+    Eigen::Isometry3d tf(Eigen::Isometry3d::Identity());
+
+    dd::SkeletonPtr tensegrity = world->getSkeleton(tensegrityName);
+    Eigen::Isometry3d tensegrityTransform = tensegrity->getBodyNode("detach" + std::to_string(detNum + 1))->getTransform();
+    Eigen::Vector3d tenTrans = tensegrityTransform.translation();
+
+    double xs = 0 + move;
+    //double ys = 80;
+    double ys = 90;
+
+    double zs = -95;
+    Eigen::Matrix3d rot_ten;
+    if (wristUp) {
+        rot_ten = tensegrityTransform.rotation();
+    } else {
+        rot_ten = tensegrityTransform.rotation() * Eigen::AngleAxisd(180 * M_PI / 180.0, Eigen::Vector3d::UnitY());
+        xs = -(25) + move;
     }
     tenTrans *= 1000;
 
@@ -748,6 +810,34 @@ bool isReachable(int i, Eigen::VectorXd strings)
     detachStringAt(i);
 
     return true;
+}
+void printVector(Eigen::VectorXd final_joint)
+{
+    Eigen::IOFormat CommaInitFmt(Eigen::StreamPrecision,
+        Eigen::DontAlignCols, " ", " ", "", "", "", "");
+    std::cout << final_joint.format(CommaInitFmt) << std::endl;
+}
+
+void isReachableMove(int i)
+{
+
+    Eigen::Isometry3d tf_det(Eigen::Isometry3d::Identity());
+    std::vector<Eigen::VectorXd> det_joints;
+    for (int kk = -300; kk < 300; kk += 5) {
+        tf_det = getDetachPositionMove(i, false, kk);
+        det_joints = getInverseKinematics(tf_det);
+
+        if (det_joints.size() == 0) {
+            tf_det = getDetachPositionMove(i, true, kk);
+            det_joints = getInverseKinematics(tf_det);
+        }
+        if (det_joints.size() != 0) {
+            std::cout << "move x by " << kk << std::endl;
+        }
+        for (size_t j = 0; j < det_joints.size(); j++) {
+            printVector(det_joints[j]);
+        }
+    }
 }
 
 void printFeasibleTensegrityLocation()
@@ -916,12 +1006,6 @@ void printAttachmentSequence()
     }
 }
 
-void printVector(Eigen::VectorXd final_joint)
-{
-    Eigen::IOFormat CommaInitFmt(Eigen::StreamPrecision,
-        Eigen::DontAlignCols, " ", " ", "", "", "", "");
-    std::cout << final_joint.format(CommaInitFmt) << std::endl;
-}
 bool isWithinReach(int tendonNumber)
 {
 
@@ -1274,11 +1358,11 @@ void planAttachDirect(int kk, int jj, bool countAttach)
     fullDetach.reserve(part1.size() + part2.size());
     fullDetach.insert(fullDetach.end(), part1.begin(), part1.end());
     fullDetach.insert(fullDetach.end(), part2.begin(), part2.end());
-    /*
+
     for (size_t j = 0; j < fullDetach.size(); j++) {
         printVector(fullDetach[j]);
     }
-*/
+
     attachStringAt(kk);
 
     tf = getAttachPosition(kk, false);
@@ -1290,11 +1374,11 @@ void planAttachDirect(int kk, int jj, bool countAttach)
     fullAttach.reserve(part1.size() + part2.size());
     fullAttach.insert(fullAttach.end(), part1.begin(), part1.end());
     fullAttach.insert(fullAttach.end(), part2.begin(), part2.end());
-    /*
+
     for (size_t j = 0; j < fullAttach.size(); j++) {
         printVector(fullAttach[j]);
     }
-*/
+
     detachStringAt(kk);
 
     int minDetIdx = 0;
@@ -1343,6 +1427,11 @@ void planAttachDirect(int kk, int jj, bool countAttach)
         env1.setWorld(world);
         if (env1.plan(start, finish)) {
             env1.recordSolution(start, jj);
+        } else {
+            while (!env1.solve_again()) {
+                env1.recordSolution(start, jj);
+            }
+            env1.recordSolution(start, jj);
         }
     }
 }
@@ -1388,9 +1477,10 @@ void planTransition(int kk, int jj)
     detachStringAt(kk);
 
     dd::SkeletonPtr robot = world->getSkeleton(robotName);
-    robot->getBodyNode("claws")
+    /*robot->getBodyNode("claws")
         //    ->setCollidable(true);
         ->setCollidable(false);
+*/
 
     int minDetIdx = 0;
     double minJointDist = std::numeric_limits<double>::max();
@@ -1434,9 +1524,16 @@ void planTransition(int kk, int jj)
     env1.setWorld(world);
     if (env1.plan(start, finish)) {
         env1.recordSolution(start, jj);
+    } else {
+        while (!env1.solve_again()) {
+            ;
+        }
+        env1.recordSolution(start, jj);
     }
+    /*
     robot->getBodyNode("claws")
         ->setCollidable(true);
+*/
 }
 void setUpRobot()
 {
@@ -1615,6 +1712,7 @@ void hideSleeves()
             ->setCollidable(false);
         for (int jj = 1; jj <= 2; jj++) {
             //if(jj!=1 || ii!=1)
+            //if(!(ii == 2 && jj == 1))
             tensegrity->getBodyNode("sphere" + std::to_string(ii) + std::to_string(jj))
                 ->getVisualizationShape(0)
                 ->setHidden(true);
@@ -1648,16 +1746,26 @@ int main(int argc, char* argv[])
     //printFeasibleTensegrityLocation();
     //printPlannable();
     //printAttachmentSequence();
+    //hideSleeves();
+    //isReachableMove(3);
 
     dd::SkeletonPtr tensegrity = world->getSkeleton(tensegrityName);
+
     if (argc < 5) {
-        lastFinish << -100, 90, -90, 0, 0, 0;
+        //lastFinish << -100, 90, -90, 0, 0, 0;
+        lastFinish << 0, 0, 0, 0, 0, 0;
         for (size_t kk = 0; kk < 9; ++kk) {
             std::cout << "plan number " << kk + 1 << std::endl;
             tensegrity->getBodyNode("sphere11")
                 ->setCollidable(true);
+            tensegrity->getBodyNode("sphere21")
+                ->setCollidable(true);
             if (kk + 1 == 9 || kk + 1 == 4 || kk + 1 == 5) {
                 tensegrity->getBodyNode("sphere11")
+                    ->setCollidable(false);
+            }
+            if (kk + 1 == 3) {
+                tensegrity->getBodyNode("sphere21")
                     ->setCollidable(false);
             }
 

@@ -397,6 +397,7 @@ void MyWindow::drawSkels()
                 glEnd();
         }
     }
+/*
     if (showTree) {
 
         using std::vector;
@@ -404,6 +405,7 @@ void MyWindow::drawSkels()
         using std::size_t;
         using std::ifstream;
         double x1, y1, z1;
+*/
 
         /*static vector<vector<double> > solution_path;
         static int treeNum;
@@ -430,18 +432,22 @@ void MyWindow::drawSkels()
             glVertex3d(solution_path[i + 1][0], solution_path[i + 1][1], solution_path[i + 1][2]);
         }
 */
+/*
         glLineWidth(1);
         glBegin(GL_LINES);
         glColor3f(0, 1, 0);
-        ifstream fin(edgesFileName+std::to_string(currTree));
+        //ifstream fin(edgesFileName+std::to_string(currTree));
+        ifstream fin(edgesFileName);
 
         while (fin >> x1 >> y1 >> z1) {
             glVertex3d(x1,y1,z1);
         }
+            glVertex3d(x1,y1,z1);
 
         glEnd();
     }
-/*    if (showTree) {
+*/
+    if (showTree) {
 
         using std::vector;
         using std::string;
@@ -466,7 +472,7 @@ void MyWindow::drawSkels()
         }
         glEnd();
     }
-*/
+
     dd::SkeletonPtr tensegrity = mWorld->getSkeleton(tensegrity_name);
 /*
     if (showString ) {
